@@ -1,10 +1,9 @@
-#include <ncurses.h>
+#include "yate.h"
 
-int main() {
+int main(int argc, char *argv[])
+{
 	initscr();
-	printw("Hello world \n");
-	refresh();
-	getch();
+	Yate yate();
 	endwin();
 	return 0;
 }

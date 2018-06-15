@@ -1,21 +1,22 @@
-CC=g++
+CXX=g++
+CXXFLAGS= -std=c++11
 SRC=src
-CFLAGS=-I $(SRC) -lncurses 
+CFLAGS= -I $(SRC) -lncurses
 
 _DEPS = $(SRC)/*.h
 DEPS = $(patsubst %,$(SRC)/%,$(_DEPS))
 
-_OBJ = main.o
+_OBJ = main.o yate.o tab-set.o pane-set.o
 OBJ = $(patsubst %,$(SRC)/%,$(_OBJ))
 
 
 $(SRC)/%.o: $(SRC)/%.c $(DEPS)
-	$(CC) -c -o $@ $< $(CFLAGS)
+	$(CXX) $(CXXFLAGS) -c -o $@ $< $(CFLAGS)
 
 main: $(OBJ)
-	$(CC) -o yate $^ $(CFLAGS)
+	$(CXX) $(CXXFLAGS) -o yate $^ $(CFLAGS)
 
 .PHONY: clean
 
 clean:
-	rm -f $(SRC)/*.o *~ core $(SRC)/*~ 
+	rm -f $(SRC)/*.o *~ core $(SRC)/*~
