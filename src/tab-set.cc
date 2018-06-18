@@ -5,7 +5,8 @@
 
 TabSet::TabSet() {
 	PaneSet *pane_s = new PaneSet();
-	pane_s->addPane(new Editor("default.txt"));
+	// TODO(felixguo): Add global buffer cache
+	pane_s->addPane(new Editor(new Buffer("default.txt")));
 	tabs.emplace_back(pane_s);
 	selected_tab = 0;
 }

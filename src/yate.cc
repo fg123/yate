@@ -13,7 +13,6 @@ Yate::Yate(Config config) : config(config)
 	root = new PaneSet();
 	root->addPane(new TabSet());
 	root->draw();
-	getch();
 }
 
 Yate::~Yate()

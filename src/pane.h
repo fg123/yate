@@ -20,9 +20,11 @@ struct Pane
 		height = LINES;
 		width = COLS;
 		internal_window = newwin(height, width, y, x);
+		box(internal_window, 0, 0);
+		refresh();
 	}
 
-	~Pane()
+	virtual ~Pane()
 	{
 		delwin(internal_window);
 	}

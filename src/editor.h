@@ -11,30 +11,28 @@
 
 #include "logging.h"
 #include "pane.h"
+#include "buffer.h"
 
 class Editor: public Pane {
-	std::vector<std::string> buffer;
-	std::string path;
+	Buffer *buffer;
 	unsigned int line;
 
 public:
-	Editor(std::string path) : path(path) {
-		std::ifstream file(path);
-		std::copy(std::istream_iterator<std::string>(file),
-		  std::istream_iterator<std::string>(),
-		  std::back_inserter(buffer));
-		height = LINES;
+	Editor(Buffer *buffer) : buffer(buffer) {
 	}
 
 	void draw() override {
 		Logging::info("Editor Draw " + std::to_string(height));
-		for (int i = 0; i < buffer.size(); i++) {
-			Logging::info("Editor: " + buffer.at(i));
-			mvwprintw(internal_window, i, 0, "%s", buffer.at(i).c_str());
+		int i = 1;
+		for (auto line : (buffer->getBufferWindow(0, buffer->size()))) {
+			Logging::info("Editor: " + line);
+			//mvwprintw(internal_window, i, 1, "%s", line.c_str());
+			i += 1;
 		}
 		Logging::info("Editor Done");
 		wrefresh(internal_window);
 		refresh();
+		wgetch(internal_window);
 	}
 };
 
