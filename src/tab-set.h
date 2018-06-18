@@ -11,10 +11,11 @@
 class TabSet: public Pane
 {
 	std::vector<PaneSet*> tabs;
+	unsigned int selected_tab;
 public:
 	TabSet();
 	~TabSet();
-	void draw(WINDOW *window) override;
+	void draw() override;
 };
 
 #endif

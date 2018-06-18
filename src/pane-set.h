@@ -5,6 +5,7 @@
 
 #include <vector>
 
+#include "logging.h"
 #include "pane.h"
 
 class PaneSet
@@ -16,6 +17,12 @@ public:
 
 	// TODO(anyone): Created better interface for proper splitting.
 	void addPane(Pane *pane);
+	void draw() {
+		Logging::info("Paneset Draw");
+		for (auto pane : panes) {
+			pane->draw();
+		}
+	}
 	~PaneSet();
 };
 

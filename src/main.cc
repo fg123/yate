@@ -3,7 +3,7 @@
 int main(int argc, char *argv[])
 {
 	initscr();
-	Yate yate();
+	Yate yate;
 	endwin();
 	return 0;
 }

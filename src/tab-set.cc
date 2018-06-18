@@ -1,22 +1,22 @@
 #include "tab-set.h"
 #include "editor.h"
 #include "pane.h"
+#include "logging.h"
 
-TabSet::TabSet()
-{
+TabSet::TabSet() {
 	PaneSet *pane_s = new PaneSet();
 	pane_s->addPane(new Editor("default.txt"));
 	tabs.emplace_back(pane_s);
+	selected_tab = 0;
 }
 
-TabSet::~TabSet()
-{
+TabSet::~TabSet() {
 	for (auto tab : tabs) {
 		delete tab;
 	}
 }
 
-void TabSet::draw(WINDOW *window)
-{
-
+void TabSet::draw() {
+	Logging::info("Tabset Draw");
+	tabs[selected_tab]->draw();
 }

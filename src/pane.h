@@ -12,11 +12,20 @@ struct Pane
 	unsigned int width;
 	unsigned int height;
 	std::string title;
+	WINDOW *internal_window;
 
-	virtual void draw(WINDOW *window) = 0;
-	virtual ~Pane() = 0;
+	virtual void draw() = 0;
+	Pane()
+	{
+		height = LINES;
+		width = COLS;
+		internal_window = newwin(height, width, y, x);
+	}
+
+	~Pane()
+	{
+		delwin(internal_window);
+	}
 };
-
-Pane::~Pane() { }
 
 #endif

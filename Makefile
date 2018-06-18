@@ -1,22 +1,25 @@
-CXX=g++
-CXXFLAGS= -std=c++11
-SRC=src
-CFLAGS= -I $(SRC) -lncurses
+CXX = g++
+EXE = yate
+SRC_DIR = src
+SRC = $(wildcard $(SRC_DIR)/*.cc)
+OBJ = $(SRC:$(SRC_DIR)/%.cc=$(SRC_DIR)/%.o)
+$(info $(SRC))
+$(info $(OBJ))
+CPPFLAGS += -I $(SRC_DIR)
+CFLAGS += -std=c++11 -g -Wall
+LDLIBS = -lncurses
 
-_DEPS = $(SRC)/*.h
-DEPS = $(patsubst %,$(SRC)/%,$(_DEPS))
+all: main
 
-_OBJ = main.o yate.o tab-set.o pane-set.o
-OBJ = $(patsubst %,$(SRC)/%,$(_OBJ))
-
-
-$(SRC)/%.o: $(SRC)/%.c $(DEPS)
-	$(CXX) $(CXXFLAGS) -c -o $@ $< $(CFLAGS)
 
 main: $(OBJ)
-	$(CXX) $(CXXFLAGS) -o yate $^ $(CFLAGS)
+	$(CXX) $(LDFLAGS) $^ $(LDLIBS) -o $(EXE)
 
-.PHONY: clean
+$(SRC_DIR)/%.o: $(SRC_DIR)/%.cc $(wildcard $(SRC)/*.h)
+	$(CXX) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+
+
+.PHONY: all clean
 
 clean:
-	rm -f $(SRC)/*.o *~ core $(SRC)/*~
+	rm -f $(SRC_DIR)/*.o *~ core $(SRC_DIR)/*~
