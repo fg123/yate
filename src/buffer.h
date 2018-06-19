@@ -7,6 +7,7 @@
 
 #include <string>
 #include <vector>
+#include <cmath>
 
 class BufferWindow {
 	std::vector<std::string>::iterator b;
@@ -26,5 +27,8 @@ public:
 	explicit Buffer(std::string path);
 	BufferWindow getBufferWindow(int start, int end);
 	size_t size() { return internal_buffer.size(); }
+	size_t getLineNumberFieldWidth() {
+		return std::floor(std::log10(size())) + 1;
+	}
 };
 #endif

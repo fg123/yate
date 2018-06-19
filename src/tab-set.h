@@ -13,7 +13,7 @@ class TabSet: public Pane
 	std::vector<PaneSet*> tabs;
 	unsigned int selected_tab;
 public:
-	TabSet();
+	TabSet(int x, int y, int width, int height);
 	~TabSet();
 	void draw() override;
 };

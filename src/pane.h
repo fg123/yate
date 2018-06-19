@@ -7,20 +7,19 @@
 
 struct Pane
 {
-	unsigned int x;
-	unsigned int y;
-	unsigned int width;
-	unsigned int height;
+	int x;
+	int y;
+	int width;
+	int height;
 	std::string title;
 	WINDOW *internal_window;
 
 	virtual void draw() = 0;
-	Pane()
+	Pane(int x, int y, int width, int height) : x(x), y(y),
+		width(width), height(height)
 	{
-		height = LINES;
-		width = COLS;
 		internal_window = newwin(height, width, y, x);
-		box(internal_window, 0, 0);
+		// wborder(internal_window, 0, 0, 0, 0, 0, 0, 0, 0);
 		refresh();
 	}
 

@@ -3,10 +3,10 @@
 #include "pane.h"
 #include "logging.h"
 
-TabSet::TabSet() {
+TabSet::TabSet(int x, int y, int width, int height) : Pane(x, y, width, height) {
 	PaneSet *pane_s = new PaneSet();
 	// TODO(felixguo): Add global buffer cache
-	pane_s->addPane(new Editor(new Buffer("default.txt")));
+	pane_s->addPane(new Editor(new Buffer("default.txt"), x, y, width, height));
 	tabs.emplace_back(pane_s);
 	selected_tab = 0;
 }
@@ -20,4 +20,5 @@ TabSet::~TabSet() {
 void TabSet::draw() {
 	Logging::info("Tabset Draw");
 	tabs[selected_tab]->draw();
+	wrefresh(internal_window);
 }

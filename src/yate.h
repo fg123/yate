@@ -10,6 +10,7 @@ class Yate
 {
 	Config config;
 	PaneSet *root;
+	Editor *focused_editor;
 public:
 	Yate();
 	explicit Yate(Config config);

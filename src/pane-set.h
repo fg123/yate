@@ -23,6 +23,7 @@ public:
 			pane->draw();
 		}
 	}
+	const std::vector<Pane*>& getPanes() { return panes; }
 	~PaneSet();
 };
 
