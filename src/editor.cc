@@ -22,14 +22,34 @@ void Editor::draw() {
 		// }
 		mvwprintw(internal_window, i, field_width + 1,
 			line.c_str());
+		wclrtoeol(internal_window);
 		// wattroff(internal_window, A_UNDERLINE);
 		i += 1;
 	}
 	Logging::info("Editor Done");
-	refresh();
 	wrefresh(internal_window);
 }
 
 void Editor::focus() {
+	yate.setFocus(this);
+}
 
+void Editor::capture() {
+	// capture at correct location
+	int line_number_width = buffer->getLineNumberFieldWidth() + 2;
+	yate.onCapture(mvwgetch(internal_window, current_line, current_col + line_number_width));
+}
+
+const std::string& Editor::getTitle() {
+	return buffer->getFileName();
+}
+
+void Editor::insertCharacter(int character) {
+	buffer->insertCharacter(character, current_line, current_col);
+	draw();
+}
+
+void Editor::backspace() {
+	buffer->backspace(current_line, current_col);
+	draw();
 }

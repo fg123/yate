@@ -11,10 +11,10 @@ struct Pane
 	int y;
 	int width;
 	int height;
-	std::string title;
 	WINDOW *internal_window;
 
 	virtual void draw() = 0;
+	virtual const std::string& getTitle() = 0;
 	Pane(int x, int y, int width, int height) : x(x), y(y),
 		width(width), height(height)
 	{

@@ -4,7 +4,9 @@
 #include <ncurses.h>
 
 #include "config.h"
-#include "pane-set.h"
+
+class PaneSet;
+class Editor;
 
 class Yate
 {
@@ -15,6 +17,9 @@ public:
 	Yate();
 	explicit Yate(Config config);
 	~Yate();
+	
+	void setFocus(Editor *editor);
+	void onCapture(int result);
 };
 
 #endif

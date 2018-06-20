@@ -1,18 +1,14 @@
 #include "pane-set.h"
 #include "tab-set.h"
 
-PaneSet::PaneSet()
-{
-
-}
-
-void PaneSet::addPane(Pane *pane)
-{
+void PaneSet::addPane(Pane *pane) {
+	if (panes.size() == 0) {
+		focused_pane = pane;
+	}
 	panes.emplace_back(pane);
 }
 
-PaneSet::~PaneSet()
-{
+PaneSet::~PaneSet() {
 	for (auto pane : panes) {
 		delete pane;
 	}

@@ -7,13 +7,16 @@
 
 #include "logging.h"
 #include "pane.h"
+#include "yate.h"
 
 class PaneSet
 {
+	Yate &yate;
 	std::vector<Pane*> panes;
 	// Store Focused Pane
+	Pane *focused_pane;
 public:
-	PaneSet();
+	PaneSet(Yate &yate) : yate(yate) {}
 
 	// TODO(anyone): Created better interface for proper splitting.
 	void addPane(Pane *pane);
@@ -24,6 +27,7 @@ public:
 		}
 	}
 	const std::vector<Pane*>& getPanes() { return panes; }
+	const std::string& getTitle() { return focused_pane->getTitle(); }
 	~PaneSet();
 };
 
