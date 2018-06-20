@@ -41,6 +41,9 @@ void Editor::capture() {
 }
 
 const std::string& Editor::getTitle() {
+	if (buffer->hasUnsavedChanges()) {
+		return " + " + buffer->getFileName();
+	}
 	return buffer->getFileName();
 }
 
@@ -52,4 +55,13 @@ void Editor::insertCharacter(int character) {
 void Editor::backspace() {
 	buffer->backspace(current_line, current_col);
 	draw();
+}
+
+void Editor::_delete() {
+	buffer->_delete(current_line, current_col);
+	draw();
+}
+
+void Editor::save() {
+	buffer->writeToFile();
 }

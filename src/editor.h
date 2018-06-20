@@ -27,6 +27,27 @@ public:
 	const std::string& getTitle() override;
 	void insertCharacter(int character);
 	void backspace();
+	// Because C++ delete is keyword...
+	void _delete();
+	void left() {
+		if (current_col != 0) current_col--;
+	}
+	void right() {
+		if (current_col != buffer->getLineLength(line)) current_col++;
+	}
+	void up() {
+		if (current_line != 0) current_line--;
+	}
+	void down() {
+		if (current_line != buffer->size() - 1) current_line++;
+	}
+	void home() {
+		current_col = 0;
+	}
+	void end() {
+		current_col = buffer->getLineLength(line);
+	}
+	void save();
 	void focus();
 	void capture();
 };

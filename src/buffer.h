@@ -23,9 +23,12 @@ class Buffer {
 	bool is_bound_to_file;
 	std::string path;
 	std::vector<std::string> internal_buffer;
+	bool has_unsaved_changes = false;
 public:
 	explicit Buffer(std::string path);
 	BufferWindow getBufferWindow(int start, int end);
+	
+	const bool& hasUnsavedChanges() { return has_unsaved_changes; }
 	const std::string& getFileName() {
 		// TODO(anyone): Process it so it returns just the file
 		// instead of whole path?
@@ -57,6 +60,7 @@ public:
 			internal_buffer[line].insert(internal_buffer[line].begin() + col, 1, (char)character);
 			col++;
 		}
+		has_unsaved_changes = true;
 	}
 
 	void backspace(int &line, int &col) {
@@ -75,6 +79,31 @@ public:
 			internal_buffer[line].erase(col - 1, 1);
 			col -= 1;
 		}
+		has_unsaved_changes = true;
 	}
+
+	void _delete(int &line, int &col) {
+		if (line < 0 || line >= size()) return;
+		if (col < 0) return;
+		if (col == internal_buffer[line].length() &&
+			line == internal_buffer.size() - 1) return;
+		if (col == internal_buffer[line].length()) {
+			// Join two lines
+			internal_buffer[line] += internal_buffer[line + 1];
+			internal_buffer.erase(internal_buffer.begin() + line + 1,
+				internal_buffer.begin() + line + 2);
+		}
+		else {
+			internal_buffer[line].erase(col, 1);
+		}
+		has_unsaved_changes = true;
+	}
+
+	int getLineLength(int line) {
+		if (line < 0 || line >= size()) return 0;
+		return internal_buffer[line].length();
+	}
+
+	bool writeToFile();
 };
 #endif

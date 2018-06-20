@@ -13,6 +13,7 @@ class Yate
 	Config config;
 	PaneSet *root;
 	Editor *focused_editor;
+	bool last_saw_escape = false;
 public:
 	Yate();
 	explicit Yate(Config config);

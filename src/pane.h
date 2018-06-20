@@ -19,6 +19,7 @@ struct Pane
 		width(width), height(height)
 	{
 		internal_window = newwin(height, width, y, x);
+		keypad(internal_window, true);
 		// wborder(internal_window, 0, 0, 0, 0, 0, 0, 0, 0);
 		refresh();
 	}

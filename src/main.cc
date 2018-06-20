@@ -3,8 +3,9 @@
 int main(int argc, char *argv[])
 {
 	initscr();
-	raw();
+	cbreak();
 	noecho();
+	nonl();
 	start_color();
 	keypad(stdscr, true);
 	Yate yate;
