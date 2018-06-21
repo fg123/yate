@@ -13,7 +13,6 @@
 class Editor: public Pane {
 	Yate &yate;
 	Buffer *buffer;
-	// TODO(anyone): Should this be 1 indexed LOL?
 	int current_line = 0;
 	int current_col = 0;
 	int window_start = 0;
