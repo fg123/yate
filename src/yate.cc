@@ -21,7 +21,9 @@ Yate::Yate(Config config) : config(config)
 	root->addPane(new TabSet(*this, 0, 0, COLS, LINES));
 	refresh();
 	root->draw();
-	focused_editor->capture();
+	while (true) {
+		if(onCapture(focused_editor->capture())) break;
+	}
 }
 
 Yate::~Yate()
@@ -33,7 +35,7 @@ void Yate::setFocus(Editor *editor) {
 	focused_editor = editor;
 }
 
-void Yate::onCapture(int result) {
+bool Yate::onCapture(int result) {
 	if (last_saw_escape) {
 		last_saw_escape = false;
 		Logging::info(std::to_string(result));
@@ -79,7 +81,5 @@ void Yate::onCapture(int result) {
 			last_saw_escape = true;
 		}
 	}
-	
-	if (result != 'q')
-		focused_editor->capture();
+	return result == 'q';
 }

@@ -14,13 +14,14 @@ class Yate
 	PaneSet *root;
 	Editor *focused_editor;
 	bool last_saw_escape = false;
+
+	bool onCapture(int result);
 public:
 	Yate();
 	explicit Yate(Config config);
 	~Yate();
 	
 	void setFocus(Editor *editor);
-	void onCapture(int result);
 };
 
 #endif

@@ -34,10 +34,10 @@ void Editor::focus() {
 	yate.setFocus(this);
 }
 
-void Editor::capture() {
+int Editor::capture() {
 	// capture at correct location
 	int line_number_width = buffer->getLineNumberFieldWidth() + 2;
-	yate.onCapture(mvwgetch(internal_window, current_line, current_col + line_number_width));
+	return mvwgetch(internal_window, current_line, current_col + line_number_width);
 }
 
 const std::string& Editor::getTitle() {

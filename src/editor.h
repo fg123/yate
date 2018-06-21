@@ -13,7 +13,6 @@
 class Editor: public Pane {
 	Yate &yate;
 	Buffer *buffer;
-	unsigned int line;
 	// TODO(anyone): Should this be 1 indexed LOL?
 	int current_line = 0;
 	int current_col = 0;
@@ -33,23 +32,25 @@ public:
 		if (current_col != 0) current_col--;
 	}
 	void right() {
-		if (current_col != buffer->getLineLength(line)) current_col++;
+		if (current_col != buffer->getLineLength(current_line)) current_col++;
 	}
 	void up() {
 		if (current_line != 0) current_line--;
+		current_col = std::min(current_col, buffer->getLineLength(current_line));
 	}
 	void down() {
 		if (current_line != buffer->size() - 1) current_line++;
+		current_col = std::min(current_col, buffer->getLineLength(current_line));
 	}
 	void home() {
 		current_col = 0;
 	}
 	void end() {
-		current_col = buffer->getLineLength(line);
+		current_col = buffer->getLineLength(current_line);
 	}
 	void save();
 	void focus();
-	void capture();
+	int capture();
 };
 
 #endif
