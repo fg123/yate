@@ -8,8 +8,7 @@ void Editor::draw() {
 	Logging::info("Editor Draw " + std::to_string(height));
 	int i = 0;
 	int field_width = buffer->getLineNumberFieldWidth() + 1;
-
-	for (auto line : (buffer->getBufferWindow(window_start, window_start + height))) {
+	for (auto line : buffer->getBufferWindow(window_start, window_start + height)) {
 		Logging::info("Editor: " + std::string(line.c_str()));
 		// Right justify doesn't work.
 		wattron(internal_window, A_DIM);
@@ -26,6 +25,10 @@ void Editor::draw() {
 		// wattroff(internal_window, A_UNDERLINE);
 		i += 1;
 	}
+	for (; i < height; i++) {
+		wmove(internal_window, i, 0);
+		wclrtoeol(internal_window);
+	}
 	Logging::info("Editor Done");
 	wrefresh(internal_window);
 }
@@ -41,9 +44,6 @@ int Editor::capture() {
 }
 
 const std::string& Editor::getTitle() {
-	if (buffer->hasUnsavedChanges()) {
-		return " + " + buffer->getFileName();
-	}
 	return buffer->getFileName();
 }
 

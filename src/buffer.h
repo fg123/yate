@@ -22,6 +22,7 @@ public:
 class Buffer {
 	bool is_bound_to_file;
 	std::string path;
+	std::string unsaved_path;
 	std::vector<std::string> internal_buffer;
 	bool has_unsaved_changes = false;
 public:
@@ -32,6 +33,9 @@ public:
 	const std::string& getFileName() {
 		// TODO(anyone): Process it so it returns just the file
 		// instead of whole path?
+		if (hasUnsavedChanges()) {
+			return unsaved_path;
+		}
 		return path;
 	}
 

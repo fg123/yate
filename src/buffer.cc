@@ -5,7 +5,7 @@
 #include <string>
 #include <iterator>
 
-Buffer::Buffer(std::string path): path(path) {
+Buffer::Buffer(std::string path): path(path), unsaved_path(" + " + path) {
 	std::ifstream file(path);
 	if (file.good()) {
 		std::string line;
