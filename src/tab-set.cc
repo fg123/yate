@@ -2,12 +2,12 @@
 #include "editor.h"
 #include "pane.h"
 #include "logging.h"
+#include "yate.h"
 
-TabSet::TabSet(Yate &yate, int x, int y, int width, int height) : Pane(x, y, width, height), yate(yate) {
-	PaneSet *pane_s = new PaneSet(yate);
-	// TODO(felixguo): Add global buffer cache
-	Editor *editor = new Editor(yate, new Buffer("default.txt"), x, y + 1, width, height - 1);
-	editor->focus();
+TabSet::TabSet(Yate &yate, Pane *parent, int x, int y, int width, int height) : Pane(parent, x, y, width, height), yate(yate) {
+	PaneSet *pane_s = new PaneSet(yate, this, x, y + 1, width, height - 1);
+	Editor *editor = new Editor(yate, pane_s, yate.getBuffer("default.txt"), x, y + 1, width, height - 1);
+	yate.setFocus(editor);
 	pane_s->addPane(editor);
 	tabs.emplace_back(pane_s);
 	selected_tab = 0;
@@ -19,15 +19,15 @@ TabSet::~TabSet() {
 	}
 }
 
-void TabSet::draw() {
-	Logging::info("Tabset Draw");
+void TabSet::drawTabs() {
 	// Draw Tab Bar
+	curs_set(0);
 	wmove(internal_window, x, y);
 	std::string all_tabs = "";
 	std::vector<int> flags;
 	int selected_start_position = 0;
 	int selected_len = 0;
-	int i = 0;
+	decltype(tabs)::size_type i = 0;
 	for (auto tab : tabs) {
 		int flag = A_REVERSE;
 		if (i == selected_tab) {
@@ -38,9 +38,7 @@ void TabSet::draw() {
 		// TODO(anyone): Add indicator if file is not saved?
 		std::string str_to_add(' ' + tab->getTitle() + ' ');
 		all_tabs += str_to_add;
-		for (int i = 0; i < str_to_add.length(); i++) {
-			flags.push_back(flag);
-		}
+		flags.insert(flags.end(), str_to_add.length(), flag);
 		i += 1;
 	}
 	int start = 0;
@@ -62,13 +60,24 @@ void TabSet::draw() {
 			flags.push_back(A_REVERSE);
 		}
 	}
-	for (int i = 0; i < width; i++) {
+	for (unsigned int i = 0; i < width; i++) {
 		mvwaddch(internal_window, 0, i, all_tabs[start + i] | flags[start + i]);
 	}
 	wrefresh(internal_window);
+	curs_set(1);
+}
+
+void TabSet::draw() {
+	Logging::breadcrumb("Tabset Draw");
+	drawTabs();
 	tabs[selected_tab]->draw();
 }
 
 const std::string& TabSet::getTitle() {
 	return tabs[selected_tab]->getTitle();
+}
+
+void TabSet::onTitleUpdated() {
+	Logging::breadcrumb("Tabset onTitleUpdated");
+	drawTabs();
 }

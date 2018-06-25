@@ -9,19 +9,19 @@
 #include "pane.h"
 #include "yate.h"
 
-class PaneSet
+class PaneSet : public Pane
 {
 	Yate &yate;
 	std::vector<Pane*> panes;
 	// Store Focused Pane
 	Pane *focused_pane;
 public:
-	PaneSet(Yate &yate) : yate(yate) {}
+	PaneSet(Yate &yate, Pane *parent, int x, int y, int width, int height) : Pane(parent, x, y, width, height), yate(yate) {}
 
 	// TODO(anyone): Created better interface for proper splitting.
 	void addPane(Pane *pane);
 	void draw() {
-		Logging::info("Paneset Draw");
+		Logging::breadcrumb("Paneset Draw");
 		for (auto pane : panes) {
 			pane->draw();
 		}

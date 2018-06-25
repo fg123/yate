@@ -13,11 +13,13 @@ class TabSet: public Pane
 	Yate &yate;
 	std::vector<PaneSet*> tabs;
 	unsigned int selected_tab;
+	void drawTabs();
 public:
-	TabSet(Yate &yate, int x, int y, int width, int height);
+	TabSet(Yate &yate, Pane *parent, int x, int y, int width, int height);
 	~TabSet();
 	void draw() override;
 	const std::string& getTitle() override;
+	void onTitleUpdated() override;
 };
 
 #endif

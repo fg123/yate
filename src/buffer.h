@@ -9,6 +9,10 @@
 #include <vector>
 #include <cmath>
 
+class Editor;
+using LineNumber = std::vector<std::string>::size_type;
+using ColNumber = std::string::size_type;
+
 class BufferWindow {
 	std::vector<std::string>::iterator b;
 	std::vector<std::string>::iterator e;
@@ -25,10 +29,12 @@ class Buffer {
 	std::string unsaved_path;
 	std::vector<std::string> internal_buffer;
 	bool has_unsaved_changes = false;
+	std::vector<Editor*> registered_editors;
+
 public:
 	explicit Buffer(std::string path);
-	BufferWindow getBufferWindow(int start, int end);
-	
+	BufferWindow getBufferWindow(LineNumber start, LineNumber end);
+
 	const bool& hasUnsavedChanges() { return has_unsaved_changes; }
 	const std::string& getFileName() {
 		// TODO(anyone): Process it so it returns just the file
@@ -40,12 +46,23 @@ public:
 	}
 
 	size_t size() { return internal_buffer.size(); }
-	
+
 	size_t getLineNumberFieldWidth() {
 		return std::floor(std::log10(size())) + 1;
 	}
 
-	void insertCharacter(int character, int &line, int &col) {
+	void registerEditor(Editor* editor) {
+		registered_editors.push_back(editor);
+	}
+
+	void updateTitle();
+
+	void setHasUnsavedChanges(bool hasUnsavedChanges) {
+		has_unsaved_changes = hasUnsavedChanges;
+		updateTitle();
+	}
+
+	void insertCharacter(int character, LineNumber &line, ColNumber &col) {
 		if (line < 0 || line >= size()) return;
 		if (col < 0) return;
 		if (character == '\n') {
@@ -64,10 +81,10 @@ public:
 			internal_buffer[line].insert(internal_buffer[line].begin() + col, 1, (char)character);
 			col++;
 		}
-		has_unsaved_changes = true;
+		setHasUnsavedChanges(true);
 	}
 
-	void backspace(int &line, int &col) {
+	void backspace(LineNumber &line, ColNumber &col) {
 		if (line < 0 || line >= size()) return;
 		if (col < 0) return;
 		if (!col && !line) return;
@@ -83,10 +100,10 @@ public:
 			internal_buffer[line].erase(col - 1, 1);
 			col -= 1;
 		}
-		has_unsaved_changes = true;
+		setHasUnsavedChanges(true);
 	}
 
-	void _delete(int &line, int &col) {
+	void _delete(LineNumber &line, ColNumber &col) {
 		if (line < 0 || line >= size()) return;
 		if (col < 0) return;
 		if (col == internal_buffer[line].length() &&
@@ -100,14 +117,15 @@ public:
 		else {
 			internal_buffer[line].erase(col, 1);
 		}
-		has_unsaved_changes = true;
+		setHasUnsavedChanges(true);
 	}
 
-	int getLineLength(int line) {
+	ColNumber getLineLength(LineNumber line) {
 		if (line < 0 || line >= size()) return 0;
 		return internal_buffer[line].length();
 	}
 
 	bool writeToFile();
 };
+
 #endif

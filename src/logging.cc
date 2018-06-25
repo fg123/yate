@@ -1,7 +1,8 @@
 #include "logging.h"
 
-std::ofstream Logging::file = std::ofstream("yate.log", std::ios::app);
+std::ofstream Logging::file = std::ofstream("yate.log");
+Log Logging::info(Logging::file);
 
-void Logging::info(std::string message) {
-	file << message << std::endl;
+void Logging::breadcrumb(std::string msg) {
+	file << "Breadcrumb: " << msg << std::endl;
 }

@@ -5,81 +5,56 @@
 #include "tab-set.h"
 #include "logging.h"
 #include "editor.h"
+#include "util.h"
+#include "prompt-window.h"
 
-
-#define ctrl(x) ((x) & 0x1f)
-
-Yate::Yate() : Yate((Config){})
-{
+Yate::Yate() : Yate((Config){}) {
 
 }
 
-Yate::Yate(Config config) : config(config)
-{
-	Logging::info("=== Starting Yate ===");
-	root = new PaneSet(*this);
-	root->addPane(new TabSet(*this, 0, 0, COLS, LINES));
+Yate::Yate(Config config) : config(config) {
+	Logging::breadcrumb("=== Starting Yate ===");
+	root = new PaneSet(*this, nullptr, 0, 0, COLS, LINES);
+	root->addPane(new TabSet(*this, root, 0, 0, COLS, LINES));
 	refresh();
 	root->draw();
 	while (true) {
-		if(onCapture(focused_editor->capture())) break;
+		if(onCapture(current_focus->capture())) break;
 	}
 }
 
-Yate::~Yate()
-{
+Yate::~Yate() {
 	delete root;
+	for (auto buffer : opened_buffers) {
+		delete buffer;
+	}
 }
 
-void Yate::setFocus(Editor *editor) {
-	focused_editor = editor;
+void Yate::setFocus(Focusable *focus) {
+	Logging::info << "Setting current to: " << focus << "\n";
+	current_focus = focus;
+}
+
+Buffer* Yate::getBuffer(std::string path) {
+	// Check if path is already opened?
+	Buffer* buffer = new Buffer(path);
+	opened_buffers.push_back(buffer);
+	return buffer;
 }
 
 bool Yate::onCapture(int result) {
-	if (last_saw_escape) {
-		last_saw_escape = false;
-		Logging::info(std::to_string(result));
-		if (result == 0x7f) { // escape code
-			focused_editor->_delete();
-		}
+	current_focus->onKeyPress(result);
+	return result == ctrl('q');
+}
+
+void Yate::exitPrompt() {
+	if (previous_focus) {
+		// TODO(anyone): Convert this prompt model to use unique pointers
+		delete current_prompt;
+		Logging::info << previous_focus << "\n";
+		Logging::info << current_focus << "\n";
+		setFocus(previous_focus);
+		previous_focus = nullptr;
+		current_prompt = nullptr;
 	}
-	else {
-		if (std::isprint(result)) {
-			focused_editor->insertCharacter(result);
-		}
-		else if (result == KEY_ENTER || result == 10 || result == 13) {
-			focused_editor->insertCharacter('\n');
-		}
-		else if (result == KEY_BACKSPACE || result == 127) {
-			focused_editor->backspace();
-		}
-		else if (result == KEY_DC) {
-			focused_editor->_delete();
-		}
-		else if (result == ctrl('s')) {
-			focused_editor->save();
-		}
-		else if (result == KEY_LEFT) {
-			focused_editor->left();
-		}
-		else if (result == KEY_RIGHT) {
-			focused_editor->right();
-		}
-		else if (result == KEY_UP) {
-			focused_editor->up();
-		}
-		else if (result == KEY_DOWN) {
-			focused_editor->down();
-		}
-		else if (result == KEY_HOME) {
-			focused_editor->home();
-		}
-		else if (result == KEY_END) {
-			focused_editor->end();
-		}
-		else if (result == 27) {// escape code
-			last_saw_escape = true;
-		}
-	}
-	return result == 'q';
 }

@@ -3,13 +3,14 @@
 #include <algorithm>
 
 #include "editor.h"
+#include "util.h"
+#include "command-prompt.h"
 
 void Editor::draw() {
-	Logging::info("Editor Draw " + std::to_string(height));
-	int i = 0;
+	Logging::breadcrumb("Editor Draw");
+	unsigned int i = 0;
 	int field_width = buffer->getLineNumberFieldWidth() + 1;
 	for (auto line : buffer->getBufferWindow(window_start, window_start + height)) {
-		Logging::info("Editor: " + std::string(line.c_str()));
 		// Right justify doesn't work.
 		wattron(internal_window, A_DIM);
 		std::string line_number = std::to_string(window_start + i + 1);
@@ -29,16 +30,13 @@ void Editor::draw() {
 		wmove(internal_window, i, 0);
 		wclrtoeol(internal_window);
 	}
-	Logging::info("Editor Done");
+	Logging::breadcrumb("Editor Done");
 	wrefresh(internal_window);
-}
-
-void Editor::focus() {
-	yate.setFocus(this);
 }
 
 int Editor::capture() {
 	// capture at correct location
+	draw();
 	int line_number_width = buffer->getLineNumberFieldWidth() + 2;
 	return mvwgetch(internal_window, current_line, current_col + line_number_width);
 }
@@ -47,21 +45,81 @@ const std::string& Editor::getTitle() {
 	return buffer->getFileName();
 }
 
-void Editor::insertCharacter(int character) {
-	buffer->insertCharacter(character, current_line, current_col);
-	draw();
+void Editor::onKeyPress(int key) {
+	switch(key) {
+	case KEY_ENTER:
+	case 10:
+	case 13:
+		buffer->insertCharacter('\n', current_line, current_col);
+		break;
+	case KEY_BACKSPACE:
+	case 127:
+		buffer->backspace(current_line, current_col);
+		break;
+	case KEY_DC:
+		buffer->_delete(current_line, current_col);
+		break;
+	case ctrl('s'):
+		buffer->writeToFile();
+		break;
+	case ctrl('p'): {
+		CommandPromptWindow *p = new CommandPromptWindow(yate);
+		Logging::info << p << "\n";
+		yate.enterPrompt(p);
+		break;
+	}
+	case KEY_LEFT:
+		if (current_col != 0) {
+			current_col--;
+			phantom_col_pos = current_col;
+		}
+		break;
+	case KEY_RIGHT:
+		if (current_col != buffer->getLineLength(current_line)) {
+			current_col++;
+			phantom_col_pos = current_col;
+		}
+		break;
+	case KEY_UP:
+		if (current_line != 0) {
+			current_line--;
+			updateColWithPhantom();
+		}
+		break;
+	case KEY_DOWN:
+		if (current_line != buffer->size() - 1) {
+			current_line++;
+			updateColWithPhantom();
+		}
+		break;
+	case KEY_HOME:
+		if (current_col != 0) {
+			current_col = 0;
+			phantom_col_pos = current_col;
+		}
+		break;
+	case KEY_END:
+		ColNumber end_col = buffer->getLineLength(current_line);
+		if (current_col != end_col) {
+			current_col = end_col;
+			phantom_col_pos = current_col;
+		}
+		break;
+	}
+	if (std::isprint(key)) {
+		buffer->insertCharacter(key, current_line, current_col);
+	}
 }
 
-void Editor::backspace() {
-	buffer->backspace(current_line, current_col);
-	draw();
-}
-
-void Editor::_delete() {
-	buffer->_delete(current_line, current_col);
-	draw();
-}
-
-void Editor::save() {
-	buffer->writeToFile();
+void Editor::updateColWithPhantom() {
+	ColNumber end_col = buffer->getLineLength(current_line);
+	if (current_col < phantom_col_pos) {
+		current_col = phantom_col_pos;
+	}
+	if (current_col > end_col) {
+		current_col = end_col;
+	}
+	else {
+		phantom_col_pos = current_col;
+	}
 }

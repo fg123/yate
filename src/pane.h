@@ -7,22 +7,28 @@
 
 struct Pane
 {
-	int x;
-	int y;
-	int width;
-	int height;
+	unsigned int x;
+	unsigned int y;
+	unsigned int width;
+	unsigned int height;
 	WINDOW *internal_window;
+	Pane *parent;
 
 	virtual void draw() = 0;
 	virtual const std::string& getTitle() = 0;
-	Pane(int x, int y, int width, int height) : x(x), y(y),
-		width(width), height(height)
+	Pane(Pane *parent, int x, int y, int width, int height):
+		x(x), y(y),	width(width), height(height), parent(parent)
 	{
 		internal_window = newwin(height, width, y, x);
 		keypad(internal_window, true);
-		// wborder(internal_window, 0, 0, 0, 0, 0, 0, 0, 0);
-		refresh();
 	}
+
+	void titleUpdated() {
+		onTitleUpdated();
+		if (parent) parent->titleUpdated();
+	}
+
+	virtual void onTitleUpdated() {}
 
 	virtual ~Pane()
 	{

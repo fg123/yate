@@ -1,4 +1,6 @@
 #include "buffer.h"
+#include "editor.h"
+#include "logging.h"
 
 #include <fstream>
 #include <algorithm>
@@ -19,9 +21,9 @@ Buffer::Buffer(std::string path): path(path), unsaved_path(" + " + path) {
 }
 
 
-BufferWindow Buffer::getBufferWindow(int start, int end) {
-	start = std::max(0, std::min(start, static_cast<int>(internal_buffer.size())));
-	end = std::max(0, std::min(end, static_cast<int>(internal_buffer.size())));
+BufferWindow Buffer::getBufferWindow(LineNumber start, LineNumber end) {
+	start = std::max((LineNumber) 0, std::min(start, internal_buffer.size()));
+	end = std::max((LineNumber) 0, std::min(end, internal_buffer.size()));
 	return BufferWindow(internal_buffer.begin() + start, internal_buffer.begin() + end);
 }
 
@@ -30,10 +32,18 @@ bool Buffer::writeToFile() {
 	// without deleting and rewriting it.
 	std::ofstream test_file(path, std::ios::app);
 	if (!test_file.good()) return false;
+	test_file.close();
 	std::ofstream file(path, std::ios::trunc);
 	for (auto line : internal_buffer) {
 		file << line << std::endl;
 	}
-	has_unsaved_changes = false;
+	setHasUnsavedChanges(false);
 	return true;
+}
+
+void Buffer::updateTitle() {
+	for (auto editor : registered_editors) {
+		Logging::breadcrumb("Buffer updateTitle");
+		editor->titleUpdated();
+	}
 }
