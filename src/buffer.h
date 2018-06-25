@@ -9,6 +9,8 @@
 #include <vector>
 #include <cmath>
 
+#include "edit.h"
+
 class Editor;
 using LineNumber = std::vector<std::string>::size_type;
 using ColNumber = std::string::size_type;
@@ -30,6 +32,9 @@ class Buffer {
 	std::vector<std::string> internal_buffer;
 	bool has_unsaved_changes = false;
 	std::vector<Editor*> registered_editors;
+
+	// TODO(felixguo): Implement EditNodes
+	// EditNode* currentNode;
 
 public:
 	explicit Buffer(std::string path);
