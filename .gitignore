@@ -2,6 +2,8 @@
 yate
 yate.log
 
+.vscode
+
 # Prerequisites
 *.d
 
