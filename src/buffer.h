@@ -8,11 +8,36 @@
 #include <string>
 #include <vector>
 #include <cmath>
+#include <tuple>
 
-class EditNode;
+// Edits are insertions or deletions.
+// Edits are stored in such a way that by switching the type from one to the
+// other, the operation will be reversed.
+
 class Editor;
 using LineNumber = std::vector<std::string>::size_type;
 using ColNumber = std::string::size_type;
+using LineCol = std::tuple<LineNumber, ColNumber>;
+
+struct EditNode {
+	EditNode() {}
+	~EditNode() {
+		for (auto child : next) {
+			delete child;
+		}
+	}
+	enum class Type {
+		BASE_REVISION,
+		INSERTION,
+		DELETE_BS,
+		DELETE_DEL
+	};
+	Type type;
+	LineCol start;
+	std::string content;
+	EditNode *prev;
+	std::vector<EditNode*> next;
+};
 
 class BufferWindow {
 	std::vector<std::string>::iterator b;
@@ -34,7 +59,10 @@ class Buffer {
 	EditNode* head_edit;
 	EditNode* current_edit;
 	void create_edit_boundary(const LineNumber& line, const ColNumber& col);
-	void apply_edit_node(EditNode* node);
+	void apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col);
+	void create_edit_for(EditNode::Type type, int character, const LineNumber& line, const ColNumber& col);
+	bool insertNoHistory(int character, LineNumber &line, ColNumber &col);
+	int deleteNoHistory(LineNumber &line, ColNumber &col);
 public:
 	explicit Buffer(std::string path);
 	~Buffer();
@@ -53,8 +81,8 @@ public:
 	ColNumber getLineLength(LineNumber line);
 	bool writeToFile();
 
-	void undo();
-	void redo(std::vector<EditNode*>::size_type index);
+	void undo(LineNumber& line, ColNumber& col);
+	void redo( LineNumber& line, ColNumber& col, std::vector<EditNode*>::size_type index);
 };
 
 #endif

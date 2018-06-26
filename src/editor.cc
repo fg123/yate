@@ -76,10 +76,10 @@ void Editor::onKeyPress(int key) {
 		break;
 	}
 	case ctrl('z'):
-		buffer->undo();
+		buffer->undo(current_line, current_col);
 		break;
 	case ctrl('y'):
-		buffer->redo(0);
+		buffer->redo(current_line, current_col, 0);
 		break;
 	case KEY_LEFT:
 		if (current_col != 0) {

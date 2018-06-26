@@ -1,7 +1,6 @@
 #include "buffer.h"
 #include "editor.h"
 #include "logging.h"
-#include "edit.h"
 
 #include <fstream>
 #include <algorithm>
@@ -21,6 +20,8 @@ Buffer::Buffer(std::string path): path(path), unsaved_path(" + " + path),
 	else {
 		internal_buffer.push_back("");
 	}
+	head_edit->type = EditNode::Type::BASE_REVISION;
+	head_edit->content = "This is the base revision.";
 }
 
 Buffer::~Buffer() {
@@ -81,9 +82,9 @@ void Buffer::setHasUnsavedChanges(bool hasUnsavedChanges) {
 	updateTitle();
 }
 
-void Buffer::insertCharacter(int character, LineNumber &line, ColNumber &col) {
-	if (line < 0 || line >= size()) return;
-	if (col < 0) return;
+bool Buffer::insertNoHistory(int character, LineNumber &line, ColNumber &col) {
+	if (line < 0 || line >= size()) return false;
+	if (col < 0) return false;
 	if (character == '\n') {
 		if (col == internal_buffer[line].length()) {
 			internal_buffer.insert(internal_buffer.begin() + (line + 1), "");
@@ -101,47 +102,122 @@ void Buffer::insertCharacter(int character, LineNumber &line, ColNumber &col) {
 		col++;
 	}
 	setHasUnsavedChanges(true);
+	return true;
+}
+
+int Buffer::deleteNoHistory(LineNumber &line, ColNumber &col) {
+	// TOOD(felixguo): Issue with undoing empty lines
+	if (line < 0 || line >= size()) return 0;
+	if (col < 0) return 0;
+	if (col == internal_buffer[line].length() &&
+		line == internal_buffer.size() - 1) return 0;
+	int deleted_char;
+	if (col == internal_buffer[line].length()) {
+		// Join two lines
+		internal_buffer[line] += internal_buffer[line + 1];
+		internal_buffer.erase(internal_buffer.begin() + line + 1,
+			internal_buffer.begin() + line + 2);
+		deleted_char = '\n';
+	}
+	else {
+		deleted_char = internal_buffer.at(line).at(col);
+		internal_buffer.at(line).erase(col, 1);
+	}
+	setHasUnsavedChanges(true);
+	return deleted_char;
+}
+
+void Buffer::insertCharacter(int character, LineNumber &line, ColNumber &col) {
+	LineNumber orig_l = line;
+	ColNumber orig_c = col;
+	if (insertNoHistory(character, line, col)) {
+		create_edit_for(EditNode::Type::INSERTION, character,
+			orig_l, orig_c);
+	}
 }
 
 void Buffer::backspace(LineNumber &line, ColNumber &col) {
 	if (line < 0 || line >= size()) return;
 	if (col < 0) return;
 	if (!col && !line) return;
+	int deleted_char;
+	LineNumber orig_l = line;
+	ColNumber orig_c = col;
 	if (col == 0) {
 		// Join two lines
 		col = internal_buffer[line - 1].length();
 		internal_buffer[line - 1] += internal_buffer[line];
 		internal_buffer.erase(internal_buffer.begin() + line,
 			internal_buffer.begin() + line + 1);
+		deleted_char = '\n';
 		line -= 1;
 	}
 	else {
+		deleted_char = internal_buffer.at(line).at(col - 1);
 		internal_buffer[line].erase(col - 1, 1);
 		col -= 1;
 	}
+	create_edit_for(EditNode::Type::DELETE_BS, deleted_char, orig_l, orig_c);
 	setHasUnsavedChanges(true);
 }
 
 void Buffer::_delete(LineNumber &line, ColNumber &col) {
-	if (line < 0 || line >= size()) return;
-	if (col < 0) return;
-	if (col == internal_buffer[line].length() &&
-		line == internal_buffer.size() - 1) return;
-	if (col == internal_buffer[line].length()) {
-		// Join two lines
-		internal_buffer[line] += internal_buffer[line + 1];
-		internal_buffer.erase(internal_buffer.begin() + line + 1,
-			internal_buffer.begin() + line + 2);
+	LineNumber orig_l = line;
+	ColNumber orig_c = col;
+	int deleted_char = deleteNoHistory(line, col);
+	if (deleted_char) {
+		create_edit_for(EditNode::Type::DELETE_DEL, deleted_char,
+		orig_l, orig_c);
 	}
-	else {
-		internal_buffer[line].erase(col, 1);
-	}
-	setHasUnsavedChanges(true);
 }
 
 ColNumber Buffer::getLineLength(LineNumber line) {
 	if (line < 0 || line >= size()) return 0;
 	return internal_buffer[line].length();
+}
+
+void Buffer::create_edit_for(EditNode::Type type, int character,
+	const LineNumber& line, const ColNumber& col) {
+	
+	// Do we need new edit boundary!?
+	if (!current_edit->content.empty()) {
+		if (current_edit->type != type) {
+			goto new_boundary;
+		}
+		if (current_edit->content.length() >= 20) {
+			goto new_boundary;
+		}
+
+		LineNumber cur_line = std::get<0>(current_edit->start);
+		ColNumber cur_col = std::get<1>(current_edit->start);
+		if (current_edit->type == EditNode::Type::INSERTION) {
+			if (cur_line != line || cur_col + current_edit->content.length() != col) {
+				goto new_boundary;
+			}
+		}
+		else {
+			if (cur_line != line || cur_col != col) {
+				// Same deletion should not move
+				goto new_boundary;
+			}
+		}
+	}
+	else {
+		current_edit->start = std::make_tuple(line, col);
+	}
+	goto perform_edit;
+new_boundary:
+	create_edit_boundary(line, col);
+perform_edit:
+	current_edit->type = type;
+	if (type == EditNode::Type::DELETE_BS) {
+		// TODO(felixguo): Special case with Backspace
+		//std::get<1>(current_edit->start)--;
+		current_edit->content.insert(0, 1, static_cast<char>(character));
+	}
+	else {
+		current_edit->content += static_cast<char>(character);
+	}
 }
 
 void Buffer::create_edit_boundary(const LineNumber& line, const ColNumber& col) {
@@ -152,37 +228,44 @@ void Buffer::create_edit_boundary(const LineNumber& line, const ColNumber& col) 
 	current_edit = n;
 }
 
-void Buffer::apply_edit_node(EditNode* node) {
+void Buffer::apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col) {
 	// Ensure node location can be placed.
-	LineNumber line = std::get<0>(node->start);
-	ColNumber col = std::get<1>(node->start);
+	line = std::get<0>(node->start);
+	col = std::get<1>(node->start);
 	if (line >= internal_buffer.size()) return;
 	if (col >= internal_buffer.at(line).length()) return;
 
+	// These two methods are not very optimized but they will handle newline
+	// Otherwise extra algorithm / edge cases will have to be developed.
+	Logging::info << "Applying edit node: " << static_cast<int>(node->type) << " " << node->content << '\n';
 	if (node->type == EditNode::Type::INSERTION) {
-		std::string &l = internal_buffer.at(line);
-		l.insert(col, node->content.c_str());
+		for (auto c : node->content) {
+			insertNoHistory(c, line, col);
+		}
 	}
 	else {
 		// Delete
-		std::string &l = internal_buffer.at(line);
-		l.erase(col, node->content.length());
+		for (auto c : node->content) {
+			deleteNoHistory(line, col);
+		}
 	}
 }
 
-void Buffer::undo() {
+void Buffer::undo(LineNumber& line, ColNumber& col) {
 	if (current_edit->prev) {
 		// Apply opposite of current_edit
 		EditNode opposite = *current_edit;
-		opposite.type = opposite.type == EditNode::Type::INSERTION ? EditNode::Type::DELETION : EditNode::Type::INSERTION;
-		apply_edit_node(&opposite);
+		opposite.next.clear(); // For when it gets destructed.
+		opposite.type = opposite.type == EditNode::Type::INSERTION ? EditNode::Type::DELETE_BS : EditNode::Type::INSERTION;
+		apply_edit_node(&opposite, line, col);
 		current_edit = current_edit->prev;
 	}
 }
 
-void Buffer::redo(std::vector<EditNode*>::size_type index) {
+void Buffer::redo(LineNumber& line, ColNumber& col, std::vector<EditNode*>::size_type index) {
+	Logging::info << "Redo " << index << " " << current_edit->next.size() << '\n';
 	if (index < current_edit->next.size()) {
-		apply_edit_node(current_edit->next.at(index));
+		apply_edit_node(current_edit->next.at(index), line, col);
 		current_edit = current_edit->next.at(index);
 	}
 }
