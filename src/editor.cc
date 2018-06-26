@@ -13,6 +13,8 @@ void Editor::draw() {
 	for (auto line : buffer->getBufferWindow(window_start, window_start + height)) {
 		// Right justify doesn't work.
 		wattron(internal_window, A_DIM);
+		wmove(internal_window, i, 0);
+		wclrtoeol(internal_window);
 		std::string line_number = std::to_string(window_start + i + 1);
 		int spacing = field_width - line_number.length();
 		mvwprintw(internal_window, i, spacing, line_number.c_str());
@@ -22,7 +24,6 @@ void Editor::draw() {
 		// }
 		mvwprintw(internal_window, i, field_width + 1,
 			line.c_str());
-		wclrtoeol(internal_window);
 		// wattroff(internal_window, A_UNDERLINE);
 		i += 1;
 	}
@@ -48,9 +49,15 @@ const std::string& Editor::getTitle() {
 void Editor::onKeyPress(int key) {
 	switch(key) {
 	case KEY_ENTER:
-	case 10:
-	case 13:
+	case '\n':
+	case '\r':
 		buffer->insertCharacter('\n', current_line, current_col);
+		break;
+	case KEY_STAB:
+	case '\t':
+		// TODO (felixguo): Add proper handling of tabs
+		buffer->insertCharacter(' ', current_line, current_col);
+		buffer->insertCharacter(' ', current_line, current_col);
 		break;
 	case KEY_BACKSPACE:
 	case 127:
