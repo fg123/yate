@@ -75,6 +75,12 @@ void Editor::onKeyPress(int key) {
 		yate.enterPrompt(p);
 		break;
 	}
+	case ctrl('z'):
+		buffer->undo();
+		break;
+	case ctrl('y'):
+		buffer->redo(0);
+		break;
 	case KEY_LEFT:
 		if (current_col != 0) {
 			current_col--;

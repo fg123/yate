@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <string>
 #include <iterator>
+#include <tuple>
 
 Buffer::Buffer(std::string path): path(path), unsaved_path(" + " + path),
 	head_edit(new EditNode()), current_edit(head_edit) {
@@ -152,7 +153,21 @@ void Buffer::create_edit_boundary(const LineNumber& line, const ColNumber& col) 
 }
 
 void Buffer::apply_edit_node(EditNode* node) {
+	// Ensure node location can be placed.
+	LineNumber line = std::get<0>(node->start);
+	ColNumber col = std::get<1>(node->start);
+	if (line >= internal_buffer.size()) return;
+	if (col >= internal_buffer.at(line).length()) return;
 
+	if (node->type == EditNode::Type::INSERTION) {
+		std::string &l = internal_buffer.at(line);
+		l.insert(col, node->content.c_str());
+	}
+	else {
+		// Delete
+		std::string &l = internal_buffer.at(line);
+		l.erase(col, node->content.length());
+	}
 }
 
 void Buffer::undo() {
@@ -166,5 +181,8 @@ void Buffer::undo() {
 }
 
 void Buffer::redo(std::vector<EditNode*>::size_type index) {
-	// TODO()
+	if (index < current_edit->next.size()) {
+		apply_edit_node(current_edit->next.at(index));
+		current_edit = current_edit->next.at(index);
+	}
 }

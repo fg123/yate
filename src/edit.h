@@ -11,6 +11,7 @@
 // other, the operation will be reversed.
 
 using LineCol = std::tuple<LineNumber, ColNumber>;
+
 struct EditNode {
 	EditNode() {}
 	~EditNode() {
