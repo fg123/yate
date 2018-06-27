@@ -79,7 +79,7 @@ void Editor::onKeyPress(int key) {
 		buffer->undo(current_line, current_col);
 		break;
 	case ctrl('y'):
-		buffer->redo(current_line, current_col, 0);
+		buffer->redo(current_line, current_col);
 		break;
 	case KEY_LEFT:
 		if (current_col != 0) {

@@ -37,7 +37,7 @@ void Yate::setFocus(Focusable *focus) {
 
 Buffer* Yate::getBuffer(std::string path) {
 	// Check if path is already opened?
-	Buffer* buffer = new Buffer(path);
+	Buffer* buffer = new Buffer(*this, path);
 	opened_buffers.push_back(buffer);
 	return buffer;
 }

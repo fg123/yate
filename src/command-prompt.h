@@ -7,6 +7,7 @@
 
 class CommandPromptWindow : public PromptWindow<std::string> {
 	const std::string title = "Enter Command:";
+	std::vector<std::string> items;
 public:
 	CommandPromptWindow(Yate &yate) : PromptWindow(yate) {
 		items.push_back("Hello");
@@ -20,16 +21,20 @@ public:
 		return title;
 	}
 
-	bool match(std::string buffer, std::string item) override {
-		return false; // item.prompt_buffer;
+	bool match(std::string buffer, size_t index) override {
+		return true;
 	}
 
-	const std::string getItemString(std::string *item) override {
-		return *item;
+	const std::string getItemString(size_t index) override {
+		return items[index];
 	}
 
-	void onExecute(int index) override {
+	void onExecute(size_t index) override {
 		yate.exitPrompt();
+	}
+
+	const std::vector<std::string>& getItems() {
+		return items;
 	}
 };
 

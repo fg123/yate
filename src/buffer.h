@@ -14,6 +14,7 @@
 // Edits are stored in such a way that by switching the type from one to the
 // other, the operation will be reversed.
 
+class Yate;
 class Editor;
 using LineNumber = std::vector<std::string>::size_type;
 using ColNumber = std::string::size_type;
@@ -37,6 +38,40 @@ struct EditNode {
 	std::string content;
 	EditNode *prev;
 	std::vector<EditNode*> next;
+
+	std::string getTypeString() {
+		switch (type) {
+			case Type::INSERTION:
+				return "INSERTION";
+			case Type::DELETE_BS:
+			case Type::DELETE_DEL:
+				return "DELETION";
+			default:
+				return "UNKNOWN TYPE";
+		}
+	}
+
+	std::string getSerializedContent() {
+		std::string result;
+		result.reserve(content.length());
+		for (auto c : content) {
+			if (c == '\n') result += "\\n";
+			else result += c;
+		}
+		return result;
+	}
+
+	std::string getPositionPair() {
+		LineNumber line = std::get<0>(start);
+		ColNumber col = std::get<1>(start);
+		return "(" + std::to_string(line) + "L, "
+			+ std::to_string(col) + "C)";
+	}
+
+	std::string getDescription() {
+		return getTypeString() + " " + getPositionPair() + " "
+			+ getSerializedContent();
+	}
 };
 
 class BufferWindow {
@@ -50,6 +85,7 @@ public:
 };
 
 class Buffer {
+	Yate& yate;
 	bool is_bound_to_file;
 	std::string path;
 	std::string unsaved_path;
@@ -61,10 +97,11 @@ class Buffer {
 	void create_edit_boundary(const LineNumber& line, const ColNumber& col);
 	void apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col);
 	void create_edit_for(EditNode::Type type, int character, const LineNumber& line, const ColNumber& col);
-	bool insertNoHistory(int character, LineNumber &line, ColNumber &col);
-	int deleteNoHistory(LineNumber &line, ColNumber &col);
+	bool insert_no_history(int character, LineNumber &line, ColNumber &col);
+	int delete_no_history(LineNumber &line, ColNumber &col);
+	void apply_redo_step(LineNumber& line, ColNumber& col, std::vector<EditNode*>::size_type index);
 public:
-	explicit Buffer(std::string path);
+	Buffer(Yate& yate, std::string path);
 	~Buffer();
 	BufferWindow getBufferWindow(LineNumber start, LineNumber end);
 
@@ -82,7 +119,7 @@ public:
 	bool writeToFile();
 
 	void undo(LineNumber& line, ColNumber& col);
-	void redo( LineNumber& line, ColNumber& col, std::vector<EditNode*>::size_type index);
+	void redo(LineNumber& line, ColNumber& col);
 };
 
 #endif

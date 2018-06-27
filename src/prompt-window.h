@@ -14,12 +14,10 @@
 
 template <class T>
 class PromptWindow : public Pane, public Focusable {
-	std::vector<T*> get_matching_items() {
-		std::vector<T*> result;
-		for (T& item: items) {
-			if (match(prompt_buffer, item)) {
-				result.push_back(&item);
-			}
+	std::vector<size_t> get_matching_items() {
+		std::vector<size_t> result;
+		for (auto i = 0; i < getItems().size(); i++) {
+			if (match(prompt_buffer, i)) result.push_back(i);
 		}
 		return result;
 	}
@@ -27,7 +25,7 @@ class PromptWindow : public Pane, public Focusable {
 	std::string prompt_buffer;
 protected:
 	Yate &yate;
-	std::vector<T> items;
+	bool input_enabled = true;
 public:
 	PromptWindow(Yate &yate)
 	: Pane((Pane*)(yate.root), COLS / 4, LINES / 4, COLS / 2, LINES / 2),
@@ -66,7 +64,7 @@ public:
 			}
 			break;
 		}
-		if (std::isprint(key)) {
+		if (std::isprint(key) && input_enabled) {
 			prompt_buffer.push_back(static_cast<char>(key));
 		}
 	}
@@ -76,8 +74,8 @@ public:
 		wmove(internal_window, 1, 1);
 		wclrtoeol(internal_window);
 		mvwprintw(internal_window, 1, 1, prompt_buffer.c_str());
-		
-		std::vector<T*> matched_items = get_matching_items();
+
+		std::vector<size_t> matched_items = get_matching_items();
 		if (highlighted_index >= matched_items.size()) {
 			highlighted_index = matched_items.size() - 1;
 		}
@@ -85,7 +83,7 @@ public:
 		if (highlighted_index < 0 && !matched_items.empty()) {
 			highlighted_index = 0;
 		}
-		
+
 		auto sub_height = height - 4;
 		int start = highlighted_index - sub_height / 2;
 		while (matched_items.size() - start < sub_height) start--;
@@ -124,8 +122,9 @@ public:
 
 
 	virtual const std::string& getTitle() override = 0;
-	virtual bool match(std::string buffer, T item) = 0;
-	virtual const std::string getItemString(T *item) = 0;
-	virtual void onExecute(int index) = 0;
+	virtual bool match(std::string buffer, size_t index) = 0;
+	virtual const std::string getItemString(size_t index) = 0;
+	virtual const std::vector<T>& getItems() = 0;
+	virtual void onExecute(size_t index) = 0;
 };
 #endif

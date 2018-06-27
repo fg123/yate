@@ -1,6 +1,8 @@
 #include "buffer.h"
 #include "editor.h"
 #include "logging.h"
+#include "redo-prompt.h"
+#include "yate.h"
 
 #include <fstream>
 #include <algorithm>
@@ -8,7 +10,8 @@
 #include <iterator>
 #include <tuple>
 
-Buffer::Buffer(std::string path): path(path), unsaved_path(" + " + path),
+Buffer::Buffer(Yate& yate, std::string path): yate(yate),
+	path(path), unsaved_path(" + " + path),
 	head_edit(new EditNode()), current_edit(head_edit) {
 	std::ifstream file(path);
 	if (file.good()) {
@@ -82,7 +85,7 @@ void Buffer::setHasUnsavedChanges(bool hasUnsavedChanges) {
 	updateTitle();
 }
 
-bool Buffer::insertNoHistory(int character, LineNumber &line, ColNumber &col) {
+bool Buffer::insert_no_history(int character, LineNumber &line, ColNumber &col) {
 	if (line < 0 || line >= size()) return false;
 	if (col < 0) return false;
 	if (character == '\n') {
@@ -105,7 +108,7 @@ bool Buffer::insertNoHistory(int character, LineNumber &line, ColNumber &col) {
 	return true;
 }
 
-int Buffer::deleteNoHistory(LineNumber &line, ColNumber &col) {
+int Buffer::delete_no_history(LineNumber &line, ColNumber &col) {
 	// TOOD(felixguo): Issue with undoing empty lines
 	if (line < 0 || line >= size()) return 0;
 	if (col < 0) return 0;
@@ -130,7 +133,7 @@ int Buffer::deleteNoHistory(LineNumber &line, ColNumber &col) {
 void Buffer::insertCharacter(int character, LineNumber &line, ColNumber &col) {
 	LineNumber orig_l = line;
 	ColNumber orig_c = col;
-	if (insertNoHistory(character, line, col)) {
+	if (insert_no_history(character, line, col)) {
 		create_edit_for(EditNode::Type::INSERTION, character,
 			orig_l, orig_c);
 	}
@@ -162,7 +165,7 @@ void Buffer::backspace(LineNumber &line, ColNumber &col) {
 void Buffer::_delete(LineNumber &line, ColNumber &col) {
 	LineNumber orig_l = line;
 	ColNumber orig_c = col;
-	int deleted_char = deleteNoHistory(line, col);
+	int deleted_char = delete_no_history(line, col);
 	if (deleted_char) {
 		create_edit_for(EditNode::Type::DELETE_DEL, deleted_char,
 		orig_l, orig_c);
@@ -176,7 +179,7 @@ ColNumber Buffer::getLineLength(LineNumber line) {
 
 void Buffer::create_edit_for(EditNode::Type type, int character,
 	const LineNumber& line, const ColNumber& col) {
-	
+
 	// Do we need new edit boundary!?
 	if (!current_edit->content.empty()) {
 		if (current_edit->type != type) {
@@ -240,14 +243,14 @@ void Buffer::apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col) {
 	Logging::info << "Applying edit node: " << static_cast<int>(node->type) << " " << node->content << '\n';
 	if (node->type == EditNode::Type::INSERTION) {
 		for (auto c : node->content) {
-			insertNoHistory(c, line, col);
+			insert_no_history(c, line, col);
 		}
 	}
 	else {
 		// Delete
 		for (auto c : node->content) {
 			Logging::breadcrumb("Deleting");
-			deleteNoHistory(line, col);
+			delete_no_history(line, col);
 		}
 	}
 }
@@ -263,10 +266,29 @@ void Buffer::undo(LineNumber& line, ColNumber& col) {
 	}
 }
 
-void Buffer::redo(LineNumber& line, ColNumber& col, std::vector<EditNode*>::size_type index) {
-	Logging::info << "Redo " << index << " " << current_edit->next.size() << '\n';
+
+void Buffer::apply_redo_step(LineNumber& line, ColNumber& col,
+	std::vector<EditNode*>::size_type index) {
 	if (index < current_edit->next.size()) {
 		apply_edit_node(current_edit->next.at(index), line, col);
 		current_edit = current_edit->next.at(index);
+	}
+}
+
+void Buffer::redo(LineNumber& line, ColNumber& col) {
+	if (current_edit->next.empty()) return;
+	if (current_edit->next.size() == 1) {
+		apply_redo_step(line, col, 0);
+	}
+	else {
+		// Prompt for which redo
+		yate.enterPrompt(
+			new RedoPromptWindow(yate,
+				current_edit->next,
+				[this, &line, &col](unsigned int index) {
+					apply_redo_step(line, col, index);
+				}
+			)
+		);
 	}
 }
