@@ -1,5 +1,6 @@
 #include <ncurses.h>
 #include <cctype>
+#include <algorithm>
 
 #include "yate.h"
 #include "tab-set.h"
@@ -37,6 +38,11 @@ void Yate::setFocus(Focusable *focus) {
 
 Buffer* Yate::getBuffer(std::string path) {
 	// Check if path is already opened?
+	auto result = std::find_if(opened_buffers.begin(), opened_buffers.end(),
+		[path](Buffer* item) { return item->path == path; });
+	if (result != opened_buffers.end()) {
+		return *result;
+	}
 	Buffer* buffer = new Buffer(*this, path);
 	opened_buffers.push_back(buffer);
 	return buffer;

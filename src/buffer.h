@@ -87,7 +87,6 @@ public:
 class Buffer {
 	Yate& yate;
 	bool is_bound_to_file;
-	std::string path;
 	std::string unsaved_path;
 	std::vector<std::string> internal_buffer;
 	bool has_unsaved_changes = false;
@@ -101,6 +100,8 @@ class Buffer {
 	int delete_no_history(LineNumber &line, ColNumber &col);
 	void apply_redo_step(LineNumber& line, ColNumber& col, std::vector<EditNode*>::size_type index);
 public:
+	std::string path;
+
 	Buffer(Yate& yate, std::string path);
 	~Buffer();
 	BufferWindow getBufferWindow(LineNumber start, LineNumber end);
