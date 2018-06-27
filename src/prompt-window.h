@@ -31,8 +31,13 @@ public:
 	: Pane((Pane*)(yate.root), COLS / 4, LINES / 4, COLS / 2, LINES / 2),
 	yate(yate) {}
 
+	~PromptWindow() {
+		curs_set(1);
+	}
+
 	int capture() override {
 		draw();
+		curs_set(input_enabled);
 		return mvwgetch(internal_window, 1, 1 + prompt_buffer.size());
 	}
 
@@ -93,8 +98,11 @@ public:
 		int print_row = 3;
 		unsigned int end = start + sub_height;
 		if (end > matched_items.size()) end = matched_items.size();
-		for (unsigned int i = start;
-			i < end; i++) {
+		for (unsigned int i = 0; i < sub_height; i++) {
+			wmove(internal_window, print_row + i, 1);
+			wclrtoeol(internal_window);
+		}
+		for (unsigned int i = start; i < end; i++) {
 			wmove(internal_window, print_row, 1);
 			wclrtoeol(internal_window);
 			if ((int) i == highlighted_index) {
@@ -105,7 +113,7 @@ public:
 				str.insert(str.end(),
 					width - 2 - str.length(), ' ');
 			}
-			mvwprintw(internal_window, print_row, 1, str.c_str());
+			mvwinsstr(internal_window, print_row, 1, str.c_str());
 			wattroff(internal_window, A_REVERSE);
 			print_row++;
 		}
