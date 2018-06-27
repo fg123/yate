@@ -53,6 +53,8 @@ public:
 			highlighted_index++;
 			break;
 		case 27: // Escape
+			yate.exitPrompt();
+			break;
 		case KEY_ENTER:
 		case 10:
 		case 13:
