@@ -141,8 +141,6 @@ void Buffer::backspace(LineNumber &line, ColNumber &col) {
 	if (col < 0) return;
 	if (!col && !line) return;
 	int deleted_char;
-	LineNumber orig_l = line;
-	ColNumber orig_c = col;
 	if (col == 0) {
 		// Join two lines
 		col = internal_buffer[line - 1].length();
@@ -157,7 +155,7 @@ void Buffer::backspace(LineNumber &line, ColNumber &col) {
 		internal_buffer[line].erase(col - 1, 1);
 		col -= 1;
 	}
-	create_edit_for(EditNode::Type::DELETE_BS, deleted_char, orig_l, orig_c);
+	create_edit_for(EditNode::Type::DELETE_BS, deleted_char, line, col);
 	setHasUnsavedChanges(true);
 }
 
@@ -195,6 +193,12 @@ void Buffer::create_edit_for(EditNode::Type type, int character,
 				goto new_boundary;
 			}
 		}
+		else if (current_edit->type == EditNode::Type::DELETE_BS) {
+			// col is 1 behind for backspaces
+			if (cur_line != line || cur_col != col + 1) {
+				goto new_boundary;
+			}
+		}
 		else {
 			if (cur_line != line || cur_col != col) {
 				// Same deletion should not move
@@ -211,9 +215,8 @@ new_boundary:
 perform_edit:
 	current_edit->type = type;
 	if (type == EditNode::Type::DELETE_BS) {
-		// TODO(felixguo): Special case with Backspace
-		//std::get<1>(current_edit->start)--;
-		current_edit->content.insert(0, 1, static_cast<char>(character));
+		current_edit->start = std::make_tuple(line, col);
+		current_edit->content.insert(current_edit->content.begin(), static_cast<char>(character));
 	}
 	else {
 		current_edit->content += static_cast<char>(character);
@@ -229,11 +232,8 @@ void Buffer::create_edit_boundary(const LineNumber& line, const ColNumber& col) 
 }
 
 void Buffer::apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col) {
-	// Ensure node location can be placed.
 	line = std::get<0>(node->start);
 	col = std::get<1>(node->start);
-	if (line >= internal_buffer.size()) return;
-	if (col >= internal_buffer.at(line).length()) return;
 
 	// These two methods are not very optimized but they will handle newline
 	// Otherwise extra algorithm / edge cases will have to be developed.
@@ -246,6 +246,7 @@ void Buffer::apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col) {
 	else {
 		// Delete
 		for (auto c : node->content) {
+			Logging::breadcrumb("Deleting");
 			deleteNoHistory(line, col);
 		}
 	}
