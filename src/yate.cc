@@ -81,6 +81,11 @@ bool Yate::onCapture(int result) {
 	return result == ctrl('q');
 }
 
+void Yate::exitPromptThenRun(std::function<void()> function) {
+	exitPrompt();
+	function();
+}
+
 void Yate::exitPrompt() {
 	if (previous_focus) {
 		// TODO(anyone): Convert this prompt model to use unique pointers

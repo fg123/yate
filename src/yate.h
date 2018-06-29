@@ -1,9 +1,9 @@
 #ifndef YATE_H
 #define YATE_H
 
-#include <ncurses.h>
 #include <vector>
 #include <string>
+#include <functional>
 
 #include "config.h"
 #include "focusable.h"
@@ -19,7 +19,6 @@ class Yate {
 	Config config;
 	Focusable *current_focus = nullptr;
 	std::vector<Buffer*> opened_buffers;
-	bool onCapture(int result);
 	Focusable *previous_focus = nullptr;
 
 	// If we cast it to Focusable, the pointer will decay and won't be able to
@@ -32,6 +31,7 @@ public:
 
 	explicit Yate(Config config);
 	~Yate();
+	bool onCapture(int result);
 	Buffer* getBuffer(std::string path);
 	void setFocus(Focusable *editor);
 	bool hasFocus() { return current_focus; }
@@ -50,6 +50,7 @@ public:
 	}
 
 	void exitPrompt();
+	void exitPromptThenRun(std::function<void()> function);
 };
 
 #endif

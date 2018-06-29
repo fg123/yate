@@ -2,24 +2,27 @@
 #define COMMAND_PROMPT_H
 
 #include <string>
+#include <functional>
 
 #include "prompt-window.h"
+#include "editor.h"
 
-class CommandPromptWindow : public PromptWindow<std::string> {
+using CommandPromptEntry = std::pair<std::string, std::function<void()>>;
+class CommandPromptWindow : public PromptWindow<CommandPromptEntry> {
 	const std::string title = "Enter Command:";
-	std::vector<std::string> items;
+	std::vector<CommandPromptEntry> items;
+	Editor *editor = nullptr;
 public:
-	CommandPromptWindow(Yate &yate) : PromptWindow(yate) {
-		items.push_back("Using GNU Readline; how can I add ncurses in the same program?");
-		items.push_back("Writing a command line shell with C; trying to use ncurses/C for the first time");
-		items.push_back("Writing a console-based C++ IRC-client");
-		items.push_back("Working with curses in IPython. How can I improve this?");
-		items.push_back("Haskell `ncurses` library");
-		items.push_back("In ncurses, is there a simple way to use every combination of the 8 standard foreground and background colors?");
-		items.push_back("Cross compiled ncurses for UTF-8 displays incorrectly");
-		items.push_back("Interrupt (n)curses getch on incoming signal");
-		items.push_back("Extracting wide chars w/ attributes in ncurses");
-		items.push_back("Porting an old DOS TUI to ncurses");
+	CommandPromptWindow(Yate &yate, Editor *editor) :
+		PromptWindow(yate), editor(editor) {
+		// TODO(felixguo): This seems super ghetto and should probably
+		//   be better implemented.
+		items.push_back(std::make_pair("Edit: Undo", [editor](){
+			editor->onKeyPress(ctrl('z'));
+		}));
+		items.push_back(std::make_pair("Edit: Redo", [editor](){
+			editor->onKeyPress(ctrl('y'));
+		}));
 	}
 	const std::string& getTitle() override {
 		return title;
@@ -27,21 +30,22 @@ public:
 
 	bool match(std::string buffer, size_t index) override {
 		return std::search(
-			items.at(index).begin(), items.at(index).end(),
+			items.at(index).first.begin(), items.at(index).first.end(),
 			buffer.begin(), buffer.end(),
 			[](char ch1, char ch2) { return std::toupper(ch1) == std::toupper(ch2); }
-		) != items.at(index).end();
+		) != items.at(index).first.end();
 	}
 
 	const std::string getItemString(size_t index) override {
-		return items[index];
+		return items.at(index).first;
 	}
 
 	void onExecute(size_t index) override {
-		yate.exitPrompt();
+		// TODO(felixguo): Implement proper focus stack instead of this.
+		yate.exitPromptThenRun(items.at(index).second);
 	}
 
-	const std::vector<std::string>& getItems() {
+	const std::vector<CommandPromptEntry>& getItems() {
 		return items;
 	}
 };

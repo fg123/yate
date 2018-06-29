@@ -37,6 +37,7 @@ void Editor::draw() {
 
 int Editor::capture() {
 	// capture at correct location
+	curs_set(1);
 	draw();
 	int line_number_width = buffer->getLineNumberFieldWidth() + 2;
 	return mvwgetch(internal_window, current_line, current_col + line_number_width);
@@ -70,7 +71,7 @@ void Editor::onKeyPress(int key) {
 		buffer->writeToFile();
 		break;
 	case ctrl('p'): {
-		CommandPromptWindow *p = new CommandPromptWindow(yate);
+		CommandPromptWindow *p = new CommandPromptWindow(yate, this);
 		Logging::info << p << std::endl;
 		yate.enterPrompt(p);
 		break;
