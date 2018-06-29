@@ -16,8 +16,15 @@ struct Pane
 
 	virtual void draw() = 0;
 	virtual const std::string& getTitle() = 0;
+	Pane(Pane *parent, std::istream& stream) : parent(parent) {
+		stream >> x >> y >> width >> height;
+		Logging::info << "Pane: " << x << " " << y << " "
+			<< width << " " << height << std::endl;
+		internal_window = newwin(height, width, y, x);
+		keypad(internal_window, true);
+	}
 	Pane(Pane *parent, int x, int y, int width, int height):
-		x(x), y(y),	width(width), height(height), parent(parent)
+		x(x), y(y), width(width), height(height), parent(parent)
 	{
 		internal_window = newwin(height, width, y, x);
 		keypad(internal_window, true);
@@ -27,9 +34,8 @@ struct Pane
 		onTitleUpdated();
 		if (parent) parent->titleUpdated();
 	}
-
 	virtual void onTitleUpdated() {}
-
+	virtual std::ostream& serialize(std::ostream& stream) {};
 	virtual ~Pane()
 	{
 		delwin(internal_window);

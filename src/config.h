@@ -2,8 +2,11 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-struct Config {
+#include <sstream>
+#include <string>
 
+struct Config {
+	std::string pane_configuration_path;
 };
 
 #endif

@@ -17,7 +17,7 @@ class PromptWindow;
 
 class Yate {
 	Config config;
-	Focusable *current_focus;
+	Focusable *current_focus = nullptr;
 	std::vector<Buffer*> opened_buffers;
 	bool onCapture(int result);
 	Focusable *previous_focus = nullptr;
@@ -30,12 +30,11 @@ class Yate {
 public:
 	PaneSet *root;
 
-	Yate();
 	explicit Yate(Config config);
 	~Yate();
 	Buffer* getBuffer(std::string path);
 	void setFocus(Focusable *editor);
-
+	bool hasFocus() { return current_focus; }
 	template <class T>
 	void enterPrompt(PromptWindow<T> *window) {
 		if (previous_focus) {
@@ -43,8 +42,8 @@ public:
 		}
 		else {
 			previous_focus = current_focus;
-			Logging::info << "Focus into: " << window << "\n";
-			Logging::info << "Current: " << current_focus << "\n";
+			Logging::info << "Focus into: " << window << std::endl;
+			Logging::info << "Current: " << current_focus << std::endl;
 			setFocus(window);
 			current_prompt = window;
 		}

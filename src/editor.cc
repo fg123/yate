@@ -71,7 +71,7 @@ void Editor::onKeyPress(int key) {
 		break;
 	case ctrl('p'): {
 		CommandPromptWindow *p = new CommandPromptWindow(yate);
-		Logging::info << p << "\n";
+		Logging::info << p << std::endl;
 		yate.enterPrompt(p);
 		break;
 	}

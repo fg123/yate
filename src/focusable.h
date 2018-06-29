@@ -4,8 +4,7 @@
 // Represents a entity that can be focused, capturing
 // keyboard event and handling it.
 
-class Focusable {
-public:
+struct Focusable {
 	virtual int capture() = 0;
 	virtual void onKeyPress(int key) = 0;
 };

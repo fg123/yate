@@ -29,6 +29,19 @@ public:
 	const std::vector<Pane*>& getPanes() { return panes; }
 	const std::string& getTitle() { return focused_pane->getTitle(); }
 	~PaneSet();
+
+	std::ostream& serialize(std::ostream& stream) override {
+		stream << "paneset {" << std::endl;
+		stream << x << " " << y << " " << width << " " << height << std::endl;
+		for (auto pane : panes) {
+			pane->serialize(stream);
+		}
+		stream << "}" << std::endl;
+		return stream;
+	}
+
+	PaneSet(Yate &yate, Pane *parent, std::istream& stream);
 };
+
 
 #endif

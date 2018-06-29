@@ -240,7 +240,8 @@ void Buffer::apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col) {
 
 	// These two methods are not very optimized but they will handle newline
 	// Otherwise extra algorithm / edge cases will have to be developed.
-	Logging::info << "Applying edit node: " << static_cast<int>(node->type) << " " << node->content << '\n';
+	Logging::info << "Applying edit node: " << static_cast<int>(node->type)
+		<< " " << node->content << std::endl;
 	if (node->type == EditNode::Type::INSERTION) {
 		for (auto c : node->content) {
 			insert_no_history(c, line, col);

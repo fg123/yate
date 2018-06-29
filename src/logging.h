@@ -13,6 +13,10 @@ public:
 		file << msg;
 		return *this;
 	}
+	Log const& operator<<(std::ostream& (*F)(std::ostream&)) const {
+		F(file);
+		return *this;
+	}
 };
 
 
@@ -21,6 +25,7 @@ public:
 	// TODO(anyone): This is a pretty bad Logging interface...
 	static std::ofstream file;
 	static Log info;
+	static Log error;
 	static void breadcrumb(std::string msg);
 };
 
