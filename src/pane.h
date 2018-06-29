@@ -35,7 +35,9 @@ struct Pane
 		if (parent) parent->titleUpdated();
 	}
 	virtual void onTitleUpdated() {}
-	virtual std::ostream& serialize(std::ostream& stream) {};
+	virtual std::ostream& serialize(std::ostream& stream) {
+		return stream;
+	}
 	virtual ~Pane()
 	{
 		delwin(internal_window);

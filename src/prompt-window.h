@@ -16,7 +16,7 @@ template <class T>
 class PromptWindow : public Pane, public Focusable {
 	std::vector<size_t> get_matching_items() {
 		std::vector<size_t> result;
-		for (auto i = 0; i < getItems().size(); i++) {
+		for (unsigned int i = 0; i < getItems().size(); i++) {
 			if (match(prompt_buffer, i)) result.push_back(i);
 		}
 		return result;
@@ -83,7 +83,8 @@ public:
 		mvwprintw(internal_window, 1, 1, prompt_buffer.c_str());
 
 		std::vector<size_t> matched_items = get_matching_items();
-		if (highlighted_index >= matched_items.size()) {
+		if (highlighted_index >= 0 &&
+			(unsigned int) highlighted_index >= matched_items.size()) {
 			highlighted_index = matched_items.size() - 1;
 		}
 

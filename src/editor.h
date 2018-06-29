@@ -42,7 +42,7 @@ public:
 	std::ostream& serialize(std::ostream& stream) override {
 		stream << "editor {" << std::endl;
 		stream << x << " " << y << " " << width << " " << height << std::endl;
-		stream << buffer->path << std::endl;
+		stream << buffer->getPath() << std::endl;
 		stream << "}" << std::endl;
 		return stream;
 	}

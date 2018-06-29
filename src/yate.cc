@@ -67,7 +67,7 @@ void Yate::setFocus(Focusable *focus) {
 Buffer* Yate::getBuffer(std::string path) {
 	// Check if path is already opened?
 	auto result = std::find_if(opened_buffers.begin(), opened_buffers.end(),
-		[path](Buffer* item) { return item->path == path; });
+		[path](Buffer* item) { return item->getPath() == path; });
 	if (result != opened_buffers.end()) {
 		return *result;
 	}

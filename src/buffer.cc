@@ -3,6 +3,7 @@
 #include "logging.h"
 #include "redo-prompt.h"
 #include "yate.h"
+#include "util.h"
 
 #include <fstream>
 #include <algorithm>
@@ -11,7 +12,7 @@
 #include <tuple>
 
 Buffer::Buffer(Yate& yate, std::string path): yate(yate),
-	path(path), unsaved_path(" + " + path),
+	 path(path), unsaved_path(" + " + path),
 	head_edit(new EditNode()), current_edit(head_edit) {
 	std::ifstream file(path);
 	if (file.good()) {
@@ -250,6 +251,7 @@ void Buffer::apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col) {
 	else {
 		// Delete
 		for (auto c : node->content) {
+			UNUSED(c);
 			Logging::breadcrumb("Deleting");
 			delete_no_history(line, col);
 		}
