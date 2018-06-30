@@ -9,6 +9,7 @@ void PaneSet::addPane(Pane *pane) {
 	}
 	panes.emplace_back(pane);
 }
+
 PaneSet::PaneSet(Yate &yate, Pane *parent, std::istream& stream) : Pane(parent, stream), yate(yate) {
 	Logging::breadcrumb("Deserializing PaneSet");
 	std::string token;

@@ -6,15 +6,16 @@
 
 #include <vector>
 #include <string>
+#include <ostream>
 
 class ConfigParser {
 	class Object {
 		std::vector<std::pair<std::string, std::string>> properties;
-		
+
 	};
 public:
-	ConfigParser();
-
+	ConfigParser(std::istream &source);
+	Object &getRoot();
 };
 
 #endif
