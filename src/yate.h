@@ -5,7 +5,8 @@
 #include <string>
 #include <functional>
 
-#include "config.pb.h"
+#include "src/config.pb.h"
+
 #include "focusable.h"
 #include "logging.h"
 
@@ -16,6 +17,7 @@ template <class T>
 class PromptWindow;
 
 class Yate {
+	std::string config_path;
 	Config config;
 	Focusable *current_focus = nullptr;
 	std::vector<Buffer*> opened_buffers;
@@ -29,7 +31,7 @@ class Yate {
 public:
 	PaneSet *root;
 
-	explicit Yate(Config config);
+	explicit Yate(std::string config_path);
 	~Yate();
 	bool onCapture(int result);
 	Buffer* getBuffer(std::string path);

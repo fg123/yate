@@ -12,7 +12,7 @@
 #include "prompt-window.h"
 
 
-Yate::Yate(Config config) : config(config) {
+Yate::Yate(std::string config_path) : config_path(config_path) {
 	set_escdelay(50);
 	initscr();
 	raw();
@@ -22,18 +22,19 @@ Yate::Yate(Config config) : config(config) {
 	keypad(stdscr, true);
 
 	Logging::breadcrumb("=== Starting Yate ===");
-	std::ifstream f(config.pane_configuration_path);
-	if (!f.good()) {
-		Logging::info << "No configuration provided. Defaulting." << std::endl;
-		root = new PaneSet(*this, nullptr, 0, 0, COLS, LINES);
-		root->addPane(new TabSet(*this, root, 0, 0, COLS, LINES));
-	}
-	else {
-		std::string test, test2;
-		f >> test >> test2;
-		root = new PaneSet(*this, nullptr, f);
-	}
-	
+	std::ifstream f(config_path);
+	// TODO(HERE)
+	// if (!f.good()) {
+	// 	Logging::info << "No configuration provided. Defaulting." << std::endl;
+	// 	root = new PaneSet(*this, nullptr, 0, 0, COLS, LINES);
+	// 	root->addPane(new TabSet(*this, root, 0, 0, COLS, LINES));
+	// }
+	// else {
+	// 	std::string test, test2;
+	// 	f >> test >> test2;
+	// 	root = new PaneSet(*this, nullptr, f);
+	// }
+
 	refresh();
 	root->draw();
 
@@ -49,7 +50,7 @@ Yate::Yate(Config config) : config(config) {
 
 Yate::~Yate() {
 	// TODO(felixguo): We might not want to truncate every time.
-	std::ofstream config_file(config.pane_configuration_path, std::fstream::trunc);
+	std::ofstream config_file(config_path, std::fstream::trunc);
 	root->serialize(config_file);
 
 	delete root;

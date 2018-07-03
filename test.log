@@ -1,0 +1,6 @@
+Build options: --explain=test.log --verbose_explanations
+Executing action 'BazelWorkspaceStatusAction stable-status.txt': unconditional execution is requested.
+Executing action 'Compiling external/com_google_protobuf/src/google/protobuf/message_lite.cc': no entry in the cache (action is new).
+Executing action 'Compiling external/com_google_protobuf/src/google/protobuf/stubs/stringprintf.cc': no entry in the cache (action is new).
+Executing action 'Compiling src/pane-set.cc': no entry in the cache (action is new).
+Executing action 'Compiling src/yate.cc': no entry in the cache (action is new).
