@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+message Config {
+	// A Yate Configuration, also holds the current state.
+	message State {
+		message Pane {
+			int32 x = 1;
+			int32 y = 2;
+			int32 width = 3;
+			int32 height = 4;
+		}
+		message PaneSet {
+			Pane pane = 1;
+			// Proto does not have base class inheritance
+			repeated TabSet tabset = 2;
+			repeated Editor editor = 3;
+			repeated PaneSet paneset = 4;
+		}
+		message TabSet {
+			Pane pane = 1;
+			repeated PaneSet paneset = 2;
+		}
+		message Editor {
+			Pane pane = 1;
+			string buffer_path = 2;
+		}
+	}
+	State state = 1;
+}

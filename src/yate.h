@@ -5,7 +5,7 @@
 #include <string>
 #include <functional>
 
-#include "config.h"
+#include "config.pb.h"
 #include "focusable.h"
 #include "logging.h"
 

@@ -4,6 +4,8 @@ yate.log
 
 .vscode
 
+bazel-*
+
 # Prerequisites
 *.d
 
