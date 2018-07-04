@@ -11,6 +11,8 @@
 #include "yate.h"
 #include "focusable.h"
 
+#include "src/config.pb.h"
+
 class Editor: public Pane, public Focusable {
 	Yate &yate;
 	Buffer *buffer;
@@ -47,12 +49,9 @@ public:
 		return stream;
 	}
 
-	Editor(Yate &yate, Pane *parent, std::istream& stream) : Pane(parent, stream), yate(yate) {
+	Editor(Yate &yate, Pane *parent, const YateConfig_State_Editor& fromConfig) : Pane(parent, fromConfig.pane()), yate(yate) {
 		Logging::breadcrumb("Deserializing Editor");
-		std::string token;
-		std::string path;
-		stream >> path >> token;
-		buffer = yate.getBuffer(path);
+		buffer = yate.getBuffer(fromConfig.buffer_path());
 		init();
 	}
 };

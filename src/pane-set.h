@@ -9,6 +9,8 @@
 #include "pane.h"
 #include "yate.h"
 
+#include "src/config.pb.h"
+
 class PaneSet : public Pane
 {
 	Yate &yate;
@@ -40,7 +42,7 @@ public:
 		return stream;
 	}
 
-	PaneSet(Yate &yate, Pane *parent, std::istream& stream);
+	PaneSet(Yate &yate, Pane *parent, const YateConfig_State_PaneSet &fromConfig);
 };
 
 

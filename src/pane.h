@@ -5,6 +5,8 @@
 #include <string>
 #include <ncurses.h>
 
+#include "src/config.pb.h"
+
 struct Pane
 {
 	unsigned int x;
@@ -16,12 +18,9 @@ struct Pane
 
 	virtual void draw() = 0;
 	virtual const std::string& getTitle() = 0;
-	Pane(Pane *parent, std::istream& stream) : parent(parent) {
-		stream >> x >> y >> width >> height;
-		Logging::info << "Pane: " << x << " " << y << " "
-			<< width << " " << height << std::endl;
-		internal_window = newwin(height, width, y, x);
-		keypad(internal_window, true);
+	Pane(Pane *parent, const YateConfig_State_Pane &fromConfig) : Pane(parent,
+		fromConfig.x(), fromConfig.y(), fromConfig.width(),
+		fromConfig.height()) {
 	}
 	Pane(Pane *parent, int x, int y, int width, int height):
 		x(x), y(y), width(width), height(height), parent(parent)

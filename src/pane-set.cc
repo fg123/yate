@@ -10,28 +10,16 @@ void PaneSet::addPane(Pane *pane) {
 	panes.emplace_back(pane);
 }
 
-PaneSet::PaneSet(Yate &yate, Pane *parent, std::istream& stream) : Pane(parent, stream), yate(yate) {
+PaneSet::PaneSet(Yate &yate, Pane *parent, const YateConfig_State_PaneSet& fromConfig) : Pane(parent, fromConfig.pane()), yate(yate) {
 	Logging::breadcrumb("Deserializing PaneSet");
-	std::string token;
-	while (stream >> token) {
-		Logging::breadcrumb(token);
-		if (token == "}") break;
-		if (token == "tabset") {
-			stream >> token;
-			addPane(new TabSet(yate, parent, stream));
-		}
-		else if (token == "editor") {
-			stream >> token;
-			addPane(new Editor(yate, parent, stream));
-		}
-		else if (token == "paneset") {
-			stream >> token;
-			addPane(new PaneSet(yate, parent, stream));
-		}
-		else {
-			Logging::error << "Unknown token: " << token << std::endl;
-			safe_exit(1);
-		}
+	for (auto tab : fromConfig.tabsets()) {
+		addPane(new TabSet(yate, parent, tab));
+	}
+	for (auto editor : fromConfig.editors()) {
+		addPane(new Editor(yate, parent, editor));
+	}
+	for (auto paneset : fromConfig.panesets()) {
+		addPane(new PaneSet(yate, parent, paneset));
 	}
 }
 

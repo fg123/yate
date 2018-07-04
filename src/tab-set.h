@@ -10,6 +10,8 @@
 #include "pane.h"
 #include "util.h"
 
+#include "src/config.pb.h"
+
 class TabSet: public Pane
 {
 	Yate &yate;
@@ -32,21 +34,10 @@ public:
 		return stream;
 	}
 
-	TabSet(Yate &yate, Pane *parent, std::istream& stream) : Pane(parent, stream), yate(yate) {
-		std::string token;
+	TabSet(Yate &yate, Pane *parent, const YateConfig_State_TabSet &fromConfig) : Pane(parent, fromConfig.pane()), yate(yate) {
 		Logging::breadcrumb("Deserializing TabSet");
-		while (stream >> token) {
-			Logging::breadcrumb(token);
-			if (token == "}") break;
-			if (token == "paneset") {
-				stream >> token;
-				tabs.push_back(new PaneSet(yate, parent, stream));
-				selected_tab = 0;
-			}
-			else {
-				Logging::error << "Unknown token: " << token << std::endl;
-				safe_exit(1);
-			}
+		for (auto paneset : fromConfig.panesets()) {
+				tabs.push_back(new PaneSet(yate, parent, paneset));
 		}
 	}
 };

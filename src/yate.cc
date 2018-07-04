@@ -3,8 +3,11 @@
 #include <algorithm>
 #include <sstream>
 #include <iostream>
+#include <fcntl.h>
+#include <unistd.h>
 
 #include <google/protobuf/text_format.h>
+#include <google/protobuf/io/zero_copy_stream_impl.h>
 
 #include "yate.h"
 #include "tab-set.h"
@@ -48,16 +51,17 @@ Yate::Yate(std::string config_path) : config_path(config_path) {
 	keypad(stdscr, true);
 
 	Logging::breadcrumb("=== Starting Yate ===");
-	std::ifstream f(config_path);
-	if (!f.good()) {
+	int fd = open(config_path.c_str(), O_RDONLY);
+	if (fd < 0) {
 		Logging::info << "No configuration provided. Defaulting." << std::endl;
 		root = new PaneSet(*this, nullptr, 0, 0, COLS, LINES);
 		root->addPane(new TabSet(*this, root, 0, 0, COLS, LINES));
 	}
 	else {
-		Config config;
-		TextFormat::Parse(f, &config);
-		root = new PaneSet(*this, nullptr, f);
+		YateConfig config;
+		google::protobuf::io::FileInputStream stream(fd);
+		google::protobuf::TextFormat::Parse(&stream, &config);
+		root = new PaneSet(*this, nullptr, config.state().root());
 	}
 
 	refresh();
