@@ -4,12 +4,38 @@
 #include <sstream>
 #include <iostream>
 
+#include <google/protobuf/text_format.h>
+
 #include "yate.h"
 #include "tab-set.h"
 #include "logging.h"
 #include "editor.h"
 #include "util.h"
 #include "prompt-window.h"
+
+#include "src/config.pb.h"
+
+// std::string default_config =
+// "paneset {"
+// 	"0 0 80 24"
+// 		"tabset {"
+// 			"0 0 80 24"
+// 				"paneset {"
+// 					"0 1 80 23"
+// 					"editor {"
+// 					"0 1 80 23"
+// 					"Untitled"
+// 					"}"
+// 					"}"
+// 					"paneset {"
+// 					"0 1 80 23"
+// 					"editor {"
+// 					"0 1 80 23"
+// 				"Untitled"
+// 			"}"
+// 		"}"
+// 	"}"
+// "}";
 
 
 Yate::Yate(std::string config_path) : config_path(config_path) {
@@ -23,17 +49,16 @@ Yate::Yate(std::string config_path) : config_path(config_path) {
 
 	Logging::breadcrumb("=== Starting Yate ===");
 	std::ifstream f(config_path);
-	// TODO(HERE)
-	// if (!f.good()) {
-	// 	Logging::info << "No configuration provided. Defaulting." << std::endl;
-	// 	root = new PaneSet(*this, nullptr, 0, 0, COLS, LINES);
-	// 	root->addPane(new TabSet(*this, root, 0, 0, COLS, LINES));
-	// }
-	// else {
-	// 	std::string test, test2;
-	// 	f >> test >> test2;
-	// 	root = new PaneSet(*this, nullptr, f);
-	// }
+	if (!f.good()) {
+		Logging::info << "No configuration provided. Defaulting." << std::endl;
+		root = new PaneSet(*this, nullptr, 0, 0, COLS, LINES);
+		root->addPane(new TabSet(*this, root, 0, 0, COLS, LINES));
+	}
+	else {
+		Config config;
+		TextFormat::Parse(f, &config);
+		root = new PaneSet(*this, nullptr, f);
+	}
 
 	refresh();
 	root->draw();

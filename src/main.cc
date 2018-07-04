@@ -8,21 +8,21 @@ int usage() {
 }
 
 int main(int argc, char *argv[]) {
-	Config config;
+	std::string pane_configuration_path;
 	for (int i = 1; i < argc; i++) {
 		std::string arg(argv[i]);
 		if (i != argc - 1 && (arg == "-c" || arg == "--config")) {
-			config.pane_configuration_path = argv[++i];
+			pane_configuration_path = argv[++i];
 		}
 		else {
 			return usage();
 		}
 		
 	}
-	if (config.pane_configuration_path.empty()) {
+	if (pane_configuration_path.empty()) {
 		// User did not specify
-		config.pane_configuration_path = ".yate";
+		pane_configuration_path = ".yate";
 	}
-	Yate yate(config);
+	Yate yate(pane_configuration_path);
 	return 0;
 }
