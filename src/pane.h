@@ -17,24 +17,28 @@ struct Pane
 	Pane *parent;
 
 	virtual void draw() = 0;
-	virtual const std::string& getTitle() = 0;
-	Pane(Pane *parent, const YateConfig_State_Pane &fromConfig) : Pane(parent,
-		fromConfig.x(), fromConfig.y(), fromConfig.width(),
-		fromConfig.height()) {
+	virtual const std::string &getTitle() = 0;
+	Pane(Pane *parent, const YateConfig_State_Pane &fromConfig)
+		: Pane(parent,
+			   fromConfig.x(), fromConfig.y(), fromConfig.width(),
+			   fromConfig.height())
+	{
 	}
-	Pane(Pane *parent, int x, int y, int width, int height):
-		x(x), y(y), width(width), height(height), parent(parent)
+	Pane(Pane *parent, int x, int y, int width, int height) : x(x), y(y), width(width), height(height), parent(parent)
 	{
 		internal_window = newwin(height, width, y, x);
 		keypad(internal_window, true);
 	}
 
-	void titleUpdated() {
+	void titleUpdated()
+	{
 		onTitleUpdated();
-		if (parent) parent->titleUpdated();
+		if (parent)
+			parent->titleUpdated();
 	}
 	virtual void onTitleUpdated() {}
-	virtual std::ostream& serialize(std::ostream& stream) {
+	virtual std::ostream &serialize(std::ostream &stream)
+	{
 		return stream;
 	}
 	virtual ~Pane()

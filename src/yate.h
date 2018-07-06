@@ -16,10 +16,11 @@ class Buffer;
 template <class T>
 class PromptWindow;
 
-class Yate {
+class Yate
+{
 	std::string config_path;
 	Focusable *current_focus = nullptr;
-	std::vector<Buffer*> opened_buffers;
+	std::vector<Buffer *> opened_buffers;
 	Focusable *previous_focus = nullptr;
 
 	// If we cast it to Focusable, the pointer will decay and won't be able to
@@ -27,21 +28,24 @@ class Yate {
 
 	void *current_prompt = nullptr;
 
-public:
+  public:
 	PaneSet *root;
 
 	explicit Yate(std::string config_path);
 	~Yate();
 	bool onCapture(int result);
-	Buffer* getBuffer(std::string path);
+	Buffer *getBuffer(std::string path);
 	void setFocus(Focusable *editor);
 	bool hasFocus() { return current_focus; }
 	template <class T>
-	void enterPrompt(PromptWindow<T> *window) {
-		if (previous_focus) {
+	void enterPrompt(PromptWindow<T> *window)
+	{
+		if (previous_focus)
+		{
 			delete window;
 		}
-		else {
+		else
+		{
 			previous_focus = current_focus;
 			Logging::info << "Focus into: " << window << std::endl;
 			Logging::info << "Current: " << current_focus << std::endl;
