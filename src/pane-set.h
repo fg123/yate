@@ -11,42 +11,38 @@
 
 #include "src/config.pb.h"
 
-class PaneSet : public Pane
-{
-	Yate &yate;
-	std::vector<Pane *> panes;
-	// Store Focused Pane
-	Pane *focused_pane;
+class PaneSet : public Pane {
+  Yate &yate;
+  std::vector<Pane *> panes;
+  // Store Focused Pane
+  Pane *focused_pane;
 
-  public:
-	PaneSet(Yate &yate, Pane *parent, int x, int y, int width, int height) : Pane(parent, x, y, width, height), yate(yate) {}
-	~PaneSet();
-	// TODO(anyone): Created better interface for proper splitting.
-	void addPane(Pane *pane);
-	void draw()
-	{
-		Logging::breadcrumb("Paneset Draw");
-		for (auto pane : panes)
-		{
-			pane->draw();
-		}
-	}
-	const std::vector<Pane *> &getPanes() { return panes; }
-	const std::string &getTitle() { return focused_pane->getTitle(); }
-	void onResize(uint nx, uint ny, uint nwidth, uint nheight) override;
-	std::ostream &serialize(std::ostream &stream) override
-	{
-		stream << "paneset {" << std::endl;
-		stream << x << " " << y << " " << width << " " << height << std::endl;
-		for (auto pane : panes)
-		{
-			pane->serialize(stream);
-		}
-		stream << "}" << std::endl;
-		return stream;
-	}
+ public:
+  PaneSet(Yate &yate, Pane *parent, int x, int y, int width, int height)
+      : Pane(parent, x, y, width, height), yate(yate) {}
+  ~PaneSet();
+  // TODO(anyone): Created better interface for proper splitting.
+  void addPane(Pane *pane);
+  void draw() {
+    Logging::breadcrumb("Paneset Draw");
+    for (auto pane : panes) {
+      pane->draw();
+    }
+  }
+  const std::vector<Pane *> &getPanes() { return panes; }
+  const std::string &getTitle() { return focused_pane->getTitle(); }
+  void onResize(uint nx, uint ny, uint nwidth, uint nheight) override;
+  std::ostream &serialize(std::ostream &stream) override {
+    stream << "paneset {" << std::endl;
+    stream << x << " " << y << " " << width << " " << height << std::endl;
+    for (auto pane : panes) {
+      pane->serialize(stream);
+    }
+    stream << "}" << std::endl;
+    return stream;
+  }
 
-	PaneSet(Yate &yate, Pane *parent, const YateConfig_State_PaneSet &fromConfig);
+  PaneSet(Yate &yate, Pane *parent, const YateConfig_State_PaneSet &fromConfig);
 };
 
 #endif
