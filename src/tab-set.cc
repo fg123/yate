@@ -81,3 +81,10 @@ void TabSet::onTitleUpdated() {
 	Logging::breadcrumb("Tabset onTitleUpdated");
 	drawTabs();
 }
+
+void TabSet::onResize(uint nx, uint ny, uint nwidth, uint nheight) {
+	for (auto tab : tabs) {
+		// Leave gap for tab bar.
+		tab->resize(nx, ny + 1, nwidth, nheight - 1);
+	}
+}

@@ -3,13 +3,6 @@
 #include "editor.h"
 #include "tab-set.h"
 
-void PaneSet::addPane(Pane *pane) {
-	if (panes.size() == 0) {
-		focused_pane = pane;
-	}
-	panes.emplace_back(pane);
-}
-
 PaneSet::PaneSet(Yate &yate, Pane *parent, const YateConfig_State_PaneSet& fromConfig) : Pane(parent, fromConfig.pane()), yate(yate) {
 	Logging::breadcrumb("Deserializing PaneSet");
 	for (auto tab : fromConfig.tabsets()) {
@@ -27,4 +20,15 @@ PaneSet::~PaneSet() {
 	for (auto pane : panes) {
 		delete pane;
 	}
+}
+
+void PaneSet::addPane(Pane *pane) {
+	if (panes.size() == 0) {
+		focused_pane = pane;
+	}
+	panes.emplace_back(pane);
+}
+
+void PaneSet::onResize(uint nx, uint ny, uint nwidth, uint nheight) {
+
 }

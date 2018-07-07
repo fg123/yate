@@ -6,6 +6,7 @@
 #include "util.h"
 #include "command-prompt.h"
 
+// TODO(felixguo): Handle line wrapping?
 void Editor::draw() {
 	Logging::breadcrumb("Editor Draw");
 	unsigned int i = 0;

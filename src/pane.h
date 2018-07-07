@@ -7,16 +7,27 @@
 
 #include "src/config.pb.h"
 
+using uint = unsigned int;
+
 struct Pane
 {
-	unsigned int x;
-	unsigned int y;
-	unsigned int width;
-	unsigned int height;
+	uint x;
+	uint y;
+	uint width;
+	uint height;
 	WINDOW *internal_window;
 	Pane *parent;
 
 	virtual void draw() = 0;
+	void resize(uint nx, uint ny, uint nwidth, uint nheight) {
+		onResize(nx, ny, nwidth, nheight);
+		x = nx;
+		y = ny;
+		width = nwidth;
+		height = nheight;
+	}
+	// onResize should be called before updated, so we can do comparison
+	virtual void onResize(uint nx, uint ny, uint nwidth, uint nheight) { }
 	virtual const std::string &getTitle() = 0;
 	Pane(Pane *parent, const YateConfig_State_Pane &fromConfig)
 		: Pane(parent,
