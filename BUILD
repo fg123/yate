@@ -1,8 +1,8 @@
 cc_binary(
 	name = "yate",
 	srcs = glob(["src/*.cc", "src/*.h"]),
-	linkopts = ["-lncurses"],
-	copts = ["-std=c++11 -g -Wall"],
+	linkopts = ["-lncurses", "-fsanitize=address"],
+	copts = ["-std=c++11", "-g", "-Wall"],
 	deps = [":config_cc_proto"]
 )
 
