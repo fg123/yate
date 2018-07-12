@@ -18,11 +18,14 @@ class CommandPromptWindow : public PromptWindow<CommandPromptEntry> {
   CommandPromptWindow(Yate &yate, Editor *editor)
       : PromptWindow(yate), editor(editor) {
     // TODO(felixguo): This seems super ghetto and should probably
-    //   be better implemented.
-    items.push_back(std::make_pair(
-        "Edit: Undo", [editor]() { editor->onKeyPress(ctrl('z')); }));
-    items.push_back(std::make_pair(
-        "Edit: Redo", [editor]() { editor->onKeyPress(ctrl('y')); }));
+    //   be better implemented. It has a strange? memory leak with a string
+    //   alloc?
+    items.emplace_back("Edit: Undo", std::function<void()>([editor]() {
+                         editor->onKeyPress(ctrl('z'));
+                       }));
+    items.emplace_back("Edit: Redo", std::function<void()>([editor]() {
+                         editor->onKeyPress(ctrl('y'));
+                       }));
   }
   const std::string &getTitle() override { return title; }
 

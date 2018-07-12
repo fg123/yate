@@ -39,7 +39,7 @@ class TabSet : public Pane {
       : Pane(parent, fromConfig.pane()), yate(yate) {
     Logging::breadcrumb("Deserializing TabSet");
     for (auto paneset : fromConfig.panesets()) {
-      tabs.push_back(new PaneSet(yate, parent, paneset));
+      tabs.push_back(new PaneSet(yate, this, paneset));
     }
   }
 };

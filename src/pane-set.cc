@@ -9,13 +9,13 @@ PaneSet::PaneSet(Yate &yate, Pane *parent,
     : Pane(parent, fromConfig.pane()), yate(yate) {
   Logging::breadcrumb("Deserializing PaneSet");
   for (auto tab : fromConfig.tabsets()) {
-    addPane(new TabSet(yate, parent, tab));
+    addPane(new TabSet(yate, this, tab));
   }
   for (auto editor : fromConfig.editors()) {
-    addPane(new Editor(yate, parent, editor));
+    addPane(new Editor(yate, this, editor));
   }
   for (auto paneset : fromConfig.panesets()) {
-    addPane(new PaneSet(yate, parent, paneset));
+    addPane(new PaneSet(yate, this, paneset));
   }
 }
 
@@ -34,8 +34,8 @@ void PaneSet::addPane(Pane *pane) {
 
 void PaneSet::onResize(uint nx, uint ny, uint nwidth, uint nheight) {
   Pane *bottom_right_pane = nullptr;
-  uint cumulative_width = nx;
-  uint cumulative_height = ny;
+  uint bottom_right_start_x = nx;
+  uint bottom_right_start_y = ny;
   auto apply = [nwidth, this, nx](uint a) {
     auto ratio = (double)width / (double)nwidth;
     return std::round((a - x) * ratio) + nx;
@@ -53,8 +53,8 @@ void PaneSet::onResize(uint nx, uint ny, uint nwidth, uint nheight) {
     } else {
       uint new_width = apply(pane->width);
       uint new_height = apply(pane->height);
-      cumulative_width += new_width;
-      cumulative_height += new_height;
+      bottom_right_start_x += new_width;
+      bottom_right_start_y += new_height;
       pane->resize(apply(pane->x), apply(pane->y), new_width, new_height);
     }
   }
@@ -64,7 +64,7 @@ void PaneSet::onResize(uint nx, uint ny, uint nwidth, uint nheight) {
                    << std::endl;
     return;
   }
-  bottom_right_pane->resize(cumulative_width, cumulative_height,
-                            nwidth - cumulative_width,
-                            nheight - cumulative_height);
+  bottom_right_pane->resize(bottom_right_start_x, bottom_right_start_y,
+                            nwidth - bottom_right_start_x + nx,
+                            nheight - bottom_right_start_y + ny);
 }

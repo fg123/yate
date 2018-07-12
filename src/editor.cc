@@ -22,7 +22,17 @@ static std::string tab_replace(std::string line, int tab_size) {
 
 // TODO(felixguo): Handle line wrapping?
 void Editor::draw() {
+  while (window_start > current_line) {
+    window_start -= 1;
+  }
+
+  while (window_start + height <= current_line) {
+    window_start += 1;
+  }
+
   Logging::breadcrumb("Editor Draw");
+  Logging::info << "Start: " << window_start << " Height: " << height
+                << "Current: " << current_line << std::endl;
   unsigned int i = 0;
   int field_width = buffer->getLineNumberFieldWidth() + 1;
   for (auto line :
@@ -49,18 +59,19 @@ void Editor::draw() {
 
 int Editor::capture() {
   // capture at correct location
-  curs_set(1);
   draw();
+  curs_set(1);
   int line_number_width = buffer->getLineNumberFieldWidth() + 2;
   int col = current_col;
   std::string& line = buffer->getLine(current_line);
-  for (int i = 0; i < current_col; i++) {
+  for (uint i = 0; i < current_col; i++) {
     if (line.at(i) == '\t') {
       // Minus one because the tab character itself counts too
       col += yate.getTabSize() - 1;
     }
   }
-  return mvwgetch(internal_window, current_line, col + line_number_width);
+  return mvwgetch(internal_window, current_line - window_start,
+                  col + line_number_width);
 }
 
 const std::string& Editor::getTitle() { return buffer->getFileName(); }

@@ -44,8 +44,13 @@ struct Pane {
   }
 
   void titleUpdated() {
+    Logging::breadcrumb("Pane Title Updated");
     onTitleUpdated();
-    if (parent) parent->titleUpdated();
+    if (parent) {
+      parent->titleUpdated();
+    } else {
+      Logging::breadcrumb("No parent to notify!");
+    }
   }
   virtual void onTitleUpdated() {}
   virtual std::ostream &serialize(std::ostream &stream) { return stream; }

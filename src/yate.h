@@ -54,7 +54,7 @@ class Yate {
   YateConfig_IndentationStyle getIndentationStyle();
 
   void exitPrompt();
-  void exitPromptThenRun(std::function<void()> function);
+  void exitPromptThenRun(std::function<void()> &function);
 };
 
 #endif

@@ -107,6 +107,11 @@ Yate::~Yate() {
   for (auto buffer : opened_buffers) {
     delete buffer;
   }
+
+  if (current_prompt) {
+    // Current is the allocated prompt_window
+    delete current_prompt;
+  }
   endwin();
 }
 
@@ -139,7 +144,7 @@ bool Yate::onCapture(int result) {
   return result == ctrl('q');
 }
 
-void Yate::exitPromptThenRun(std::function<void()> function) {
+void Yate::exitPromptThenRun(std::function<void()> &function) {
   exitPrompt();
   function();
 }
