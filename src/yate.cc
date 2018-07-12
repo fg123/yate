@@ -18,6 +18,8 @@
 
 #include "src/config.pb.h"
 
+#define DEFAULT_INDENTATION_SIZE 8
+
 std::string default_config =
     R"(state {
 	root {
@@ -65,7 +67,6 @@ Yate::Yate(std::string config_path) : config_path(config_path) {
   keypad(stdscr, true);
 
   Logging::breadcrumb("=== Starting Yate ===");
-  YateConfig config;
   int fd = open(config_path.c_str(), O_RDONLY);
   if (fd < 0) {
     Logging::info << "No configuration provided. Defaulting." << std::endl;
@@ -141,6 +142,14 @@ bool Yate::onCapture(int result) {
 void Yate::exitPromptThenRun(std::function<void()> function) {
   exitPrompt();
   function();
+}
+
+int Yate::getTabSize() {
+  return config.tab_size() > 0 ? config.tab_size() : DEFAULT_INDENTATION_SIZE;
+}
+
+YateConfig_IndentationStyle Yate::getIndentationStyle() {
+  return config.indentation_style();
 }
 
 void Yate::exitPrompt() {

@@ -27,4 +27,10 @@ message YateConfig {
 		PaneSet root = 1;
 	}
 	State state = 1;
+	enum IndentationStyle {
+		INDENTATION_TAB = 0;
+		INDENTATION_SPACE = 1;
+	}
+	IndentationStyle indentation_style = 2;
+	int32 tab_size = 3;
 }

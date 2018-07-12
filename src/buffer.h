@@ -105,6 +105,7 @@ class Buffer {
   Buffer(Yate &yate, std::string path);
   ~Buffer();
   BufferWindow getBufferWindow(LineNumber start, LineNumber end);
+  std::string &getLine(LineNumber line) { return internal_buffer.at(line); }
 
   const bool &hasUnsavedChanges();
   const std::string &getFileName();

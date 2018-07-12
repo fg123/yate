@@ -18,6 +18,7 @@ class PromptWindow;
 
 class Yate {
   std::string config_path;
+  YateConfig config;
   Focusable *current_focus = nullptr;
   std::vector<Buffer *> opened_buffers;
   Focusable *previous_focus = nullptr;
@@ -48,6 +49,9 @@ class Yate {
       current_prompt = window;
     }
   }
+
+  int getTabSize();
+  YateConfig_IndentationStyle getIndentationStyle();
 
   void exitPrompt();
   void exitPromptThenRun(std::function<void()> function);

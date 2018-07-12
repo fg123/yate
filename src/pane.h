@@ -5,6 +5,8 @@
 #include <ncurses.h>
 #include <string>
 
+#include "logging.h"
+
 #include "src/config.pb.h"
 
 using uint = unsigned int;
