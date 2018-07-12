@@ -1,3 +1,11 @@
+# Generated Binary
+yate
+yate.log
+
+.vscode
+
+bazel-*
+
 # Prerequisites
 *.d
 
