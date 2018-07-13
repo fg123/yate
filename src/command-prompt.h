@@ -5,6 +5,7 @@
 #include <string>
 
 #include "editor.h"
+#include "filesystem-prompt.h"
 #include "prompt-window.h"
 #include "util.h"
 
@@ -20,6 +21,10 @@ class CommandPromptWindow : public PromptWindow<CommandPromptEntry> {
     // TODO(felixguo): This seems super ghetto and should probably
     //   be better implemented. It has a strange? memory leak with a string
     //   alloc?
+    items.emplace_back(
+        "File: Open", std::function<void()>([editor, &yate]() {
+          yate.enterPrompt(new FileSystemWindow(yate, editor, "."));
+        }));
     items.emplace_back("Edit: Undo", std::function<void()>([editor]() {
                          editor->onKeyPress(ctrl('z'));
                        }));
@@ -30,11 +35,7 @@ class CommandPromptWindow : public PromptWindow<CommandPromptEntry> {
   const std::string &getTitle() override { return title; }
 
   bool match(std::string buffer, size_t index) override {
-    return std::search(items.at(index).first.begin(),
-                       items.at(index).first.end(), buffer.begin(),
-                       buffer.end(), [](char ch1, char ch2) {
-                         return std::toupper(ch1) == std::toupper(ch2);
-                       }) != items.at(index).first.end();
+    return fuzzy_match(buffer, items.at(index).first);
   }
 
   const std::string getItemString(size_t index) override {
