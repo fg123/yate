@@ -10,7 +10,7 @@
 #include "util.h"
 
 using CommandPromptEntry = std::pair<std::string, std::function<void()>>;
-class CommandPromptWindow : public PromptWindow<CommandPromptEntry> {
+class CommandPromptWindow : public PromptWindow {
   const std::string title = "Enter Command:";
   std::vector<CommandPromptEntry> items;
   Editor *editor = nullptr;
@@ -18,13 +18,9 @@ class CommandPromptWindow : public PromptWindow<CommandPromptEntry> {
  public:
   CommandPromptWindow(Yate &yate, Editor *editor)
       : PromptWindow(yate), editor(editor) {
-    // TODO(felixguo): This seems super ghetto and should probably
-    //   be better implemented. It has a strange? memory leak with a string
-    //   alloc?
-    items.emplace_back(
-        "File: Open", std::function<void()>([editor, &yate]() {
-          yate.enterPrompt(new FileSystemWindow(yate, editor, "."));
-        }));
+    items.emplace_back("File: Open", std::function<void()>([editor]() {
+                         editor->onKeyPress(ctrl('o'));
+                       }));
     items.emplace_back("Edit: Undo", std::function<void()>([editor]() {
                          editor->onKeyPress(ctrl('z'));
                        }));
@@ -47,7 +43,7 @@ class CommandPromptWindow : public PromptWindow<CommandPromptEntry> {
     yate.exitPromptThenRun(items.at(index).second);
   }
 
-  const std::vector<CommandPromptEntry> &getItems() { return items; }
+  const size_t getListSize() { return items.size(); }
 };
 
 #endif

@@ -3,40 +3,37 @@
 
 #include <functional>
 
-#include "prompt-window.h"
 #include "buffer.h"
+#include "prompt-window.h"
 
-class RedoPromptWindow : public PromptWindow<EditNode*> {
-	const std::string title = "Select a Redo:";
-	std::vector<EditNode*>& items;
-	std::function<void(int)> callback;
-public:
-	RedoPromptWindow(Yate &yate, std::vector<EditNode*>& items,
-		std::function<void(int)> callback) :
-		PromptWindow(yate), items(items), callback(callback) {
-		input_enabled = false;
-	}
+class RedoPromptWindow : public PromptWindow {
+  const std::string title = "Select a Redo:";
+  std::vector<EditNode*>& items;
+  std::function<void(int)> callback;
 
-	const std::string& getTitle() override {
-		return title;
-	}
+ public:
+  RedoPromptWindow(Yate& yate, std::vector<EditNode*>& items,
+                   std::function<void(int)> callback)
+      : PromptWindow(yate), items(items), callback(callback) {
+    input_enabled = false;
+  }
 
-	bool match(std::string buffer, size_t index) override {
-		return true; // No matching
-	}
+  const std::string& getTitle() override { return title; }
 
-	const std::string getItemString(size_t index) override {
-		return std::to_string(index + 1) + ": " + items.at(index)->getDescription();
-	}
+  bool match(std::string buffer, size_t index) override {
+    return true;  // No matching
+  }
 
-	void onExecute(size_t index) override {
-		callback(index);
-		yate.exitPrompt();
-	}
+  const std::string getItemString(size_t index) override {
+    return std::to_string(index + 1) + ": " + items.at(index)->getDescription();
+  }
 
-	const std::vector<EditNode*>& getItems() {
-		return items;
-	}
+  void onExecute(size_t index) override {
+    callback(index);
+    yate.exitPrompt();
+  }
+
+  const size_t getListSize() { return items.size(); }
 };
 
 #endif

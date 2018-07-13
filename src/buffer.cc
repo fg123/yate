@@ -82,6 +82,12 @@ void Buffer::registerEditor(Editor* editor) {
   registered_editors.push_back(editor);
 }
 
+void Buffer::unregisterEditor(Editor* editor) {
+  registered_editors.erase(
+      std::remove(registered_editors.begin(), registered_editors.end(), editor),
+      registered_editors.end());
+}
+
 void Buffer::setHasUnsavedChanges(bool hasUnsavedChanges) {
   has_unsaved_changes = hasUnsavedChanges;
   updateTitle();

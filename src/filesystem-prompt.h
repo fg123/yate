@@ -8,34 +8,45 @@
 #include "prompt-window.h"
 #include "util.h"
 
-class FileSystemWindow : public PromptWindow<std::string> {
+class FileSystemWindow : public PromptWindow {
   std::string title;
   Editor *editor = nullptr;
   Directory directory;
+  std::function<void(std::string path)> callback;
+
+  void finish(std::string path) {
+    callback(path);
+    yate.exitPrompt();
+  }
 
  public:
-  FileSystemWindow(Yate &yate, Editor *editor, std::string path)
+  FileSystemWindow(Yate &yate, Editor *editor, std::string path,
+                   std::function<void(std::string path)> callback)
       : PromptWindow(yate), editor(editor), directory(path) {
     title = "Choose File (" + path + ")";
   }
   const std::string &getTitle() override { return title; }
 
   bool match(std::string buffer, size_t index) override {
-    return fuzzy_match(buffer, directory.getListing().at(index));
+    std::string displayValue = directory.getDisplayString(index);
+    return fuzzy_match(buffer, displayValue);
   }
 
   const std::string getItemString(size_t index) override {
-    return directory.getListing().at(index);
+    return directory.getDisplayString(index);
   }
 
   void onExecute(size_t index) override {
-    // Editor *tmp = editor;
-    // yate.exitPromptThenRun(std::function<void()>([tmp](){
-
-    // }));
+    if (directory.isDirectory(index)) {
+      yate.enterPrompt(
+          new FileSystemWindow(yate, editor, directory.getPath(index),
+                               [this](std::string path) { finish(path); }));
+    } else {
+      finish(directory.getPath(index));
+    }
   }
 
-  const std::vector<std::string> &getItems() { return directory.getListing(); }
+  const size_t getListSize() { return directory.size(); }
 };
 
 #endif

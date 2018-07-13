@@ -31,6 +31,12 @@ class Editor : public Pane, public Focusable {
     }
   }
 
+  void switchBuffer(std::string newPath) {
+    buffer->unregisterEditor(this);
+    buffer = yate.getBuffer(newPath);
+    buffer->registerEditor(this);
+  }
+
  public:
   Editor(Yate &yate, Pane *parent, Buffer *buffer, int x, int y, int width,
          int height)

@@ -116,6 +116,10 @@ void Editor::onKeyPress(int key) {
     case ctrl('y'):
       buffer->redo(current_line, current_col);
       break;
+    case ctrl('o'):
+      yate.enterPrompt(new FileSystemWindow(
+          yate, this, ".", std::bind(&Editor::switchBuffer, this);));
+      break;
     case KEY_LEFT:
       if (current_col != 0) {
         current_col--;

@@ -94,7 +94,7 @@ Yate::Yate(std::string config_path) : config_path(config_path) {
     safe_exit(1);
   }
   while (true) {
-    if (onCapture(current_focus->capture())) break;
+    if (onCapture(getCurrentFocus()->capture())) break;
   }
 }
 
@@ -108,11 +108,17 @@ Yate::~Yate() {
     delete buffer;
   }
 
-  if (current_prompt) {
-    // Current is the allocated prompt_window
-    delete current_prompt;
+  for (auto prompt : prompt_stack) {
+    delete prompt;
   }
   endwin();
+}
+
+Focusable *Yate::getCurrentFocus() {
+  if (prompt_stack.empty())
+    return current_focus;
+  else
+    return prompt_stack.back();
 }
 
 void Yate::setFocus(Focusable *focus) {
@@ -134,7 +140,7 @@ Buffer *Yate::getBuffer(std::string path) {
 }
 
 bool Yate::onCapture(int result) {
-  current_focus->onKeyPress(result);
+  getCurrentFocus()->onKeyPress(result);
   if (result == KEY_RESIZE) {
     Logging::breadcrumb("KEY_RESIZE Hit!");
     refresh();
@@ -158,13 +164,7 @@ YateConfig_IndentationStyle Yate::getIndentationStyle() {
 }
 
 void Yate::exitPrompt() {
-  if (previous_focus) {
-    // TODO(anyone): Convert this prompt model to use unique pointers
-    delete current_prompt;
-    Logging::info << previous_focus << std::endl;
-    Logging::info << current_focus << std::endl;
-    setFocus(previous_focus);
-    previous_focus = nullptr;
-    current_prompt = nullptr;
-  }
+  PromptWindow *p = prompt_stack.back();
+  delete p;
+  prompt_stack.pop_back();
 }

@@ -113,6 +113,7 @@ class Buffer {
   std::string &getPath() { return path; }
   size_t getLineNumberFieldWidth();
   void registerEditor(Editor *editor);
+  void unregisterEditor(Editor *editor);
   void updateTitle();
   void setHasUnsavedChanges(bool hasUnsavedChanges);
   void insertCharacter(int character, LineNumber &line, ColNumber &col);

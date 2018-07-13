@@ -12,11 +12,10 @@
 // Prompt window is a window that shows a list of options and a textbox with
 // matching and "auto-complete"
 
-template <class T>
 class PromptWindow : public Pane, public Focusable {
   std::vector<size_t> get_matching_items() {
     std::vector<size_t> result;
-    for (unsigned int i = 0; i < getItems().size(); i++) {
+    for (unsigned int i = 0; i < getListSize(); i++) {
       if (match(prompt_buffer, i)) result.push_back(i);
     }
     return result;
@@ -35,6 +34,10 @@ class PromptWindow : public Pane, public Focusable {
 
   ~PromptWindow() { curs_set(1); }
 
+  void onResize() {
+    // PromptWindows have their own resize
+    Pane::resize(COLS / 4, LINES / 4, COLS / 2, LINES / 2);
+  }
   int capture() override {
     draw();
     curs_set(input_enabled);
@@ -132,7 +135,7 @@ class PromptWindow : public Pane, public Focusable {
   virtual const std::string& getTitle() override = 0;
   virtual bool match(std::string buffer, size_t index) = 0;
   virtual const std::string getItemString(size_t index) = 0;
-  virtual const std::vector<T>& getItems() = 0;
+  virtual const size_t getListSize() = 0;
   virtual void onExecute(size_t index) = 0;
 };
 #endif
