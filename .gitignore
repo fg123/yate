@@ -1,6 +1,7 @@
 # Generated Binary
 yate
-yate.log
+
+*.log
 
 .vscode
 
