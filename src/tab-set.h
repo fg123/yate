@@ -44,7 +44,8 @@ class TabSet : public Pane {
   }
   void onMouseEvent(MEVENT *event) override {
     if (event->bstate & BUTTON1_PRESSED) {
-      if (event->y == y && event->x >= x && event->x < x + width) {
+      if ((uint)event->y == y && (uint)event->x >= x &&
+          (uint)event->x < x + width) {
         Logging::breadcrumb("Tab Bar Clicked");
         // Tab Bar Click
         // TODO: Actually implement checking which tab pressed

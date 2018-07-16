@@ -63,11 +63,7 @@ class Editor : public Pane, public Focusable {
   void onKeyPress(int key) override;
   void onMouseEvent(MEVENT *event) override {
     if (event->bstate & BUTTON1_PRESSED) {
-      bool withinBounds = event->x >= x && event->y >= y &&
-                          event->x < x + width && event->y < y + height;
-      if (withinBounds) {
-        yate.setFocus(this);
-      }
+      yate.setFocus(this);
     }
   }
   std::ostream &serialize(std::ostream &stream) override {

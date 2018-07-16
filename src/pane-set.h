@@ -42,11 +42,19 @@ class PaneSet : public Pane {
     return stream;
   }
   void onMouseEvent(MEVENT *event) override {
-    // TODO: Might as well check which pane the click happened here so theres
-    // minimal call forwarding
     for (auto pane : panes) {
-      pane->mouseEvent(event);
+      if (event->bstate & BUTTON1_PRESSED) {
+        bool withinBounds = (uint)event->x >= pane->x &&
+                            (uint)event->y >= pane->y &&
+                            (uint)event->x < pane->x + pane->width &&
+                            (uint)event->y < pane->y + pane->height;
+        if (withinBounds) {
+          focused_pane = pane;
+          pane->mouseEvent(event);
+        }
+      }
     }
+    titleUpdated();
   }
   PaneSet(Yate &yate, Pane *parent, const YateConfig_State_PaneSet &fromConfig);
 };
