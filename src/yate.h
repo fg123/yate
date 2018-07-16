@@ -21,13 +21,14 @@ class Yate {
   std::vector<Buffer *> opened_buffers;
   std::vector<PromptWindow *> prompt_stack;
   Focusable *getCurrentFocus();
+  bool shouldQuit = false;
 
  public:
   PaneSet *root;
 
   explicit Yate(std::string config_path);
   ~Yate();
-  bool onCapture(int result);
+  void onCapture(int result);
   Buffer *getBuffer(std::string path);
   void setFocus(Focusable *editor);
   bool hasFocus() { return current_focus; }
@@ -36,6 +37,7 @@ class Yate {
   int getTabSize();
   YateConfig_IndentationStyle getIndentationStyle();
 
+  void quit();
   void exitPrompt();
   void exitPromptThenRun(std::function<void()> &function);
 };

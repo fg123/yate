@@ -95,8 +95,10 @@ Yate::Yate(std::string config_path) : config_path(config_path) {
     Logging::error << "No editor was initialized!" << std::endl;
     safe_exit(1);
   }
+
   while (true) {
-    if (onCapture(getCurrentFocus()->capture())) break;
+    if (shouldQuit) break;
+    onCapture(getCurrentFocus()->capture());
   }
 }
 
@@ -144,7 +146,7 @@ Buffer *Yate::getBuffer(std::string path) {
 
 static MEVENT event;
 
-bool Yate::onCapture(int result) {
+void Yate::onCapture(int result) {
   if (result == KEY_RESIZE) {
     Logging::breadcrumb("KEY_RESIZE Hit!");
     refresh();
@@ -157,8 +159,12 @@ bool Yate::onCapture(int result) {
   } else {
     getCurrentFocus()->onKeyPress(result);
   }
-  return result == ctrl('q');
+  if (result == ctrl('q')) {
+    shouldQuit = true;
+  }
 }
+
+void Yate::quit() { shouldQuit = true; }
 
 void Yate::exitPromptThenRun(std::function<void()> &function) {
   exitPrompt();

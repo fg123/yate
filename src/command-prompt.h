@@ -6,6 +6,7 @@
 
 #include "editor.h"
 #include "filesystem-prompt.h"
+#include "navigate-window.h"
 #include "prompt-window.h"
 #include "util.h"
 
@@ -21,11 +22,19 @@ class CommandPromptWindow : public PromptWindow {
     items.emplace_back("File: Open", std::function<void()>([editor]() {
                          editor->onKeyPress(ctrl('o'));
                        }));
+    items.emplace_back("File: Save", std::function<void()>([editor]() {
+                         editor->onKeyPress(ctrl('s'));
+                       }));
+    items.emplace_back("File: Quit",
+                       std::function<void()>([&yate]() { yate.quit(); }));
     items.emplace_back("Edit: Undo", std::function<void()>([editor]() {
                          editor->onKeyPress(ctrl('z'));
                        }));
     items.emplace_back("Edit: Redo", std::function<void()>([editor]() {
                          editor->onKeyPress(ctrl('y'));
+                       }));
+    items.emplace_back("Edit: Navigate", std::function<void()>([&yate]() {
+                         yate.enterPrompt(new NavigateWindow(yate.root));
                        }));
   }
   const std::string &getTitle() override { return title; }
