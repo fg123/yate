@@ -1,9 +1,20 @@
 #include "logging.h"
 
-std::ofstream Logging::file = std::ofstream("yate.log");
-Log Logging::info(Logging::file);
-Log Logging::error(Logging::file);
+#include <iostream>
 
-void Logging::breadcrumb(std::string msg) {
-	file << "Breadcrumb: " << msg << std::endl;
+std::ostream *Logging::stream = nullptr;
+Log Logging::info;
+Log Logging::error;
+
+void Logging::init(std::string path) {
+  Logging::stream = new std::ofstream(path);
+  if (path.empty()) {
+    Logging::stream->setstate(std::ios_base::badbit);
+  }
 }
+void Logging::cleanup() { delete Logging::stream; }
+void Logging::breadcrumb(std::string msg) {
+  getStream() << "Breadcrumb: " << msg << std::endl;
+}
+
+std::ostream &Log::getStream() const { return Logging::getStream(); }

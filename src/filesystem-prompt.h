@@ -22,7 +22,10 @@ class FileSystemWindow : public PromptWindow {
  public:
   FileSystemWindow(Yate &yate, Editor *editor, std::string path,
                    std::function<void(std::string path)> callback)
-      : PromptWindow(yate), editor(editor), directory(path) {
+      : PromptWindow(yate),
+        editor(editor),
+        directory(path),
+        callback(callback) {
     title = "Choose File (" + path + ")";
   }
   const std::string &getTitle() override { return title; }

@@ -1,32 +1,35 @@
 #ifndef LOGGING_H
 #define LOGGING_H
 
-#include <string>
 #include <fstream>
+#include <string>
 
 class Log {
-	std::ofstream &file;
-public:
-	Log(std::ofstream &file) : file(file) {}
-	template<class T>
-	Log &operator<<(const T &msg) {
-		file << msg;
-		return *this;
-	}
-	Log const& operator<<(std::ostream& (*F)(std::ostream&)) const {
-		F(file);
-		return *this;
-	}
+  std::ostream &getStream() const;
+
+ public:
+  template <class T>
+  Log &operator<<(const T &msg) {
+    getStream() << msg;
+    return *this;
+  }
+
+  Log const &operator<<(std::ostream &(*F)(std::ostream &)) const {
+    F(getStream());
+    return *this;
+  }
 };
 
-
 class Logging {
-public:
-	// TODO(anyone): This is a pretty bad Logging interface...
-	static std::ofstream file;
-	static Log info;
-	static Log error;
-	static void breadcrumb(std::string msg);
+  static std::ostream *stream;
+
+ public:
+  static std::ostream &getStream() { return *stream; }
+  static Log info;
+  static Log error;
+  static void init(std::string logging_path);
+  static void breadcrumb(std::string msg);
+  static void cleanup();
 };
 
 #endif

@@ -23,6 +23,17 @@ class Editor : public Pane, public Focusable {
   // For when you move cursor past an empty line
   ColNumber phantom_col_pos = 0;
   void updateColWithPhantom();
+  void limit_line_col() {
+    if (current_line < 0) current_line = 0;
+    if (current_line >= buffer->size()) {
+      current_line = buffer->size() - 1;
+    }
+    if (current_col < 0) current_col = 0;
+    if (current_col >= buffer->getLineLength(current_line)) {
+      current_col = buffer->getLineLength(current_line) - 1;
+    }
+  }
+
   void init() {
     buffer->registerEditor(this);
     if (!yate.hasFocus()) {
@@ -35,6 +46,8 @@ class Editor : public Pane, public Focusable {
     buffer->unregisterEditor(this);
     buffer = yate.getBuffer(newPath);
     buffer->registerEditor(this);
+    titleUpdated();
+    limit_line_col();
   }
 
  public:
