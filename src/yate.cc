@@ -177,4 +177,5 @@ void Yate::exitPrompt() {
   PromptWindow *p = prompt_stack.back();
   delete p;
   prompt_stack.pop_back();
+  root->draw();
 }
