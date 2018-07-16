@@ -3,7 +3,7 @@
 #include "yate.h"
 
 int usage() {
-  std::cerr << "Usage: yate [-c|--config configFile] [-l|-log logFile]"
+  std::cerr << "Usage: yate [-c|--config configFile] [-l|--log logFile]"
             << std::endl;
   return 1;
 }
@@ -15,7 +15,7 @@ int main(int argc, char *argv[]) {
     std::string arg(argv[i]);
     if (i != argc - 1 && (arg == "-c" || arg == "--config")) {
       pane_configuration_path = argv[++i];
-    } else if (i != argc - 1 && (arg == "-l" || arg == "-log")) {
+    } else if (i != argc - 1 && (arg == "-l" || arg == "--log")) {
       log_path = argv[++i];
     } else {
       return usage();

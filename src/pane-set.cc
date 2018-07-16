@@ -33,38 +33,19 @@ void PaneSet::addPane(Pane *pane) {
 }
 
 void PaneSet::onResize(uint nx, uint ny, uint nwidth, uint nheight) {
-  Pane *bottom_right_pane = nullptr;
-  uint bottom_right_start_x = nx;
-  uint bottom_right_start_y = ny;
-  auto apply = [nwidth, this, nx](uint a) {
-    auto ratio = (double)width / (double)nwidth;
-    return std::round((a - x) * ratio) + nx;
-  };
+  Logging::info << "PaneSet Resize (" << nx << ", " << ny << ", " << nwidth
+                << ", " << nheight << ")" << std::endl;
+
+  auto ratio_x = (double)nwidth / (double)(width);
+  auto ratio_y = (double)nheight / (double)(height);
   for (auto pane : panes) {
-    Logging::info << "Paneset Resize: Bottom Right (" << pane->x + pane->width
-                  << ", " << pane->y + pane->height
-                  << ") with actual bottom at (" << x + width << ", "
-                  << y + height << ")" << std::endl;
-    if (pane->x + pane->width == x + width &&
-        pane->y + pane->height == y + height) {
-      // This should be the bottom right, we use this to account for rounding
-      // errors.
-      bottom_right_pane = pane;
-    } else {
-      uint new_width = apply(pane->width);
-      uint new_height = apply(pane->height);
-      bottom_right_start_x += new_width;
-      bottom_right_start_y += new_height;
-      pane->resize(apply(pane->x), apply(pane->y), new_width, new_height);
-    }
+    uint new_width = std::round(pane->width * ratio_x);
+    uint new_height = std::round(pane->height * ratio_y);
+    uint new_x = std::round((pane->x - x) * ratio_x) + nx;
+    uint new_y = std::round((pane->y - y) * ratio_y) + ny;
+    Logging::info << "Resizing Child Pos: (" << new_x << ", " << new_y
+                  << ") with Size: (" << new_width << ", " << new_height << ")"
+                  << std::endl;
+    pane->resize(new_x, new_y, new_width, new_height);
   }
-  if (!bottom_right_pane) {
-    Logging::error << "Could not perform resize because we didn't find a "
-                      "bottom right pane!"
-                   << std::endl;
-    return;
-  }
-  bottom_right_pane->resize(bottom_right_start_x, bottom_right_start_y,
-                            nwidth - bottom_right_start_x + nx,
-                            nheight - bottom_right_start_y + ny);
 }
