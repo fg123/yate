@@ -41,7 +41,13 @@ class PaneSet : public Pane {
     stream << "}" << std::endl;
     return stream;
   }
-
+  void onMouseEvent(MEVENT *event) override {
+    // TODO: Might as well check which pane the click happened here so theres
+    // minimal call forwarding
+    for (auto pane : panes) {
+      pane->mouseEvent(event);
+    }
+  }
   PaneSet(Yate &yate, Pane *parent, const YateConfig_State_PaneSet &fromConfig);
 };
 

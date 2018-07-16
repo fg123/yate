@@ -52,6 +52,12 @@ struct Pane {
       Logging::breadcrumb("No parent to notify!");
     }
   }
+  void mouseEvent(MEVENT *event) {
+    Logging::info << "Mouse Event (" << event->x << ", " << event->y << " ,"
+                  << event->z << ")" << std::endl;
+    onMouseEvent(event);
+  }
+  virtual void onMouseEvent(MEVENT *event) {}
   virtual void onTitleUpdated() {}
   virtual std::ostream &serialize(std::ostream &stream) { return stream; }
   virtual ~Pane() { delwin(internal_window); }

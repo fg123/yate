@@ -66,6 +66,7 @@ Yate::Yate(std::string config_path) : config_path(config_path) {
   nonl();
   start_color();
   keypad(stdscr, true);
+  mousemask(BUTTON1_PRESSED, nullptr);
 
   Logging::breadcrumb("=== Starting Yate ===");
   int fd = open(config_path.c_str(), O_RDONLY);
@@ -135,18 +136,26 @@ Buffer *Yate::getBuffer(std::string path) {
   if (result != opened_buffers.end()) {
     return *result;
   }
+
   Buffer *buffer = new Buffer(*this, path);
   opened_buffers.push_back(buffer);
   return buffer;
 }
 
+static MEVENT event;
+
 bool Yate::onCapture(int result) {
-  getCurrentFocus()->onKeyPress(result);
   if (result == KEY_RESIZE) {
     Logging::breadcrumb("KEY_RESIZE Hit!");
     refresh();
     root->resize(0, 0, COLS, LINES);
     root->draw();
+  } else if (result == KEY_MOUSE) {
+    if (getmouse(&event) == OK) {
+      root->onMouseEvent(&event);
+    }
+  } else {
+    getCurrentFocus()->onKeyPress(result);
   }
   return result == ctrl('q');
 }

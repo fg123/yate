@@ -42,6 +42,22 @@ class TabSet : public Pane {
       tabs.push_back(new PaneSet(yate, this, paneset));
     }
   }
+  void onMouseEvent(MEVENT *event) override {
+    if (event->bstate & BUTTON1_PRESSED) {
+      if (event->y == y && event->x >= x && event->x < x + width) {
+        Logging::breadcrumb("Tab Bar Clicked");
+        // Tab Bar Click
+        // TODO: Actually implement checking which tab pressed
+        selected_tab += 1;
+        if (selected_tab >= tabs.size()) {
+          selected_tab = 0;
+        }
+        draw();
+      } else {
+        tabs[selected_tab]->mouseEvent(event);
+      }
+    }
+  }
 };
 
 #endif
