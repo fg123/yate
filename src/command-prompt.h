@@ -34,7 +34,7 @@ class CommandPromptWindow : public PromptWindow {
                          editor->onKeyPress(ctrl('y'));
                        }));
     items.emplace_back("Edit: Navigate", std::function<void()>([&yate]() {
-                         yate.enterPrompt(new NavigateWindow(yate.root));
+                         //  yate.enterPrompt(new NavigateWindow(yate.root));
                        }));
   }
   const std::string &getTitle() override { return title; }

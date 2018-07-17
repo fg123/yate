@@ -63,7 +63,13 @@ class Editor : public Pane, public Focusable {
   void onKeyPress(int key) override;
   void onMouseEvent(MEVENT *event) override {
     if (event->bstate & BUTTON1_PRESSED) {
-      yate.setFocus(this);
+      if (yate.isCurrentFocus(this)) {
+        current_line = (event->y - y) + window_start;
+        current_col = (event->x - x) - (buffer->getLineNumberFieldWidth() + 2);
+        limit_line_col();
+      } else {
+        yate.setFocus(this);
+      }
     }
   }
   std::ostream &serialize(std::ostream &stream) override {

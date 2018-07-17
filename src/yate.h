@@ -32,6 +32,7 @@ class Yate {
   Buffer *getBuffer(std::string path);
   void setFocus(Focusable *editor);
   bool hasFocus() { return current_focus; }
+  bool isCurrentFocus(Focusable *focus) { return current_focus == focus; }
   void enterPrompt(PromptWindow *window) { prompt_stack.push_back(window); }
 
   int getTabSize();
