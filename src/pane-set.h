@@ -14,10 +14,10 @@
 class PaneSet : public Pane {
   Yate &yate;
   std::vector<Pane *> panes;
-  // Store Focused Pane
-  Pane *focused_pane;
 
  public:
+  // Store Focused Pane
+  Pane *focused_pane;
   PaneSet(Yate &yate, Pane *parent, int x, int y, int width, int height)
       : Pane(parent, x, y, width, height), yate(yate) {}
   ~PaneSet();
