@@ -1,5 +1,6 @@
 #include "pane-set.h"
 #include "editor.h"
+#include "navigate-prompt.h"
 #include "tab-set.h"
 
 #include <cmath>
@@ -66,4 +67,23 @@ void PaneSet::onResize(uint nx, uint ny, uint nwidth, uint nheight) {
   bottom_right_pane->resize(cumulative_width + nx, cumulative_height + ny,
                             nwidth - cumulative_width,
                             nheight - cumulative_height);
+}
+
+size_t PaneSet::getNavigationItemsSize() { return panes.size(); }
+std::string PaneSet::getNavigationItem(size_t index) {
+  Pane *pane = panes.at(index);
+  // Shouldn't allow nesting of PaneSets?
+  std::string name;
+  if (dynamic_cast<TabSet *>(pane)) {
+    name = "TabSet";
+  } else if (dynamic_cast<Editor *>(pane)) {
+    name = "Editor (" + dynamic_cast<Editor *>(pane)->getTitle() + ")";
+  }
+  return std::to_string(index) + ": " + name + " (" + std::to_string(pane->x) +
+         ", " + std::to_string(pane->y) + ", " + std::to_string(pane->width) +
+         ", " + std::to_string(pane->height) + ")";
+}
+bool PaneSet::onNavigationItemSelected(size_t index, NavigateWindow *parent) {
+  yate.enterPrompt(new NavigateWindow(yate, panes.at(index), parent));
+  return false;
 }

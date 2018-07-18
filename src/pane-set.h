@@ -57,6 +57,8 @@ class PaneSet : public Pane {
     titleUpdated();
   }
   PaneSet(Yate &yate, Pane *parent, const YateConfig_State_PaneSet &fromConfig);
+  size_t getNavigationItemsSize() override;
+  std::string getNavigationItem(size_t index) override;
+  bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override;
 };
-
 #endif

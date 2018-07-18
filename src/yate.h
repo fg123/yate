@@ -40,7 +40,7 @@ class Yate {
 
   void quit();
   void exitPrompt();
-  void exitPromptThenRun(std::function<void()> &function);
+  void exitPromptThenRun(std::function<void()> function);
 };
 
 #endif

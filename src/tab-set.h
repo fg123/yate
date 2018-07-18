@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 
+#include "navigate-prompt.h"
 #include "pane-set.h"
 #include "pane.h"
 #include "util.h"
@@ -58,6 +59,14 @@ class TabSet : public Pane {
         tabs[selected_tab]->mouseEvent(event);
       }
     }
+  }
+  size_t getNavigationItemsSize() override { return tabs.size(); }
+  std::string getNavigationItem(size_t index) override {
+    return "Tab " + std::to_string(index);
+  }
+  bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override {
+    yate.enterPrompt(new NavigateWindow(yate, tabs.at(index), parent));
+    return false;
   }
 };
 

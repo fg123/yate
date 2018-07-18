@@ -38,6 +38,7 @@ class PromptWindow : public Pane, public Focusable {
     // PromptWindows have their own resize
     Pane::resize(COLS / 4, LINES / 4, COLS / 2, LINES / 2);
   }
+
   int capture() override {
     draw();
     curs_set(input_enabled);
@@ -137,5 +138,13 @@ class PromptWindow : public Pane, public Focusable {
   virtual const std::string getItemString(size_t index) = 0;
   virtual const size_t getListSize() = 0;
   virtual void onExecute(size_t index) = 0;
+
+  // TODO: I feel like prompt window shouldn't be a pane, because these
+  // shouldn't live here
+  size_t getNavigationItemsSize() override { return 0; }
+  std::string getNavigationItem(size_t index) { return ""; }
+  virtual bool onNavigationItemSelected(size_t index, NavigateWindow* parent) {
+    return false;
+  }
 };
 #endif

@@ -6,12 +6,12 @@
 #include <string>
 
 #include "logging.h"
-
+#include "navigate-window-provider.h"
 #include "src/config.pb.h"
 
 using uint = unsigned int;
 
-struct Pane {
+struct Pane : public NavigateWindowProvider {
   uint x;
   uint y;
   uint width;

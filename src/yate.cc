@@ -152,6 +152,10 @@ void Yate::onCapture(int result) {
     refresh();
     root->resize(0, 0, COLS, LINES);
     root->draw();
+    for (auto prompt : prompt_stack) {
+      // Prompts have their own "resize" function
+      prompt->onResize();
+    }
   } else if (result == KEY_MOUSE) {
     if (getmouse(&event) == OK) {
       root->onMouseEvent(&event);
@@ -166,7 +170,7 @@ void Yate::onCapture(int result) {
 
 void Yate::quit() { shouldQuit = true; }
 
-void Yate::exitPromptThenRun(std::function<void()> &function) {
+void Yate::exitPromptThenRun(std::function<void()> function) {
   exitPrompt();
   function();
 }
