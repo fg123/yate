@@ -115,7 +115,6 @@ Yate::~Yate() {
   for (auto prompt : prompt_stack) {
     delete prompt;
   }
-  endwin();
 }
 
 Focusable *Yate::getCurrentFocus() {

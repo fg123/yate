@@ -41,11 +41,7 @@ class Editor : public Pane, public Focusable {
   }
 
   void switchBuffer(std::string newPath) {
-    buffer->unregisterEditor(this);
-    buffer = yate.getBuffer(newPath);
-    buffer->registerEditor(this);
-    titleUpdated();
-    limit_line_col();
+    switchBuffer(yate.getBuffer(newPath));
   }
 
  public:
@@ -53,6 +49,14 @@ class Editor : public Pane, public Focusable {
          int height)
       : Pane(parent, x, y, width, height), yate(yate), buffer(buffer) {
     init();
+  }
+
+  void switchBuffer(Buffer* newBuffer) {
+    buffer->unregisterEditor(this);
+    buffer = newBuffer;
+    buffer->registerEditor(this);
+    titleUpdated();
+    limit_line_col();
   }
 
   void draw() override;

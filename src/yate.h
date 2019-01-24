@@ -15,7 +15,6 @@ class PromptWindow;
 
 class Yate {
   Focusable *current_focus = nullptr;
-  std::vector<Buffer *> opened_buffers;
   std::vector<PromptWindow *> prompt_stack;
   Focusable *getCurrentFocus();
   bool shouldQuit = false;
@@ -23,6 +22,7 @@ class Yate {
  public:
   YateConfig config;
   PaneSet *root;
+  std::vector<Buffer *> opened_buffers;
 
   explicit Yate(YateConfig config);
   ~Yate();

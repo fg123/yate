@@ -61,11 +61,20 @@ class TabSet : public Pane {
       }
     }
   }
-  size_t getNavigationItemsSize() override { return tabs.size(); }
+  size_t getNavigationItemsSize() override { return tabs.size() + 1; }
   std::string getNavigationItem(size_t index) override {
+    if (index == tabs.size()) {
+      return "New Tab";
+    }
     return "Tab " + std::to_string(index);
   }
   bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override {
+    if (index == tabs.size()) {
+      PaneSet *pane_s = new PaneSet(yate, this, x, y + 1, width, height - 1);
+      Editor *editor = new Editor(yate, pane_s, yate.getBuffer("Untitled"), x,
+                              y + 1, width, height - 1);
+      return true;
+    }
     yate.enterPrompt(new NavigateWindow(yate, tabs.at(index), parent));
     return false;
   }

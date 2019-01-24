@@ -1,4 +1,5 @@
 #include <iostream>
+#include <ncurses.h>
 
 #include "yate.h"
 
@@ -28,11 +29,13 @@ int main(int argc, char *argv[]) {
     YateConfig config(yate_config_path);
     Logging::init(log_path);
     Yate yate(config);
-    Logging::cleanup();
   } catch (cpptoml::parse_exception e) {
     std::cerr << "Error parsing config TOML!" << std::endl;
-  } catch (std::exception e) {
+  } catch (std::exception& e) {
     std::cerr << e.what() << std::endl;
   }
+  Logging::cleanup();
+  /* EndWin here instead of at Yate destructor */
+  endwin();
   return 0;
 }

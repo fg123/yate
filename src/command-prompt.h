@@ -5,6 +5,7 @@
 #include <string>
 
 #include "editor.h"
+#include "buffer-select-prompt.h"
 #include "filesystem-prompt.h"
 #include "navigate-prompt.h"
 #include "navigate-window-provider.h"
@@ -24,6 +25,13 @@ class CommandPromptWindow : public PromptWindow {
     items.emplace_back("File: Open", std::function<void()>([editor]() {
                          editor->onKeyPress(ctrl('o'));
                        }));
+    items.emplace_back(
+        "File: Open Buffer", std::function<void()>([&yate, editor]() {
+          yate.enterPrompt(new BufferSelectPromptWindow(
+              yate, std::function<void(int)>([&yate, editor](int bufferIndex) {
+                editor->switchBuffer(yate.opened_buffers.at(bufferIndex));
+              })));
+        }));
     items.emplace_back("File: Save", std::function<void()>([editor]() {
                          editor->onKeyPress(ctrl('s'));
                        }));
