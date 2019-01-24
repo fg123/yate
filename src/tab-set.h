@@ -11,8 +11,6 @@
 #include "pane.h"
 #include "util.h"
 
-#include "src/config.pb.h"
-
 class TabSet : public Pane {
   Yate &yate;
   std::vector<PaneSet *> tabs;
@@ -22,6 +20,9 @@ class TabSet : public Pane {
  public:
   TabSet(Yate &yate, Pane *parent, int x, int y, int width, int height);
   ~TabSet();
+  void addTab(PaneSet* paneset) {
+    tabs.emplace_back(paneset);
+  }
   void draw() override;
   const std::string &getTitle() override;
   void onTitleUpdated() override;
@@ -36,13 +37,13 @@ class TabSet : public Pane {
     return stream;
   }
 
-  TabSet(Yate &yate, Pane *parent, const YateConfig_State_TabSet &fromConfig)
-      : Pane(parent, fromConfig.pane()), yate(yate) {
-    Logging::breadcrumb("Deserializing TabSet");
-    for (auto paneset : fromConfig.panesets()) {
-      tabs.push_back(new PaneSet(yate, this, paneset));
-    }
-  }
+  // TabSet(Yate &yate, Pane *parent, const YateConfig_State_TabSet &fromConfig)
+  //     : Pane(parent, fromConfig.pane()), yate(yate) {
+  //   Logging::breadcrumb("Deserializing TabSet");
+  //   for (auto paneset : fromConfig.panesets()) {
+  //     tabs.push_back(new PaneSet(yate, this, paneset));
+  //   }
+  // }
   void onMouseEvent(MEVENT *event) override {
     if (event->bstate & BUTTON1_PRESSED) {
       if ((uint)event->y == y && (uint)event->x >= x &&

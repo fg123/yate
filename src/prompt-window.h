@@ -70,7 +70,9 @@ class PromptWindow : public Pane, public Focusable {
         if (highlighted_index < 0) {
           yate.exitPrompt();
         } else {
-          onExecute(highlighted_index);
+          /* Calculate actual hovered item */
+          std::vector<size_t> matched_items = get_matching_items();
+          onExecute(matched_items.at(highlighted_index));
         }
         break;
     }

@@ -5,8 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "src/config.pb.h"
-
+#include "config.h"
 #include "focusable.h"
 #include "logging.h"
 
@@ -15,8 +14,6 @@ class Buffer;
 class PromptWindow;
 
 class Yate {
-  std::string config_path;
-  YateConfig config;
   Focusable *current_focus = nullptr;
   std::vector<Buffer *> opened_buffers;
   std::vector<PromptWindow *> prompt_stack;
@@ -24,9 +21,10 @@ class Yate {
   bool shouldQuit = false;
 
  public:
+  YateConfig config;
   PaneSet *root;
 
-  explicit Yate(std::string config_path);
+  explicit Yate(YateConfig config);
   ~Yate();
   void onCapture(int result);
   Buffer *getBuffer(std::string path);
@@ -34,9 +32,6 @@ class Yate {
   bool hasFocus() { return current_focus; }
   bool isCurrentFocus(Focusable *focus) { return current_focus == focus; }
   void enterPrompt(PromptWindow *window) { prompt_stack.push_back(window); }
-
-  int getTabSize();
-  YateConfig_IndentationStyle getIndentationStyle();
 
   void quit();
   void exitPrompt();

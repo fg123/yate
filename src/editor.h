@@ -11,8 +11,6 @@
 #include "pane.h"
 #include "yate.h"
 
-#include "src/config.pb.h"
-
 class Editor : public Pane, public Focusable {
   Yate &yate;
   Buffer *buffer;
@@ -80,12 +78,12 @@ class Editor : public Pane, public Focusable {
     return stream;
   }
 
-  Editor(Yate &yate, Pane *parent, const YateConfig_State_Editor &fromConfig)
-      : Pane(parent, fromConfig.pane()), yate(yate) {
-    Logging::breadcrumb("Deserializing Editor");
-    buffer = yate.getBuffer(fromConfig.buffer_path());
-    init();
-  }
+  // Editor(Yate &yate, Pane *parent, const YateConfig_State_Editor &fromConfig)
+  //     : Pane(parent, fromConfig.pane()), yate(yate) {
+  //   Logging::breadcrumb("Deserializing Editor");
+  //   buffer = yate.getBuffer(fromConfig.buffer_path());
+  //   init();
+  // }
   size_t getNavigationItemsSize() override { return 1; }
   std::string getNavigationItem(size_t index) override { return "Focus"; }
   bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override {

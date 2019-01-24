@@ -17,6 +17,8 @@
     (void)(expr);    \
   } while (0)
 
+#include <algorithm>
+
 inline bool fuzzy_match(std::string& needle, std::string& haystack) {
   return std::search(haystack.begin(), haystack.end(), needle.begin(),
                      needle.end(), [](char ch1, char ch2) {

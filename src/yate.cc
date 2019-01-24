@@ -6,17 +6,12 @@
 #include <iostream>
 #include <sstream>
 
-#include <google/protobuf/io/zero_copy_stream_impl.h>
-#include <google/protobuf/text_format.h>
-
 #include "editor.h"
 #include "logging.h"
 #include "prompt-window.h"
 #include "tab-set.h"
 #include "util.h"
 #include "yate.h"
-
-#include "src/config.pb.h"
 
 #define DEFAULT_INDENTATION_SIZE 8
 
@@ -58,7 +53,7 @@ state {
 	}
 })";
 
-Yate::Yate(std::string config_path) : config_path(config_path) {
+Yate::Yate(YateConfig config) : config(config) {
   set_escdelay(50);
   initscr();
   raw();
@@ -69,22 +64,27 @@ Yate::Yate(std::string config_path) : config_path(config_path) {
   mousemask(BUTTON1_PRESSED, nullptr);
 
   Logging::breadcrumb("=== Starting Yate ===");
-  int fd = open(config_path.c_str(), O_RDONLY);
-  if (fd < 0) {
-    Logging::info << "No configuration provided. Defaulting." << std::endl;
-    if (!google::protobuf::TextFormat::ParseFromString(default_config,
-                                                       &config)) {
-      Logging::error << "Error parsing default config text_proto!" << std::endl;
-    }
-  } else {
-    google::protobuf::io::FileInputStream stream(fd);
-    stream.SetCloseOnDelete(true);
-    google::protobuf::TextFormat::Parse(&stream, &config);
-  }
-  std::string output;
-  google::protobuf::TextFormat::PrintToString(config, &output);
-  Logging::info << output << std::endl;
-  root = new PaneSet(*this, nullptr, config.state().root());
+  // int fd = open(config_path.c_str(), O_RDONLY);
+  // if (fd < 0) {
+  //   Logging::info << "No configuration provided. Defaulting." << std::endl;
+  //   if (!google::protobuf::TextFormat::ParseFromString(default_config,
+  //                                                      &config)) {
+  //     Logging::error << "Error parsing default config text_proto!" << std::endl;
+  //   }
+  // } else {
+  //   google::protobuf::io::FileInputStream stream(fd);
+  //   stream.SetCloseOnDelete(true);
+  //   google::protobuf::TextFormat::Parse(&stream, &config);
+  // }
+  // std::string output;
+  // google::protobuf::TextFormat::PrintToString(config, &output);
+  // Logging::info << output << std::endl;
+
+  // TODO(felixguo): fix for serialized state storage
+  // root = new PaneSet(*this, nullptr, config.state().root());
+  root = new PaneSet(*this, nullptr, 0, 0, 1, 1);
+  TabSet* tab_set = new TabSet(*this, root, 0, 0, 1, 1);
+  root->addPane(tab_set);
 
   refresh();
   root->resize(0, 0, COLS, LINES);
@@ -173,14 +173,6 @@ void Yate::quit() { shouldQuit = true; }
 void Yate::exitPromptThenRun(std::function<void()> function) {
   exitPrompt();
   function();
-}
-
-int Yate::getTabSize() {
-  return config.tab_size() > 0 ? config.tab_size() : DEFAULT_INDENTATION_SIZE;
-}
-
-YateConfig_IndentationStyle Yate::getIndentationStyle() {
-  return config.indentation_style();
 }
 
 void Yate::exitPrompt() {

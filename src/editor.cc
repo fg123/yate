@@ -37,7 +37,7 @@ void Editor::draw() {
   int field_width = buffer->getLineNumberFieldWidth() + 1;
   for (auto line :
        buffer->getBufferWindow(window_start, window_start + height)) {
-    line = tab_replace(line, yate.getTabSize());
+    line = tab_replace(line, yate.config.tab_size());
     // Right justify doesn't work.
     wattron(internal_window, A_DIM);
     wmove(internal_window, i, 0);
@@ -67,7 +67,7 @@ int Editor::capture() {
   for (uint i = 0; i < current_col; i++) {
     if (line.at(i) == '\t') {
       // Minus one because the tab character itself counts too
-      col += yate.getTabSize() - 1;
+      col += yate.config.tab_size() - 1;
     }
   }
   return mvwgetch(internal_window, current_line - window_start,
@@ -85,11 +85,10 @@ void Editor::onKeyPress(int key) {
       break;
     case KEY_STAB:
     case '\t':
-      if (yate.getIndentationStyle() ==
-          YateConfig_IndentationStyle_INDENTATION_TAB) {
+      if (yate.config.indentation_style() == YateConfig::IndentationStyle::TAB) {
         buffer->insertCharacter('\t', current_line, current_col);
       } else {
-        for (int i = 0; i < yate.getTabSize(); i++) {
+        for (int i = 0; i < yate.config.tab_size(); i++) {
           buffer->insertCharacter(' ', current_line, current_col);
         }
       }
