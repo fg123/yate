@@ -12,9 +12,15 @@ void Logging::init(std::string path) {
     Logging::stream->setstate(std::ios_base::badbit);
   }
 }
-void Logging::cleanup() { delete Logging::stream; }
+
+void Logging::cleanup() {
+  delete Logging::stream;
+}
+
 void Logging::breadcrumb(std::string msg) {
   getStream() << "Breadcrumb: " << msg << std::endl;
 }
 
-std::ostream &Log::getStream() const { return Logging::getStream(); }
+std::ostream &Log::getStream() const {
+  return Logging::getStream();
+}

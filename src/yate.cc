@@ -93,7 +93,7 @@ Yate::Yate(YateConfig config) : config(config) {
   if (!current_focus) {
     // TODO(felixguo): This might not be an actual issue.
     Logging::error << "No editor was initialized!" << std::endl;
-    safe_exit(1);
+    safe_exit(2);
   }
 
   while (true) {

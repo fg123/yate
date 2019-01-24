@@ -20,6 +20,14 @@ static std::string tab_replace(std::string line, int tab_size) {
   return result;
 }
 
+void Editor::init() {
+  buffer->registerEditor(this);
+  if (!yate.hasFocus()) {
+    Logging::info << "Yate has no focused; setting focus." << std::endl;
+    yate.setFocus(this);
+  }
+}
+
 // TODO(felixguo): Handle line wrapping?
 void Editor::draw() {
   while (window_start > current_line) {
@@ -37,7 +45,7 @@ void Editor::draw() {
   int field_width = buffer->getLineNumberFieldWidth() + 1;
   for (auto line :
        buffer->getBufferWindow(window_start, window_start + height)) {
-    line = tab_replace(line, yate.config.tab_size());
+    line = tab_replace(line, yate.config.getTabSize());
     // Right justify doesn't work.
     wattron(internal_window, A_DIM);
     wmove(internal_window, i, 0);
@@ -67,7 +75,7 @@ int Editor::capture() {
   for (uint i = 0; i < current_col; i++) {
     if (line.at(i) == '\t') {
       // Minus one because the tab character itself counts too
-      col += yate.config.tab_size() - 1;
+      col += yate.config.getTabSize() - 1;
     }
   }
   return mvwgetch(internal_window, current_line - window_start,
@@ -85,10 +93,10 @@ void Editor::onKeyPress(int key) {
       break;
     case KEY_STAB:
     case '\t':
-      if (yate.config.indentation_style() == YateConfig::IndentationStyle::TAB) {
+      if (yate.config.getIndentationStyle() == YateConfig::IndentationStyle::TAB) {
         buffer->insertCharacter('\t', current_line, current_col);
       } else {
-        for (int i = 0; i < yate.config.tab_size(); i++) {
+        for (int i = 0; i < yate.config.getTabSize(); i++) {
           buffer->insertCharacter(' ', current_line, current_col);
         }
       }
@@ -173,5 +181,40 @@ void Editor::updateColWithPhantom() {
     current_col = end_col;
   } else {
     phantom_col_pos = current_col;
+  }
+}
+
+void Editor::limitLineCol() {
+  if (current_line < 0) current_line = 0;
+  if (current_line >= buffer->size()) {
+    current_line = buffer->size() - 1;
+  }
+  if (current_col < 0) current_col = 0;
+  if (current_col >= buffer->getLineLength(current_line)) {
+    current_col = buffer->getLineLength(current_line) - 1;
+  }
+}
+
+void Editor::switchBuffer(std::string newPath) {
+  switchBuffer(yate.getBuffer(newPath));
+}
+
+void Editor::switchBuffer(Buffer* newBuffer) {
+  buffer->unregisterEditor(this);
+  buffer = newBuffer;
+  buffer->registerEditor(this);
+  titleUpdated();
+  limitLineCol();
+}
+
+void Editor::onMouseEvent(MEVENT *event) {
+  if (event->bstate & BUTTON1_PRESSED) {
+    if (yate.isCurrentFocus(this)) {
+      current_line = (event->y - y) + window_start;
+      current_col = (event->x - x) - (buffer->getLineNumberFieldWidth() + 2);
+      limitLineCol();
+    } else {
+      yate.setFocus(this);
+    }
   }
 }

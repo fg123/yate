@@ -34,40 +34,10 @@ struct EditNode {
   EditNode *prev;
   std::vector<EditNode *> next;
 
-  std::string getTypeString() {
-    switch (type) {
-      case Type::INSERTION:
-        return "INSERTION";
-      case Type::DELETE_BS:
-      case Type::DELETE_DEL:
-        return "DELETION";
-      default:
-        return "UNKNOWN TYPE";
-    }
-  }
-
-  std::string getSerializedContent() {
-    std::string result;
-    result.reserve(content.length());
-    for (auto c : content) {
-      if (c == '\n')
-        result += "\\n";
-      else
-        result += c;
-    }
-    return result;
-  }
-
-  std::string getPositionPair() {
-    LineNumber line = std::get<0>(start);
-    ColNumber col = std::get<1>(start);
-    return "(" + std::to_string(line) + "L, " + std::to_string(col) + "C)";
-  }
-
-  std::string getDescription() {
-    return getTypeString() + " " + getPositionPair() + " " +
-           getSerializedContent();
-  }
+  std::string getTypeString() const;
+  std::string getSerializedContent() const;
+  std::string getPositionPair() const;
+  std::string getDescription() const;
 };
 
 class BufferWindow {

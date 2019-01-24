@@ -13,8 +13,8 @@ public:
         TAB
     };
     explicit YateConfig(std::string path);
-    int tab_size() const;
-    IndentationStyle indentation_style() const;
+    int getTabSize() const;
+    IndentationStyle getIndentationStyle() const;
 };
 
 #endif

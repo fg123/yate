@@ -26,6 +26,13 @@ PaneSet::~PaneSet() {
   }
 }
 
+void PaneSet::draw() {
+  Logging::breadcrumb("Paneset Draw");
+  for (auto pane : panes) {
+    pane->draw();
+  }
+}
+
 void PaneSet::addPane(Pane *pane) {
   if (panes.size() == 0) {
     focused_pane = pane;
@@ -60,7 +67,7 @@ void PaneSet::onResize(uint nx, uint ny, uint nwidth, uint nheight) {
   }
   if (!bottom_right_pane) {
     Logging::error << "No bottom right pane!" << std::endl;
-    safe_exit(1);
+    safe_exit(2);
   }
   cumulative_width %= nwidth;
   cumulative_height %= nheight;
@@ -83,7 +90,24 @@ std::string PaneSet::getNavigationItem(size_t index) {
          ", " + std::to_string(pane->y) + ", " + std::to_string(pane->width) +
          ", " + std::to_string(pane->height) + ")";
 }
+
 bool PaneSet::onNavigationItemSelected(size_t index, NavigateWindow *parent) {
   yate.enterPrompt(new NavigateWindow(yate, panes.at(index), parent));
   return false;
+}
+
+void PaneSet::onMouseEvent(MEVENT *event) {
+  for (auto pane : panes) {
+    if (event->bstate & BUTTON1_PRESSED) {
+      bool withinBounds = (uint)event->x >= pane->x &&
+                          (uint)event->y >= pane->y &&
+                          (uint)event->x < pane->x + pane->width &&
+                          (uint)event->y < pane->y + pane->height;
+      if (withinBounds) {
+        focused_pane = pane;
+        pane->mouseEvent(event);
+      }
+    }
+  }
+  titleUpdated();
 }

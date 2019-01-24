@@ -21,12 +21,7 @@ class PaneSet : public Pane {
   ~PaneSet();
   // TODO(anyone): Created better interface for proper splitting.
   void addPane(Pane *pane);
-  void draw() {
-    Logging::breadcrumb("Paneset Draw");
-    for (auto pane : panes) {
-      pane->draw();
-    }
-  }
+  void draw();
   const std::vector<Pane *> &getPanes() { return panes; }
   const std::string &getTitle() { return focused_pane->getTitle(); }
   void onResize(uint nx, uint ny, uint nwidth, uint nheight) override;
@@ -39,21 +34,7 @@ class PaneSet : public Pane {
     stream << "}" << std::endl;
     return stream;
   }
-  void onMouseEvent(MEVENT *event) override {
-    for (auto pane : panes) {
-      if (event->bstate & BUTTON1_PRESSED) {
-        bool withinBounds = (uint)event->x >= pane->x &&
-                            (uint)event->y >= pane->y &&
-                            (uint)event->x < pane->x + pane->width &&
-                            (uint)event->y < pane->y + pane->height;
-        if (withinBounds) {
-          focused_pane = pane;
-          pane->mouseEvent(event);
-        }
-      }
-    }
-    titleUpdated();
-  }
+  void onMouseEvent(MEVENT *event) override;
   // PaneSet(Yate &yate, Pane *parent, const YateConfig_State_PaneSet &fromConfig);
   size_t getNavigationItemsSize() override;
   std::string getNavigationItem(size_t index) override;

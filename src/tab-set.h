@@ -44,40 +44,10 @@ class TabSet : public Pane {
   //     tabs.push_back(new PaneSet(yate, this, paneset));
   //   }
   // }
-  void onMouseEvent(MEVENT *event) override {
-    if (event->bstate & BUTTON1_PRESSED) {
-      if ((uint)event->y == y && (uint)event->x >= x &&
-          (uint)event->x < x + width) {
-        Logging::breadcrumb("Tab Bar Clicked");
-        // Tab Bar Click
-        // TODO: Actually implement checking which tab pressed
-        selected_tab += 1;
-        if (selected_tab >= tabs.size()) {
-          selected_tab = 0;
-        }
-        draw();
-      } else {
-        tabs[selected_tab]->mouseEvent(event);
-      }
-    }
-  }
+  void onMouseEvent(MEVENT *event) override;
   size_t getNavigationItemsSize() override { return tabs.size() + 1; }
-  std::string getNavigationItem(size_t index) override {
-    if (index == tabs.size()) {
-      return "New Tab";
-    }
-    return "Tab " + std::to_string(index);
-  }
-  bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override {
-    if (index == tabs.size()) {
-      PaneSet *pane_s = new PaneSet(yate, this, x, y + 1, width, height - 1);
-      Editor *editor = new Editor(yate, pane_s, yate.getBuffer("Untitled"), x,
-                              y + 1, width, height - 1);
-      return true;
-    }
-    yate.enterPrompt(new NavigateWindow(yate, tabs.at(index), parent));
-    return false;
-  }
+  std::string getNavigationItem(size_t index) override;
+  bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override;
 };
 
 #endif

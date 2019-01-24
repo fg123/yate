@@ -11,6 +11,41 @@
 #include <string>
 #include <tuple>
 
+std::string EditNode::getTypeString() const {
+  switch (type) {
+    case Type::INSERTION:
+      return "INSERTION";
+    case Type::DELETE_BS:
+    case Type::DELETE_DEL:
+      return "DELETION";
+    default:
+      return "UNKNOWN TYPE";
+  }
+}
+
+std::string EditNode::getSerializedContent() const {
+  std::string result;
+  result.reserve(content.length());
+  for (auto c : content) {
+    if (c == '\n')
+      result += "\\n";
+    else
+      result += c;
+  }
+  return result;
+}
+
+std::string EditNode::getPositionPair() const {
+  LineNumber line = std::get<0>(start);
+  ColNumber col = std::get<1>(start);
+  return "(" + std::to_string(line) + "L, " + std::to_string(col) + "C)";
+}
+
+std::string EditNode::getDescription() const {
+  return getTypeString() + " " + getPositionPair() + " " +
+          getSerializedContent();
+}
+
 Buffer::Buffer(Yate& yate, std::string path)
     : yate(yate),
       path(path),

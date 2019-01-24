@@ -21,28 +21,10 @@ class Editor : public Pane, public Focusable {
   // For when you move cursor past an empty line
   ColNumber phantom_col_pos = 0;
   void updateColWithPhantom();
-  void limit_line_col() {
-    if (current_line < 0) current_line = 0;
-    if (current_line >= buffer->size()) {
-      current_line = buffer->size() - 1;
-    }
-    if (current_col < 0) current_col = 0;
-    if (current_col >= buffer->getLineLength(current_line)) {
-      current_col = buffer->getLineLength(current_line) - 1;
-    }
-  }
+  void limitLineCol();
+  void init();
 
-  void init() {
-    buffer->registerEditor(this);
-    if (!yate.hasFocus()) {
-      Logging::info << "Yate has no focused; setting focus." << std::endl;
-      yate.setFocus(this);
-    }
-  }
-
-  void switchBuffer(std::string newPath) {
-    switchBuffer(yate.getBuffer(newPath));
-  }
+  void switchBuffer(std::string newPath);
 
  public:
   Editor(Yate &yate, Pane *parent, Buffer *buffer, int x, int y, int width,
@@ -51,29 +33,13 @@ class Editor : public Pane, public Focusable {
     init();
   }
 
-  void switchBuffer(Buffer* newBuffer) {
-    buffer->unregisterEditor(this);
-    buffer = newBuffer;
-    buffer->registerEditor(this);
-    titleUpdated();
-    limit_line_col();
-  }
+  void switchBuffer(Buffer* newBuffer);
 
   void draw() override;
   const std::string &getTitle() override;
   int capture() override;
   void onKeyPress(int key) override;
-  void onMouseEvent(MEVENT *event) override {
-    if (event->bstate & BUTTON1_PRESSED) {
-      if (yate.isCurrentFocus(this)) {
-        current_line = (event->y - y) + window_start;
-        current_col = (event->x - x) - (buffer->getLineNumberFieldWidth() + 2);
-        limit_line_col();
-      } else {
-        yate.setFocus(this);
-      }
-    }
-  }
+  void onMouseEvent(MEVENT *event) override;
   std::ostream &serialize(std::ostream &stream) override {
     stream << "editor {" << std::endl;
     stream << x << " " << y << " " << width << " " << height << std::endl;
