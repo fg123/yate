@@ -9,8 +9,8 @@ class YateConfig {
     std::shared_ptr<cpptoml::table> internal_config;
 public:
     enum class IndentationStyle {
-        SPACE,
-        TAB
+        TAB,
+        SPACE
     };
     explicit YateConfig(std::string path);
     int getTabSize() const;

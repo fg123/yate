@@ -30,10 +30,12 @@ int main(int argc, char *argv[]) {
     Logging::init(log_path);
     Yate yate(config);
   } catch (cpptoml::parse_exception e) {
-    std::cerr << "Error parsing config TOML!" << std::endl;
-  } catch (std::exception& e) {
-    std::cerr << e.what() << std::endl;
+    Logging::error << "Error parsing config TOML!" << std::endl;
   }
+  // catch (std::exception& e) {
+  //   endwin();
+  //   throw e;
+  // }
   Logging::cleanup();
   /* EndWin here instead of at Yate destructor */
   endwin();

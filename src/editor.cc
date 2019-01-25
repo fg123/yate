@@ -190,9 +190,15 @@ void Editor::limitLineCol() {
     current_line = buffer->size() - 1;
   }
   if (current_col < 0) current_col = 0;
-  if (current_col >= buffer->getLineLength(current_line)) {
+  if (buffer->getLineLength(current_line) == 0) {
+    /* Don't go to case below, since that will underflow
+       I believe this is OK with the rows because there
+       cannot be a empty file with 0 rows */
+    current_col = 0;
+  } else if (current_col >= buffer->getLineLength(current_line)) {
     current_col = buffer->getLineLength(current_line) - 1;
   }
+  Logging::info << "Limit line col" << current_col << std::endl;
 }
 
 void Editor::switchBuffer(std::string newPath) {

@@ -146,6 +146,7 @@ Buffer *Yate::getBuffer(std::string path) {
 static MEVENT event;
 
 void Yate::onCapture(int result) {
+  Logging::info << result << " " << KEY_MOUSE << " " << ctrl('q') << std::endl;
   if (result == KEY_RESIZE) {
     Logging::breadcrumb("KEY_RESIZE Hit!");
     refresh();
@@ -167,7 +168,10 @@ void Yate::onCapture(int result) {
   }
 }
 
-void Yate::quit() { shouldQuit = true; }
+void Yate::quit() {
+  Logging::breadcrumb("Quit");
+  shouldQuit = true;
+}
 
 void Yate::exitPromptThenRun(std::function<void()> function) {
   exitPrompt();
