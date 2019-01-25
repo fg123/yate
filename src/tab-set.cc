@@ -71,7 +71,13 @@ void TabSet::draw() {
   tabs[selected_tab]->draw();
 }
 
-const std::string &TabSet::getTitle() { return tabs[selected_tab]->getTitle(); }
+const std::string &TabSet::getTitle() {
+  return tabs[selected_tab]->getTitle();
+}
+
+Focusable *TabSet::getCurrentFocus() {
+  return tabs[selected_tab]->getCurrentFocus();
+}
 
 void TabSet::onTitleUpdated() {
   Logging::breadcrumb("Tabset onTitleUpdated");

@@ -25,6 +25,8 @@ class TabSet : public Pane {
   }
   void draw() override;
   const std::string &getTitle() override;
+  Focusable *getCurrentFocus() override;
+
   void onTitleUpdated() override;
   void onResize(uint nx, uint ny, uint nwidth, uint nheight) override;
   std::ostream &serialize(std::ostream &stream) override {

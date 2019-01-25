@@ -119,7 +119,7 @@ Yate::~Yate() {
 
 Focusable *Yate::getCurrentFocus() {
   if (prompt_stack.empty())
-    return current_focus;
+    return root->getCurrentFocus();
   else
     return prompt_stack.back();
 }

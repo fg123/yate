@@ -7,6 +7,7 @@
 
 #include "logging.h"
 #include "navigate-window-provider.h"
+#include "focusable.h"
 
 using uint = unsigned int;
 
@@ -51,11 +52,15 @@ struct Pane : public NavigateWindowProvider {
       Logging::breadcrumb("No parent to notify!");
     }
   }
+
   void mouseEvent(MEVENT *event) {
     Logging::info << "Mouse Event (" << event->x << ", " << event->y << " ,"
                   << event->z << ")" << std::endl;
     onMouseEvent(event);
   }
+
+  virtual Focusable *getCurrentFocus() = 0;
+
   virtual void onMouseEvent(MEVENT *event) {}
   virtual void onTitleUpdated() {}
   virtual std::ostream &serialize(std::ostream &stream) { return stream; }

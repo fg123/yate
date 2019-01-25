@@ -141,6 +141,10 @@ class PromptWindow : public Pane, public Focusable {
   virtual const size_t getListSize() = 0;
   virtual void onExecute(size_t index) = 0;
 
+  virtual Focusable *getCurrentFocus() override {
+    return this;
+  }
+
   // TODO: I feel like prompt window shouldn't be a pane, because these
   // shouldn't live here
   size_t getNavigationItemsSize() override { return 0; }

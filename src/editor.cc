@@ -44,7 +44,7 @@ void Editor::draw() {
   unsigned int i = 0;
   int field_width = buffer->getLineNumberFieldWidth() + 1;
   for (auto line :
-       buffer->getBufferWindow(window_start, window_start + height)) {
+       buffer->getBufferWindow(window_start, window_start + height - 1)) {
     line = tab_replace(line, yate.config.getTabSize());
     // Right justify doesn't work.
     wattron(internal_window, A_DIM);
@@ -57,9 +57,15 @@ void Editor::draw() {
     mvwprintw(internal_window, i, field_width + 1, line.c_str());
     i += 1;
   }
-  for (; i < height; i++) {
+  for (; i < height - 1; i++) {
     wmove(internal_window, i, 0);
     wclrtoeol(internal_window);
+  }
+  std::string bottom_bar =
+    std::to_string(current_line) + "L " + std::to_string(current_col) + "C";
+  for (unsigned int i = 0; i < width; i++) {
+    char draw = i < bottom_bar.size() ? bottom_bar[i] : ' ';
+    mvwaddch(internal_window, height - 1, i, draw | A_REVERSE);
   }
   Logging::breadcrumb("Editor Done");
   wrefresh(internal_window);
@@ -82,7 +88,9 @@ int Editor::capture() {
                   col + line_number_width);
 }
 
-const std::string& Editor::getTitle() { return buffer->getFileName(); }
+const std::string& Editor::getTitle() {
+  return buffer->getFileName();
+}
 
 void Editor::onKeyPress(int key) {
   switch (key) {
@@ -184,11 +192,14 @@ void Editor::updateColWithPhantom() {
   }
 }
 
-void Editor::limitLineCol() {
+void Editor::limitLine() {
   if (current_line < 0) current_line = 0;
   if (current_line >= buffer->size()) {
     current_line = buffer->size() - 1;
   }
+}
+
+void Editor::limitCol() {
   if (current_col < 0) current_col = 0;
   if (buffer->getLineLength(current_line) == 0) {
     /* Don't go to case below, since that will underflow
@@ -196,7 +207,7 @@ void Editor::limitLineCol() {
        cannot be a empty file with 0 rows */
     current_col = 0;
   } else if (current_col >= buffer->getLineLength(current_line)) {
-    current_col = buffer->getLineLength(current_line) - 1;
+    current_col = buffer->getLineLength(current_line);
   }
   Logging::info << "Limit line col" << current_col << std::endl;
 }
@@ -210,7 +221,8 @@ void Editor::switchBuffer(Buffer* newBuffer) {
   buffer = newBuffer;
   buffer->registerEditor(this);
   titleUpdated();
-  limitLineCol();
+  limitLine();
+  limitCol();
 }
 
 void Editor::onMouseEvent(MEVENT *event) {
@@ -218,7 +230,20 @@ void Editor::onMouseEvent(MEVENT *event) {
     if (yate.isCurrentFocus(this)) {
       current_line = (event->y - y) + window_start;
       current_col = (event->x - x) - (buffer->getLineNumberFieldWidth() + 2);
-      limitLineCol();
+      /* Count tabs before click point */
+      limitLine();
+      std::string line = buffer->getLine(current_line);
+      for (ColNumber i = 0; i < std::min(current_col, line.size()); i++) {
+        if (line.at(i) == '\t') {
+          if (current_col < i + yate.config.getTabSize()) {
+            current_col = i;
+          }
+          else {
+            current_col -= (yate.config.getTabSize() - 1);
+          }
+        }
+      }
+      limitCol();
     } else {
       yate.setFocus(this);
     }

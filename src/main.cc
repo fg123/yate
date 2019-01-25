@@ -32,10 +32,6 @@ int main(int argc, char *argv[]) {
   } catch (cpptoml::parse_exception e) {
     Logging::error << "Error parsing config TOML!" << std::endl;
   }
-  // catch (std::exception& e) {
-  //   endwin();
-  //   throw e;
-  // }
   Logging::cleanup();
   /* EndWin here instead of at Yate destructor */
   endwin();

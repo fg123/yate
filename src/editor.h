@@ -21,7 +21,8 @@ class Editor : public Pane, public Focusable {
   // For when you move cursor past an empty line
   ColNumber phantom_col_pos = 0;
   void updateColWithPhantom();
-  void limitLineCol();
+  void limitLine();
+  void limitCol();
   void init();
 
   void switchBuffer(std::string newPath);
@@ -37,6 +38,7 @@ class Editor : public Pane, public Focusable {
 
   void draw() override;
   const std::string &getTitle() override;
+  Focusable *getCurrentFocus() override { return this; }
   int capture() override;
   void onKeyPress(int key) override;
   void onMouseEvent(MEVENT *event) override;

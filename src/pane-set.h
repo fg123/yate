@@ -23,7 +23,12 @@ class PaneSet : public Pane {
   void addPane(Pane *pane);
   void draw();
   const std::vector<Pane *> &getPanes() { return panes; }
-  const std::string &getTitle() { return focused_pane->getTitle(); }
+  const std::string &getTitle() {
+    return focused_pane->getTitle();
+  }
+  Focusable *getCurrentFocus() override {
+    return focused_pane->getCurrentFocus();
+  }
   void onResize(uint nx, uint ny, uint nwidth, uint nheight) override;
   std::ostream &serialize(std::ostream &stream) override {
     stream << "paneset {" << std::endl;
