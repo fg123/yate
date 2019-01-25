@@ -90,12 +90,6 @@ Yate::Yate(YateConfig config) : config(config) {
   root->resize(0, 0, COLS, LINES);
   root->draw();
 
-  if (!current_focus) {
-    // TODO(felixguo): This might not be an actual issue.
-    Logging::error << "No editor was initialized!" << std::endl;
-    safe_exit(2);
-  }
-
   while (true) {
     if (shouldQuit) break;
     onCapture(getCurrentFocus()->capture());
@@ -122,11 +116,6 @@ Focusable *Yate::getCurrentFocus() {
     return root->getCurrentFocus();
   else
     return prompt_stack.back();
-}
-
-void Yate::setFocus(Focusable *focus) {
-  Logging::info << "Setting current to: " << focus << std::endl;
-  current_focus = focus;
 }
 
 Buffer *Yate::getBuffer(std::string path) {

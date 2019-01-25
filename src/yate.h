@@ -14,7 +14,6 @@ class Buffer;
 class PromptWindow;
 
 class Yate {
-  Focusable *current_focus = nullptr;
   std::vector<PromptWindow *> prompt_stack;
   Focusable *getCurrentFocus();
   bool shouldQuit = false;
@@ -28,9 +27,7 @@ class Yate {
   ~Yate();
   void onCapture(int result);
   Buffer *getBuffer(std::string path);
-  void setFocus(Focusable *editor);
-  bool hasFocus() { return current_focus; }
-  bool isCurrentFocus(Focusable *focus) { return current_focus == focus; }
+  bool isCurrentFocus(Focusable *focus) { return getCurrentFocus() == focus; }
   void enterPrompt(PromptWindow *window) { prompt_stack.push_back(window); }
 
   void quit();

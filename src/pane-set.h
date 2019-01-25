@@ -40,6 +40,9 @@ class PaneSet : public Pane {
     return stream;
   }
   void onMouseEvent(MEVENT *event) override;
+  void onFocusRequested(Pane *focus) {
+    focused_pane = focus;
+  }
   // PaneSet(Yate &yate, Pane *parent, const YateConfig_State_PaneSet &fromConfig);
   size_t getNavigationItemsSize() override;
   std::string getNavigationItem(size_t index) override;

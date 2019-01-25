@@ -22,10 +22,6 @@ static std::string tab_replace(std::string line, int tab_size) {
 
 void Editor::init() {
   buffer->registerEditor(this);
-  if (!yate.hasFocus()) {
-    Logging::info << "Yate has no focused; setting focus." << std::endl;
-    yate.setFocus(this);
-  }
 }
 
 // TODO(felixguo): Handle line wrapping?
@@ -245,7 +241,7 @@ void Editor::onMouseEvent(MEVENT *event) {
       }
       limitCol();
     } else {
-      yate.setFocus(this);
+      focusRequested(this);
     }
   }
 }

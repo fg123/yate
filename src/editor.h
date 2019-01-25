@@ -59,7 +59,7 @@ class Editor : public Pane, public Focusable {
   size_t getNavigationItemsSize() override { return 1; }
   std::string getNavigationItem(size_t index) override { return "Focus"; }
   bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override {
-    yate.setFocus(this);
+    focusRequested(this);
     return true;
   }
 };
