@@ -17,4 +17,5 @@ public:
     IndentationStyle getIndentationStyle() const;
 };
 
+std::ostream &operator<<(std::ostream &output, YateConfig::IndentationStyle style);
 #endif

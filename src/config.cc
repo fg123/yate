@@ -24,3 +24,8 @@ int YateConfig::getTabSize() const {
 YateConfig::IndentationStyle YateConfig::getIndentationStyle() const {
     return indentation_style;
 }
+
+std::ostream &operator<<(std::ostream &output, YateConfig::IndentationStyle style) {
+    output << ((style == YateConfig::IndentationStyle::TAB) ? "TAB" : "SPACE");
+    return output;
+}

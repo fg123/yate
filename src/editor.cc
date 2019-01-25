@@ -24,6 +24,13 @@ void Editor::init() {
   buffer->registerEditor(this);
 }
 
+std::string Editor::generateStatusBar() {
+  std::ostringstream output;
+  output << current_line << "L " << current_col << "C " <<
+    yate.config.getIndentationStyle() << " " << yate.config.getTabSize();
+  return output.str();
+}
+
 // TODO(felixguo): Handle line wrapping?
 void Editor::draw() {
   while (window_start > current_line) {
@@ -57,8 +64,7 @@ void Editor::draw() {
     wmove(internal_window, i, 0);
     wclrtoeol(internal_window);
   }
-  std::string bottom_bar =
-    std::to_string(current_line) + "L " + std::to_string(current_col) + "C";
+  std::string bottom_bar = generateStatusBar();
   for (unsigned int i = 0; i < width; i++) {
     char draw = i < bottom_bar.size() ? bottom_bar[i] : ' ';
     mvwaddch(internal_window, height - 1, i, draw | A_REVERSE);

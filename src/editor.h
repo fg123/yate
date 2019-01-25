@@ -26,6 +26,7 @@ class Editor : public Pane, public Focusable {
   void init();
 
   void switchBuffer(std::string newPath);
+  std::string generateStatusBar();
 
  public:
   Editor(Yate &yate, Pane *parent, Buffer *buffer, int x, int y, int width,
