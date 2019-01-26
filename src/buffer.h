@@ -77,7 +77,7 @@ class Buffer {
   BufferWindow getBufferWindow(LineNumber start, LineNumber end);
   std::string &getLine(LineNumber line) { return internal_buffer.at(line); }
 
-  const bool &hasUnsavedChanges();
+  const bool hasUnsavedChanges();
   const std::string &getFileName();
   size_t size();
   std::string &getPath() { return path; }

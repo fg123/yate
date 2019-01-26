@@ -28,6 +28,8 @@ int main(int argc, char *argv[]) {
     }
     YateConfig config(yate_config_path);
     Logging::init(log_path);
+    Logging::info << KEY_LEFT << " " << KEY_UP << " " << KEY_RIGHT << " " << KEY_DOWN << std::endl;
+    Logging::info << KEY_SLEFT << " " << KEY_UP << " " << KEY_SRIGHT << " " << KEY_DOWN << std::endl;
     Yate yate(config);
   } catch (cpptoml::parse_exception e) {
     Logging::error << "Error parsing config TOML!" << std::endl;

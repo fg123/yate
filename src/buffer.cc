@@ -96,7 +96,9 @@ void Buffer::updateTitle() {
   }
 }
 
-const bool& Buffer::hasUnsavedChanges() { return has_unsaved_changes; }
+const bool Buffer::hasUnsavedChanges() {
+  return has_unsaved_changes;
+}
 
 const std::string& Buffer::getFileName() {
   // TODO(anyone): Process it so it returns just the file
@@ -304,6 +306,9 @@ void Buffer::undo(LineNumber& line, ColNumber& col) {
                         : EditNode::Type::INSERTION;
     apply_edit_node(&opposite, line, col);
     current_edit = current_edit->prev;
+    if (current_edit == head_edit) {
+      setHasUnsavedChanges(false);
+    }
   }
 }
 
@@ -319,11 +324,13 @@ void Buffer::redo(LineNumber& line, ColNumber& col) {
   if (current_edit->next.empty()) return;
   if (current_edit->next.size() == 1) {
     apply_redo_step(line, col, 0);
+    setHasUnsavedChanges(true);
   } else {
     // Prompt for which redo
     yate.enterPrompt(new RedoPromptWindow(
         yate, current_edit->next, [this, &line, &col](unsigned int index) {
           apply_redo_step(line, col, index);
+          setHasUnsavedChanges(true);
         }));
   }
 }

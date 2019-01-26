@@ -11,11 +11,14 @@
 #include "pane.h"
 #include "yate.h"
 
+const LineCol NO_SELECTION = { -1, -1 };
+
 class Editor : public Pane, public Focusable {
   Yate &yate;
   Buffer *buffer;
   LineNumber current_line = 0;
   ColNumber current_col = 0;
+  LineCol selection_start = NO_SELECTION;
   uint window_start = 0;
 
   // For when you move cursor past an empty line
@@ -25,6 +28,7 @@ class Editor : public Pane, public Focusable {
   void limitCol();
   void init();
 
+  bool inSelection(LineNumber line, ColNumber col);
   void switchBuffer(std::string newPath);
   std::string generateStatusBar();
 

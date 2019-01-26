@@ -6,6 +6,10 @@
 #include "editor.h"
 #include "util.h"
 
+/* TODO(felixguo): find cross terminal for this */
+#define KEY_SUP 337
+#define KEY_SDOWN 336
+
 static std::string tab_replace(std::string line, int tab_size) {
   std::string result;
   for (auto c : line) {
@@ -31,6 +35,17 @@ std::string Editor::generateStatusBar() {
   return output.str();
 }
 
+bool Editor::inSelection(LineNumber line, ColNumber col) {
+  if (selection_start == NO_SELECTION) {
+    return false;
+  }
+  LineCol location = std::make_tuple(line, col);
+  LineCol cursor = std::make_tuple(current_line, current_col);
+  LineCol from = std::min(cursor, selection_start);
+  LineCol to = std::max(cursor, selection_start);
+  return location >= from && location <= to;
+}
+
 // TODO(felixguo): Handle line wrapping?
 void Editor::draw() {
   while (window_start > current_line) {
@@ -49,6 +64,7 @@ void Editor::draw() {
   for (auto line :
        buffer->getBufferWindow(window_start, window_start + height - 1)) {
     line = tab_replace(line, yate.config.getTabSize());
+
     // Right justify doesn't work.
     wattron(internal_window, A_DIM);
     wmove(internal_window, i, 0);
@@ -57,7 +73,12 @@ void Editor::draw() {
     int spacing = field_width - line_number.length();
     mvwprintw(internal_window, i, spacing, line_number.c_str());
     wattroff(internal_window, A_DIM);
-    mvwprintw(internal_window, i, field_width + 1, line.c_str());
+
+    // Calculate if it's part of a selection
+    for (ColNumber j = 0; j < line.size(); j++) {
+      auto flag = inSelection(window_start + i, j) ? A_REVERSE : A_NORMAL;
+      mvwaddch(internal_window, i, field_width + 1 + j, line.at(j) | flag);
+    }
     i += 1;
   }
   for (; i < height - 1; i++) {
@@ -95,6 +116,14 @@ const std::string& Editor::getTitle() {
 }
 
 void Editor::onKeyPress(int key) {
+  if (key == KEY_UP || key == KEY_DOWN || key == KEY_LEFT || key == KEY_RIGHT) {
+    selection_start = NO_SELECTION;
+  }
+  else if (key == KEY_SUP || key == KEY_SDOWN || key == KEY_SLEFT || key == KEY_SRIGHT) {
+    if (selection_start == NO_SELECTION) {
+      selection_start = std::make_tuple(current_line, current_col);
+    }
+  }
   switch (key) {
     case KEY_ENTER:
     case '\n':
@@ -140,24 +169,28 @@ void Editor::onKeyPress(int key) {
             this, std::placeholders::_1)));
       break;
     case KEY_LEFT:
+    case KEY_SLEFT:
       if (current_col != 0) {
         current_col--;
         phantom_col_pos = current_col;
       }
       break;
     case KEY_RIGHT:
+    case KEY_SRIGHT:
       if (current_col != buffer->getLineLength(current_line)) {
         current_col++;
         phantom_col_pos = current_col;
       }
       break;
     case KEY_UP:
+    case KEY_SUP:
       if (current_line != 0) {
         current_line--;
         updateColWithPhantom();
       }
       break;
     case KEY_DOWN:
+    case KEY_SDOWN:
       if (current_line != buffer->size() - 1) {
         current_line++;
         updateColWithPhantom();
