@@ -28,6 +28,12 @@ void Editor::init() {
   buffer->registerEditor(this);
 }
 
+void Editor::revertBuffer() {
+  buffer->revert(current_line, current_col);
+  limitLine();
+  limitCol();
+}
+
 std::string Editor::generateStatusBar() {
   std::ostringstream output;
   output << current_line << "L " << current_col << "C " <<
@@ -213,6 +219,8 @@ void Editor::onKeyPress(int key) {
   if (std::isprint(key)) {
     buffer->insertCharacter(key, current_line, current_col);
   }
+  limitLine();
+  limitCol();
 }
 
 void Editor::updateColWithPhantom() {

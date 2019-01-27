@@ -40,6 +40,7 @@ class Editor : public Pane, public Focusable {
   }
 
   void switchBuffer(Buffer* newBuffer);
+  void revertBuffer();
 
   void draw() override;
   const std::string &getTitle() override;

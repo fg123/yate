@@ -18,6 +18,8 @@ std::string EditNode::getTypeString() const {
     case Type::DELETE_BS:
     case Type::DELETE_DEL:
       return "DELETION";
+    case Type::REVERT:
+      return "REVERT FILE";
     default:
       return "UNKNOWN TYPE";
   }
@@ -51,6 +53,7 @@ Buffer::Buffer(Yate& yate, std::string path)
       path(path),
       unsaved_path(" + " + path),
       head_edit(new EditNode()),
+      last_save(head_edit),
       current_edit(head_edit) {
   std::ifstream file(path);
   if (file.good()) {
@@ -67,6 +70,35 @@ Buffer::Buffer(Yate& yate, std::string path)
 }
 
 Buffer::~Buffer() { delete head_edit; }
+
+void Buffer::revert(LineNumber &line, ColNumber &col) {
+  if (!current_edit->content.empty()) {
+    create_edit_boundary(line, col);
+  }
+  current_edit->type = EditNode::Type::REVERT;
+  std::ostringstream content;
+  for (auto line : internal_buffer) {
+    content << line << std::endl;
+  }
+  current_edit->content = content.str();
+  do_revert();
+}
+
+void Buffer::do_revert() {
+  Logging::breadcrumb("Doing revert!");
+  internal_buffer.clear();
+  std::ifstream file(path);
+  if (file.good()) {
+    std::string line;
+    while (std::getline(file, line)) {
+      internal_buffer.push_back(line);
+    }
+  } else {
+    internal_buffer.push_back("");
+  }
+  last_save = current_edit;
+  update_unsaved_marker();
+}
 
 BufferWindow Buffer::getBufferWindow(LineNumber start, LineNumber end) {
   start = std::max((LineNumber)0, std::min(start, internal_buffer.size()));
@@ -85,7 +117,8 @@ bool Buffer::writeToFile() {
   for (auto line : internal_buffer) {
     file << line << std::endl;
   }
-  setHasUnsavedChanges(false);
+  last_save = current_edit;
+  update_unsaved_marker();
   return true;
 }
 
@@ -150,7 +183,7 @@ bool Buffer::insert_no_history(int character, LineNumber& line,
                                  (char)character);
     col++;
   }
-  setHasUnsavedChanges(true);
+  update_unsaved_marker();
   return true;
 }
 
@@ -172,7 +205,7 @@ int Buffer::delete_no_history(LineNumber& line, ColNumber& col) {
     deleted_char = internal_buffer.at(line).at(col);
     internal_buffer.at(line).erase(col, 1);
   }
-  setHasUnsavedChanges(true);
+  update_unsaved_marker();
   return deleted_char;
 }
 
@@ -203,7 +236,7 @@ void Buffer::backspace(LineNumber& line, ColNumber& col) {
     col -= 1;
   }
   create_edit_for(EditNode::Type::DELETE_BS, deleted_char, line, col);
-  setHasUnsavedChanges(true);
+  update_unsaved_marker();
 }
 
 void Buffer::_delete(LineNumber& line, ColNumber& col) {
@@ -265,6 +298,10 @@ perform_edit:
   }
 }
 
+void Buffer::update_unsaved_marker() {
+  setHasUnsavedChanges(current_edit != last_save);
+}
+
 void Buffer::create_edit_boundary(const LineNumber& line,
                                   const ColNumber& col) {
   EditNode* n = new EditNode();
@@ -286,6 +323,8 @@ void Buffer::apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col) {
     for (auto c : node->content) {
       insert_no_history(c, line, col);
     }
+  } else if (node->type == EditNode::Type::REVERT) {
+    do_revert();
   } else {
     // Delete
     for (auto c : node->content) {
@@ -299,24 +338,36 @@ void Buffer::apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col) {
 void Buffer::undo(LineNumber& line, ColNumber& col) {
   if (current_edit->prev) {
     // Apply opposite of current_edit
-    EditNode opposite = *current_edit;
-    opposite.next.clear();  // For when it gets destructed.
-    opposite.type = opposite.type == EditNode::Type::INSERTION
-                        ? EditNode::Type::DELETE_BS
-                        : EditNode::Type::INSERTION;
-    apply_edit_node(&opposite, line, col);
-    current_edit = current_edit->prev;
-    if (current_edit == head_edit) {
-      setHasUnsavedChanges(false);
+    if (current_edit->type == EditNode::Type::REVERT) {
+      internal_buffer.clear();
+      std::istringstream pre_revert(current_edit->content);
+      std::string line;
+      while (std::getline(pre_revert, line)) {
+        internal_buffer.push_back(line);
+      }
+    } else {
+      EditNode opposite = *current_edit;
+      opposite.next.clear();  // For when it gets destructed.
+      opposite.type = opposite.type == EditNode::Type::INSERTION
+                          ? EditNode::Type::DELETE_BS
+                          : EditNode::Type::INSERTION;
+      apply_edit_node(&opposite, line, col);
     }
+    current_edit = current_edit->prev;
+    update_unsaved_marker();
   }
 }
 
 void Buffer::apply_redo_step(LineNumber& line, ColNumber& col,
                              std::vector<EditNode*>::size_type index) {
   if (index < current_edit->next.size()) {
-    apply_edit_node(current_edit->next.at(index), line, col);
     current_edit = current_edit->next.at(index);
+    if (current_edit->type == EditNode::Type::REVERT) {
+      do_revert();
+    } else {
+      apply_edit_node(current_edit, line, col);
+    }
+    update_unsaved_marker();
   }
 }
 
@@ -324,13 +375,11 @@ void Buffer::redo(LineNumber& line, ColNumber& col) {
   if (current_edit->next.empty()) return;
   if (current_edit->next.size() == 1) {
     apply_redo_step(line, col, 0);
-    setHasUnsavedChanges(true);
   } else {
     // Prompt for which redo
     yate.enterPrompt(new RedoPromptWindow(
         yate, current_edit->next, [this, &line, &col](unsigned int index) {
           apply_redo_step(line, col, index);
-          setHasUnsavedChanges(true);
         }));
   }
 }

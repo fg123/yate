@@ -35,6 +35,9 @@ class CommandPromptWindow : public PromptWindow {
     items.emplace_back("File: Save", std::function<void()>([editor]() {
                          editor->onKeyPress(ctrl('s'));
                        }));
+    items.emplace_back("File: Revert", std::function<void()>([editor]() {
+                         editor->revertBuffer();
+                       }));
     items.emplace_back("File: Quit",
                        std::function<void()>([&yate]() { yate.quit(); }));
     items.emplace_back("Edit: Undo", std::function<void()>([editor]() {

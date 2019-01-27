@@ -27,7 +27,7 @@ struct EditNode {
       delete child;
     }
   }
-  enum class Type { BASE_REVISION, INSERTION, DELETE_BS, DELETE_DEL };
+  enum class Type { BASE_REVISION, INSERTION, DELETE_BS, DELETE_DEL, REVERT };
   Type type;
   LineCol start;
   std::string content;
@@ -61,6 +61,7 @@ class Buffer {
   bool has_unsaved_changes = false;
   std::vector<Editor *> registered_editors;
   EditNode *head_edit;
+  EditNode *last_save;
   EditNode *current_edit;
   void create_edit_boundary(const LineNumber &line, const ColNumber &col);
   void apply_edit_node(EditNode *node, LineNumber &line, ColNumber &col);
@@ -70,7 +71,8 @@ class Buffer {
   int delete_no_history(LineNumber &line, ColNumber &col);
   void apply_redo_step(LineNumber &line, ColNumber &col,
                        std::vector<EditNode *>::size_type index);
-
+  void do_revert();
+  void update_unsaved_marker();
  public:
   Buffer(Yate &yate, std::string path);
   ~Buffer();
@@ -91,6 +93,7 @@ class Buffer {
   void _delete(LineNumber &line, ColNumber &col);
   ColNumber getLineLength(LineNumber line);
   bool writeToFile();
+  void revert(LineNumber &line, ColNumber &col);
 
   void undo(LineNumber &line, ColNumber &col);
   void redo(LineNumber &line, ColNumber &col);
