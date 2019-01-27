@@ -23,7 +23,7 @@ class Yate {
   PaneSet *root;
   std::vector<Buffer *> opened_buffers;
 
-  explicit Yate(YateConfig config);
+  Yate(YateConfig config, std::vector<std::string>& paths_to_open);
   ~Yate();
   void onCapture(int result);
   Buffer *getBuffer(std::string path);

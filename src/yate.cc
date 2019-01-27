@@ -53,7 +53,7 @@ state {
 	}
 })";
 
-Yate::Yate(YateConfig config) : config(config) {
+Yate::Yate(YateConfig config, std::vector<std::string>& paths_to_open) : config(config) {
   set_escdelay(50);
   initscr();
   raw();
@@ -83,7 +83,7 @@ Yate::Yate(YateConfig config) : config(config) {
   // TODO(felixguo): fix for serialized state storage
   // root = new PaneSet(*this, nullptr, config.state().root());
   root = new PaneSet(*this, nullptr, 0, 0, 1, 1);
-  TabSet* tab_set = new TabSet(*this, root, 0, 0, 1, 1);
+  TabSet* tab_set = new TabSet(*this, root, 0, 0, 1, 1, paths_to_open);
   root->addPane(tab_set);
 
   refresh();

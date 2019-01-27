@@ -18,7 +18,7 @@ class TabSet : public Pane {
   void drawTabs();
 
  public:
-  TabSet(Yate &yate, Pane *parent, int x, int y, int width, int height);
+  TabSet(Yate &yate, Pane *parent, int x, int y, int width, int height, std::vector<std::string> &paths);
   ~TabSet();
   void addTab(PaneSet* paneset) {
     tabs.emplace_back(paneset);

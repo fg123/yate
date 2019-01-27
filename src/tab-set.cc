@@ -4,13 +4,15 @@
 #include "pane.h"
 #include "yate.h"
 
-TabSet::TabSet(Yate &yate, Pane *parent, int x, int y, int width, int height)
-    : Pane(parent, x, y, width, height), yate(yate) {
-  PaneSet *pane_s = new PaneSet(yate, this, x, y + 1, width, height - 1);
-  Editor *editor = new Editor(yate, pane_s, yate.getBuffer("Untitled"), x,
-                              y + 1, width, height - 1);
-  pane_s->addPane(editor);
-  tabs.emplace_back(pane_s);
+TabSet::TabSet(Yate &yate, Pane *parent, int x, int y, int width, int height, std::vector<std::string> &paths)
+  : Pane(parent, x, y, width, height), yate(yate) {
+  for (auto path : paths) {
+    PaneSet *pane_s = new PaneSet(yate, this, x, y + 1, width, height - 1);
+    Editor *editor = new Editor(yate, pane_s, yate.getBuffer(path), x,
+                                y + 1, width, height - 1);
+    pane_s->addPane(editor);
+    tabs.emplace_back(pane_s);
+  }
 }
 
 TabSet::~TabSet() {
