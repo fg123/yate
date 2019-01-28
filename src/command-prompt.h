@@ -50,6 +50,12 @@ class CommandPromptWindow : public PromptWindow {
         "Edit: Navigate", std::function<void()>([&yate]() {
           yate.enterPrompt(new NavigateWindow(yate, yate.root, nullptr));
         }));
+    if (DEBUG) {
+      items.emplace_back("Debug: Serialize", std::function<void()>([&yate]() {
+                      std::ofstream stream("serialized.yate");
+                      yate.serialize(stream);
+                    }));
+    }
   }
   const std::string &getTitle() override { return title; }
 

@@ -1,6 +1,12 @@
 #ifndef UTIL_H
 #define UTIL_H
 
+#ifndef RELEASE
+#define DEBUG 1
+#else
+#define DEBUG 0
+#endif
+
 // Some utility functions / macros
 
 // Mask for ncurses getch keys
@@ -24,5 +30,11 @@ inline bool fuzzy_match(std::string& needle, std::string& haystack) {
                      needle.end(), [](char ch1, char ch2) {
                        return std::toupper(ch1) == std::toupper(ch2);
                      }) != haystack.end();
+}
+
+inline int readInt(std::istream& input) {
+  int i;
+  input >> i;
+  return i;
 }
 #endif

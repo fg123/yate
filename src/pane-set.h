@@ -18,7 +18,10 @@ class PaneSet : public Pane {
   Pane *focused_pane;
   PaneSet(Yate &yate, Pane *parent, std::istream &saved_state)
       : Pane(parent, saved_state), yate(yate) {
-    // TODO(felixguo): read state from saved_state
+    int size = readInt(saved_state);
+    for (int i = 0; i < size; i++) {
+
+    }
   }
   PaneSet(Yate &yate, Pane *parent, int x, int y, int width, int height)
       : Pane(parent, x, y, width, height), yate(yate) {}
@@ -34,20 +37,16 @@ class PaneSet : public Pane {
     return focused_pane->getCurrentFocus();
   }
   void onResize(uint nx, uint ny, uint nwidth, uint nheight) override;
-  std::ostream &serialize(std::ostream &stream) override {
-    stream << "paneset {" << std::endl;
-    stream << x << " " << y << " " << width << " " << height << std::endl;
+  void serialize(std::ostream &stream) override {
+    stream << "paneset " << x << " " << y << " " << width << " " << height << " " << panes.size() << " ";
     for (auto pane : panes) {
       pane->serialize(stream);
     }
-    stream << "}" << std::endl;
-    return stream;
   }
   void onMouseEvent(MEVENT *event) override;
   void onFocusRequested(Pane *focus) {
     focused_pane = focus;
   }
-  void serialize(std::ostream &output) override;
   size_t getNavigationItemsSize() override;
   std::string getNavigationItem(size_t index) override;
   bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override;

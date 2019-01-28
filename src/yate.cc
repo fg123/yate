@@ -77,7 +77,7 @@ void Yate::refreshAndStartCapture() {
   }
 }
 
-Yate::Yate(YateConfig config, std::istream& saved_state) {
+Yate::Yate(YateConfig config, std::istream& saved_state) : config(config) {
   init();
   root = new PaneSet(*this, nullptr, saved_state);
   refreshAndStartCapture();
@@ -85,6 +85,7 @@ Yate::Yate(YateConfig config, std::istream& saved_state) {
 
 void Yate::serialize(std::ostream &output) {
   root->serialize(output);
+  output << std::endl;
 }
 
 Yate::Yate(YateConfig config, std::vector<std::string>& paths_to_open) : config(config) {

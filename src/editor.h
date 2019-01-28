@@ -11,7 +11,7 @@
 #include "pane.h"
 #include "yate.h"
 
-const LineCol NO_SELECTION = { -1, -1 };
+const LineCol NO_SELECTION = std::make_tuple(-1, -1);
 
 class Editor : public Pane, public Focusable {
   Yate &yate;
@@ -48,12 +48,10 @@ class Editor : public Pane, public Focusable {
   int capture() override;
   void onKeyPress(int key) override;
   void onMouseEvent(MEVENT *event) override;
-  std::ostream &serialize(std::ostream &stream) override {
-    stream << "editor {" << std::endl;
-    stream << x << " " << y << " " << width << " " << height << std::endl;
-    stream << buffer->getPath() << std::endl;
-    stream << "}" << std::endl;
-    return stream;
+  void serialize(std::ostream &stream) override {
+    stream << "editor " << x << " " << y << " " << width << " " << height
+           << " ";
+    stream << buffer->getPath();
   }
 
   // Editor(Yate &yate, Pane *parent, const YateConfig_State_Editor &fromConfig)
@@ -63,7 +61,6 @@ class Editor : public Pane, public Focusable {
   //   init();
   // }
 
-  void serialize(std::ostream &output) override;
   size_t getNavigationItemsSize() override { return 1; }
   std::string getNavigationItem(size_t index) override { return "Focus"; }
   bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override {

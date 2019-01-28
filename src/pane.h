@@ -8,6 +8,7 @@
 #include "logging.h"
 #include "navigate-window-provider.h"
 #include "focusable.h"
+#include "util.h"
 
 using uint = unsigned int;
 
@@ -35,8 +36,8 @@ struct Pane : public NavigateWindowProvider {
   virtual void onResize(uint nx, uint ny, uint nwidth, uint nheight) {}
   virtual const std::string &getTitle() = 0;
   Pane(Pane *parent, std::istream& source)
-      : Pane(parent, source.read, fromConfig.y(), fromConfig.width(),
-             fromConfig.height()) {}
+      : Pane(parent, readInt(source), readInt(source), readInt(source),
+             readInt(source)) {}
   Pane(Pane *parent, int x, int y, int width, int height)
       : x(x), y(y), width(width), height(height), parent(parent) {
     internal_window = newwin(height, width, y, x);
@@ -78,7 +79,6 @@ struct Pane : public NavigateWindowProvider {
 
   virtual void onMouseEvent(MEVENT *event) {}
   virtual void onTitleUpdated() {}
-  virtual std::ostream &serialize(std::ostream &stream) { return stream; }
   virtual ~Pane() { delwin(internal_window); }
 };
 
