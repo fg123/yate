@@ -62,7 +62,6 @@ class CommandPromptWindow : public PromptWindow {
   }
 
   void onExecute(size_t index) override {
-    // TODO(felixguo): Implement proper focus stack instead of this.
     yate.exitPromptThenRun(items.at(index).second);
   }
 

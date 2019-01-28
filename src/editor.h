@@ -62,6 +62,8 @@ class Editor : public Pane, public Focusable {
   //   buffer = yate.getBuffer(fromConfig.buffer_path());
   //   init();
   // }
+
+  void serialize(std::ostream &output) override;
   size_t getNavigationItemsSize() override { return 1; }
   std::string getNavigationItem(size_t index) override { return "Focus"; }
   bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override {

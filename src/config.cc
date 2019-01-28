@@ -26,6 +26,6 @@ YateConfig::IndentationStyle YateConfig::getIndentationStyle() const {
 }
 
 std::ostream &operator<<(std::ostream &output, YateConfig::IndentationStyle style) {
-    output << ((style == YateConfig::IndentationStyle::TAB) ? "TAB" : "SPACE");
+    output << ((style == YateConfig::IndentationStyle::TAB) ? "Tabs" : "Spaces");
     return output;
 }

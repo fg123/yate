@@ -37,7 +37,6 @@ void TabSet::drawTabs() {
       selected_start_position = all_tabs.length();
       selected_len = tab->getTitle().length() + 2;
     }
-    // TODO(anyone): Add indicator if file is not saved?
     std::string str_to_add(' ' + tab->getTitle() + ' ');
     all_tabs += str_to_add;
     flags.insert(flags.end(), str_to_add.length(), flag);

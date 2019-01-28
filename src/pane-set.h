@@ -16,6 +16,10 @@ class PaneSet : public Pane {
  public:
   // Store Focused Pane
   Pane *focused_pane;
+  PaneSet(Yate &yate, Pane *parent, std::istream &saved_state)
+      : Pane(parent, saved_state), yate(yate) {
+    // TODO(felixguo): read state from saved_state
+  }
   PaneSet(Yate &yate, Pane *parent, int x, int y, int width, int height)
       : Pane(parent, x, y, width, height), yate(yate) {}
   ~PaneSet();
@@ -43,7 +47,7 @@ class PaneSet : public Pane {
   void onFocusRequested(Pane *focus) {
     focused_pane = focus;
   }
-  // PaneSet(Yate &yate, Pane *parent, const YateConfig_State_PaneSet &fromConfig);
+  void serialize(std::ostream &output) override;
   size_t getNavigationItemsSize() override;
   std::string getNavigationItem(size_t index) override;
   bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override;

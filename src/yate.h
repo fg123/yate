@@ -18,13 +18,19 @@ class Yate {
   Focusable *getCurrentFocus();
   bool shouldQuit = false;
 
+  void init();
+  void refreshAndStartCapture();
+
  public:
   YateConfig config;
   PaneSet *root;
   std::vector<Buffer *> opened_buffers;
 
+  Yate(YateConfig config, std::istream& saved_state);
   Yate(YateConfig config, std::vector<std::string>& paths_to_open);
   ~Yate();
+
+  void serialize(std::ostream& output);
   void onCapture(int result);
   Buffer *getBuffer(std::string path);
   bool isCurrentFocus(Focusable *focus) { return getCurrentFocus() == focus; }

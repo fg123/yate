@@ -46,6 +46,8 @@ class TabSet : public Pane {
   //     tabs.push_back(new PaneSet(yate, this, paneset));
   //   }
   // }
+
+  void serialize(std::ostream &output) override;
   void onMouseEvent(MEVENT *event) override;
   size_t getNavigationItemsSize() override { return tabs.size() + 1; }
   std::string getNavigationItem(size_t index) override;

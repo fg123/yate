@@ -53,7 +53,7 @@ state {
 	}
 })";
 
-Yate::Yate(YateConfig config, std::vector<std::string>& paths_to_open) : config(config) {
+void Yate::init() {
   set_escdelay(50);
   initscr();
   raw();
@@ -64,28 +64,9 @@ Yate::Yate(YateConfig config, std::vector<std::string>& paths_to_open) : config(
   mousemask(BUTTON1_PRESSED, nullptr);
 
   Logging::breadcrumb("=== Starting Yate ===");
-  // int fd = open(config_path.c_str(), O_RDONLY);
-  // if (fd < 0) {
-  //   Logging::info << "No configuration provided. Defaulting." << std::endl;
-  //   if (!google::protobuf::TextFormat::ParseFromString(default_config,
-  //                                                      &config)) {
-  //     Logging::error << "Error parsing default config text_proto!" << std::endl;
-  //   }
-  // } else {
-  //   google::protobuf::io::FileInputStream stream(fd);
-  //   stream.SetCloseOnDelete(true);
-  //   google::protobuf::TextFormat::Parse(&stream, &config);
-  // }
-  // std::string output;
-  // google::protobuf::TextFormat::PrintToString(config, &output);
-  // Logging::info << output << std::endl;
+}
 
-  // TODO(felixguo): fix for serialized state storage
-  // root = new PaneSet(*this, nullptr, config.state().root());
-  root = new PaneSet(*this, nullptr, 0, 0, 1, 1);
-  TabSet* tab_set = new TabSet(*this, root, 0, 0, 1, 1, paths_to_open);
-  root->addPane(tab_set);
-
+void Yate::refreshAndStartCapture() {
   refresh();
   root->resize(0, 0, COLS, LINES);
   root->draw();
@@ -94,6 +75,24 @@ Yate::Yate(YateConfig config, std::vector<std::string>& paths_to_open) : config(
     if (shouldQuit) break;
     onCapture(getCurrentFocus()->capture());
   }
+}
+
+Yate::Yate(YateConfig config, std::istream& saved_state) {
+  init();
+  root = new PaneSet(*this, nullptr, saved_state);
+  refreshAndStartCapture();
+}
+
+void Yate::serialize(std::ostream &output) {
+  root->serialize(output);
+}
+
+Yate::Yate(YateConfig config, std::vector<std::string>& paths_to_open) : config(config) {
+  init();
+  root = new PaneSet(*this, nullptr, 0, 0, 1, 1);
+  TabSet* tab_set = new TabSet(*this, root, 0, 0, 1, 1, paths_to_open);
+  root->addPane(tab_set);
+  refreshAndStartCapture();
 }
 
 Yate::~Yate() {

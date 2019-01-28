@@ -37,7 +37,7 @@ void Editor::revertBuffer() {
 std::string Editor::generateStatusBar() {
   std::ostringstream output;
   output << current_line << "L " << current_col << "C " <<
-    yate.config.getIndentationStyle() << " " << yate.config.getTabSize();
+    yate.config.getIndentationStyle() << ": " << yate.config.getTabSize();
   return output.str();
 }
 
