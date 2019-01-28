@@ -73,12 +73,22 @@ void Yate::refreshAndStartCapture() {
 
   while (true) {
     if (shouldQuit) break;
-    onCapture(getCurrentFocus()->capture());
+    int result = getCurrentFocus()->capture();
+    if (result != ERR) {
+      /* Some ncurses capture error */
+      onCapture(result);
+    }
   }
 }
 
 Yate::Yate(YateConfig config, std::istream& saved_state) : config(config) {
   init();
+  /* saved_state will start with paneset ... */
+  std::string paneset;
+  saved_state >> paneset;
+  if (paneset != "paneset") {
+    safe_exit(1, "Saved state was invalid; did not start with 'paneset'");
+  }
   root = new PaneSet(*this, nullptr, saved_state);
   refreshAndStartCapture();
 }
@@ -120,6 +130,7 @@ Focusable *Yate::getCurrentFocus() {
 
 Buffer *Yate::getBuffer(std::string path) {
   // Check if path is already opened?
+  Logging::breadcrumb("GetBuffer: " + path);
   auto result =
       std::find_if(opened_buffers.begin(), opened_buffers.end(),
                    [path](Buffer *item) { return item->getPath() == path; });
@@ -135,7 +146,7 @@ Buffer *Yate::getBuffer(std::string path) {
 static MEVENT event;
 
 void Yate::onCapture(int result) {
-  Logging::info << result << " " << KEY_MOUSE << " " << ctrl('q') << std::endl;
+  Logging::info << "Yate Capture " << result << " " << KEY_MOUSE << " " << ctrl('q') << std::endl;
   if (result == KEY_RESIZE) {
     Logging::breadcrumb("KEY_RESIZE Hit!");
     refresh();

@@ -16,13 +16,7 @@ class PaneSet : public Pane {
  public:
   // Store Focused Pane
   Pane *focused_pane;
-  PaneSet(Yate &yate, Pane *parent, std::istream &saved_state)
-      : Pane(parent, saved_state), yate(yate) {
-    int size = readInt(saved_state);
-    for (int i = 0; i < size; i++) {
-
-    }
-  }
+  PaneSet(Yate &yate, Pane *parent, std::istream &saved_state);
   PaneSet(Yate &yate, Pane *parent, int x, int y, int width, int height)
       : Pane(parent, x, y, width, height), yate(yate) {}
   ~PaneSet();
@@ -37,12 +31,7 @@ class PaneSet : public Pane {
     return focused_pane->getCurrentFocus();
   }
   void onResize(uint nx, uint ny, uint nwidth, uint nheight) override;
-  void serialize(std::ostream &stream) override {
-    stream << "paneset " << x << " " << y << " " << width << " " << height << " " << panes.size() << " ";
-    for (auto pane : panes) {
-      pane->serialize(stream);
-    }
-  }
+  void serialize(std::ostream &stream) override;
   void onMouseEvent(MEVENT *event) override;
   void onFocusRequested(Pane *focus) {
     focused_pane = focus;

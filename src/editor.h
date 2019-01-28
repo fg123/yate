@@ -39,6 +39,12 @@ class Editor : public Pane, public Focusable {
     init();
   }
 
+  Editor(Yate &yate, Pane *parent, std::istream& saved_state)
+      : Pane(parent, saved_state), yate(yate), buffer(yate.getBuffer(read<std::string>(saved_state))) {
+    Logging::breadcrumb("Deserializing Editor");
+    init();
+  }
+
   void switchBuffer(Buffer* newBuffer);
   void revertBuffer();
 
@@ -50,17 +56,8 @@ class Editor : public Pane, public Focusable {
   void onMouseEvent(MEVENT *event) override;
   void serialize(std::ostream &stream) override {
     stream << "editor " << x << " " << y << " " << width << " " << height
-           << " ";
-    stream << buffer->getPath();
+           << " " << buffer->getPath() << " ";
   }
-
-  // Editor(Yate &yate, Pane *parent, const YateConfig_State_Editor &fromConfig)
-  //     : Pane(parent, fromConfig.pane()), yate(yate) {
-  //   Logging::breadcrumb("Deserializing Editor");
-  //   buffer = yate.getBuffer(fromConfig.buffer_path());
-  //   init();
-  // }
-
   size_t getNavigationItemsSize() override { return 1; }
   std::string getNavigationItem(size_t index) override { return "Focus"; }
   bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override {

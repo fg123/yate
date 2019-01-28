@@ -5,20 +5,31 @@
 
 #include <cmath>
 
-// PaneSet::PaneSet(Yate &yate, Pane *parent,
-//                  const YateConfig_State_PaneSet &fromConfig)
-//     : Pane(parent, fromConfig.pane()), yate(yate) {
-//   Logging::breadcrumb("Deserializing PaneSet");
-//   for (auto tab : fromConfig.tabsets()) {
-//     addPane(new TabSet(yate, this, tab));
-//   }
-//   for (auto editor : fromConfig.editors()) {
-//     addPane(new Editor(yate, this, editor));
-//   }
-//   for (auto paneset : fromConfig.panesets()) {
-//     addPane(new PaneSet(yate, this, paneset));
-//   }
-// }
+PaneSet::PaneSet(Yate &yate, Pane *parent, std::istream &saved_state)
+      : Pane(parent, saved_state), yate(yate) {
+  Logging::breadcrumb("Deserializing PaneSet");
+  int size = read<int>(saved_state);
+  int focusedIndex = read<int>(saved_state);
+  for (int i = 0; i < size; i++) {
+    std::string type;
+    saved_state >> type;
+    if (type == "tabset") {
+      addPane(new TabSet(yate, this, saved_state));
+    }
+    else if (type == "editor") {
+      addPane(new Editor(yate, this, saved_state));
+    }
+    else if (type == "paneset") {
+      addPane(new PaneSet(yate, this, saved_state));
+    }
+    else {
+      std::cerr << "Unknown Pane Type: " << type << std::endl;
+    }
+    if (i == focusedIndex) {
+      focused_pane = panes.at(i);
+    }
+  }
+}
 
 PaneSet::~PaneSet() {
   for (auto pane : panes) {
@@ -66,8 +77,7 @@ void PaneSet::onResize(uint nx, uint ny, uint nwidth, uint nheight) {
     }
   }
   if (!bottom_right_pane) {
-    Logging::error << "No bottom right pane!" << std::endl;
-    safe_exit(2);
+    safe_exit(2, "No bottom right pane!");
   }
   cumulative_width %= nwidth;
   cumulative_height %= nheight;
@@ -110,4 +120,11 @@ void PaneSet::onMouseEvent(MEVENT *event) {
     }
   }
   titleUpdated();
+}
+
+void PaneSet::serialize(std::ostream &stream) {
+  stream << "paneset " << x << " " << y << " " << width << " " << height << " " << panes.size() << " " << indexOf(panes, focused_pane) << " ";
+  for (auto pane : panes) {
+    pane->serialize(stream);
+  }
 }

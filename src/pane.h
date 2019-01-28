@@ -4,6 +4,7 @@
 
 #include <ncurses.h>
 #include <string>
+#include <iostream>
 
 #include "logging.h"
 #include "navigate-window-provider.h"
@@ -36,11 +37,24 @@ struct Pane : public NavigateWindowProvider {
   virtual void onResize(uint nx, uint ny, uint nwidth, uint nheight) {}
   virtual const std::string &getTitle() = 0;
   Pane(Pane *parent, std::istream& source)
-      : Pane(parent, readInt(source), readInt(source), readInt(source),
-             readInt(source)) {}
+      : x(read<int>(source)), y(read<int>(source)),
+        width(read<int>(source)), height(read<int>(source)),
+        parent(parent) {
+    Logging::breadcrumb("Deserializing Pane");
+    init();
+  }
+
   Pane(Pane *parent, int x, int y, int width, int height)
       : x(x), y(y), width(width), height(height), parent(parent) {
+    init();
+  }
+
+  void init() {
+    Logging::info << "Pane Init: " << x << " " << y << " " << width << " " << height << std::endl;
     internal_window = newwin(height, width, y, x);
+    if (!internal_window) {
+      safe_exit(3, "Error allocating internal window!");
+    }
     keypad(internal_window, true);
   }
 

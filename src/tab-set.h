@@ -19,6 +19,7 @@ class TabSet : public Pane {
 
  public:
   TabSet(Yate &yate, Pane *parent, int x, int y, int width, int height, std::vector<std::string> &paths);
+  TabSet(Yate &yate, Pane *parent, std::istream &saved_state);
   ~TabSet();
   void addTab(PaneSet* paneset) {
     tabs.emplace_back(paneset);
@@ -29,20 +30,7 @@ class TabSet : public Pane {
 
   void onTitleUpdated() override;
   void onResize(uint nx, uint ny, uint nwidth, uint nheight) override;
-  void serialize(std::ostream &stream) override {
-    stream << "tabset " << x << " " << y << " " << width << " " << height << " " << tabs.size() << " ";
-    for (auto paneSet : tabs) {
-      paneSet->serialize(stream);
-    }
-  }
-
-  // TabSet(Yate &yate, Pane *parent, const YateConfig_State_TabSet &fromConfig)
-  //     : Pane(parent, fromConfig.pane()), yate(yate) {
-  //   Logging::breadcrumb("Deserializing TabSet");
-  //   for (auto paneset : fromConfig.panesets()) {
-  //     tabs.push_back(new PaneSet(yate, this, paneset));
-  //   }
-  // }
+  void serialize(std::ostream &stream) override;
   void onMouseEvent(MEVENT *event) override;
   size_t getNavigationItemsSize() override { return tabs.size() + 1; }
   std::string getNavigationItem(size_t index) override;

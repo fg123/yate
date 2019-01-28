@@ -64,7 +64,7 @@ void Editor::draw() {
 
   Logging::breadcrumb("Editor Draw");
   Logging::info << "Start: " << window_start << " Height: " << height
-                << "Current: " << current_line << std::endl;
+                << " Current: " << current_line << std::endl;
   unsigned int i = 0;
   int field_width = buffer->getLineNumberFieldWidth() + 1;
   for (auto line :
@@ -101,6 +101,7 @@ void Editor::draw() {
 }
 
 int Editor::capture() {
+  Logging::breadcrumb("Editor Capture Called");
   // capture at correct location
   draw();
   curs_set(1);
@@ -252,7 +253,6 @@ void Editor::limitCol() {
   } else if (current_col >= buffer->getLineLength(current_line)) {
     current_col = buffer->getLineLength(current_line);
   }
-  Logging::info << "Limit line col" << current_col << std::endl;
 }
 
 void Editor::switchBuffer(std::string newPath) {

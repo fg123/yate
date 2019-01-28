@@ -8,6 +8,7 @@ int usage() {
             << "Arguments:" << std::endl
             << "  [-c|--config configFile]     specify a config file" << std::endl
             << "  [-l|--log logFile]           specify log file (default: yate.log)" << std::endl
+            << "  [-s serializedFile]      specify a saved state" << std::endl
             << "  [-h|--help]                  show this message" << std::endl;
   return 1;
 }
@@ -16,12 +17,15 @@ int main(int argc, char *argv[]) {
   std::vector<std::string> paths_to_open;
   std::string yate_config_path;
   std::string log_path;
+  std::string saved_state_path;
   for (int i = 1; i < argc; i++) {
     std::string arg(argv[i]);
     if (i != argc - 1 && (arg == "-c" || arg == "--config")) {
       yate_config_path = argv[++i];
     } else if (i != argc - 1 && (arg == "-l" || arg == "--log")) {
       log_path = argv[++i];
+    } else if (i != argc - 1 && arg == "-s") {
+      saved_state_path = argv[++i];
     } else if (arg == "-h" || arg == "--help") {
       return usage();
     } else {
@@ -39,7 +43,12 @@ int main(int argc, char *argv[]) {
     if (paths_to_open.empty()) {
       paths_to_open.push_back("Untitled");
     }
-    Yate yate(config, paths_to_open);
+    if (saved_state_path.empty()) {
+      Yate yate(config, paths_to_open);
+    } else {
+      std::ifstream saved_state(saved_state_path);
+      Yate yate(config, saved_state);
+    }
   } catch (cpptoml::parse_exception e) {
     Logging::error << "Error parsing config TOML!" << std::endl;
   }

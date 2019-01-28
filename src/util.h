@@ -12,9 +12,11 @@
 // Mask for ncurses getch keys
 #define ctrl(x) ((x)&0x1f)
 
-#define safe_exit(code) \
+#define safe_exit(code, message) \
   do {                  \
     endwin();           \
+    std::cerr << message << std::endl; \
+    Logging::error << message << std::endl; \
     exit(code);         \
   } while (0)
 
@@ -32,9 +34,20 @@ inline bool fuzzy_match(std::string& needle, std::string& haystack) {
                      }) != haystack.end();
 }
 
-inline int readInt(std::istream& input) {
-  int i;
+template <typename T>
+inline T read(std::istream& input) {
+  T i;
   input >> i;
   return i;
+}
+
+template <typename T>
+inline int indexOf(std::vector<T> vector, T item) {
+  auto it = std::find(vector.begin(), vector.end(), item);
+  if (it == vector.end()) {
+    return -1;
+  } else {
+    return std::distance(vector.begin(), it);
+  }
 }
 #endif

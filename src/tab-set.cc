@@ -15,6 +15,22 @@ TabSet::TabSet(Yate &yate, Pane *parent, int x, int y, int width, int height, st
   }
 }
 
+TabSet::TabSet(Yate &yate, Pane *parent, std::istream &saved_state) : Pane(parent, saved_state), yate(yate) {
+  Logging::breadcrumb("Deserializing TabSet");
+  int size = read<int>(saved_state);
+  selected_tab = read<int>(saved_state);
+  for (int i = 0; i < size; i++) {
+    std::string type;
+    saved_state >> type;
+    if (type == "paneset") {
+      addTab(new PaneSet(yate, this, saved_state));
+    }
+    else {
+      std::cerr << "Unknown Tab Type: " << type << std::endl;
+    }
+  }
+}
+
 TabSet::~TabSet() {
   for (auto tab : tabs) {
     delete tab;
@@ -129,4 +145,11 @@ bool TabSet::onNavigationItemSelected(size_t index, NavigateWindow *parent) {
   }
   yate.enterPrompt(new NavigateWindow(yate, tabs.at(index), parent));
   return false;
+}
+
+void TabSet::serialize(std::ostream &stream) {
+  stream << "tabset " << x << " " << y << " " << width << " " << height << " " << tabs.size() << " " << selected_tab << " ";
+  for (auto paneSet : tabs) {
+    paneSet->serialize(stream);
+  }
 }
