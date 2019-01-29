@@ -76,9 +76,9 @@ struct Pane : public NavigateWindowProvider {
 
   void focusRequested(Pane *pane) {
     Logging::breadcrumb("Pane Focus Requested");
-    onFocusRequested(pane);
     if (parent) {
       parent->focusRequested(pane);
+      parent->onFocusRequested(pane, this);
     } else {
       Logging::breadcrumb("No parent to notify!");
     }
@@ -88,7 +88,10 @@ struct Pane : public NavigateWindowProvider {
     output << x << " " << y << " " << width << " " << height << " ";
   }
 
-  virtual void onFocusRequested(Pane *pane) {}
+  /* First argument is the pane that requested the focus, the second
+   * is this current pane, so the parent can identify which child passed
+   * the event up */
+  virtual void onFocusRequested(Pane *paneRequestingFocus, Pane *child) {}
   virtual Focusable *getCurrentFocus() = 0;
 
   virtual void onMouseEvent(MEVENT *event) {}

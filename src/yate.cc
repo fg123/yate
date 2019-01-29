@@ -12,6 +12,7 @@
 #include "tab-set.h"
 #include "util.h"
 #include "yate.h"
+#include "editor-navigate-provider.h"
 
 #define DEFAULT_INDENTATION_SIZE 8
 
@@ -72,6 +73,7 @@ Yate::~Yate() {
   // TODO(felixguo): We might not want to truncate every time.
   // std::ofstream config_file(config_path, std::fstream::trunc);
   // root->serialize(config_file);
+  delete lastEditorNavigateProvider;
 
   delete root;
   for (auto buffer : opened_buffers) {
@@ -88,6 +90,14 @@ Focusable *Yate::getCurrentFocus() {
     return root->getCurrentFocus();
   else
     return prompt_stack.back();
+}
+
+EditorNavigateProvider *Yate::getEditorNavigateProvider() {
+  if (lastEditorNavigateProvider) {
+    delete lastEditorNavigateProvider;
+  }
+  lastEditorNavigateProvider = new EditorNavigateProvider(*this);
+  return lastEditorNavigateProvider;
 }
 
 Buffer *Yate::getBuffer(std::string path) {

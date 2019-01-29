@@ -12,11 +12,14 @@
 class PaneSet;
 class Buffer;
 class PromptWindow;
+class EditorNavigateProvider;
 
 class Yate {
   std::vector<PromptWindow *> prompt_stack;
   Focusable *getCurrentFocus();
   bool shouldQuit = false;
+
+  EditorNavigateProvider *lastEditorNavigateProvider = nullptr;
 
   void init();
   void refreshAndStartCapture();
@@ -35,6 +38,8 @@ class Yate {
   Buffer *getBuffer(std::string path);
   bool isCurrentFocus(Focusable *focus) { return getCurrentFocus() == focus; }
   void enterPrompt(PromptWindow *window) { prompt_stack.push_back(window); }
+
+  EditorNavigateProvider *getEditorNavigateProvider();
 
   void quit();
   void exitPrompt();

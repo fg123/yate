@@ -83,6 +83,7 @@ class Buffer {
   const std::string &getFileName();
   size_t size();
   std::string &getPath() { return path; }
+  std::vector<Editor *> &getRegisteredEditors() { return registered_editors;  }
   size_t getLineNumberFieldWidth();
   void registerEditor(Editor *editor);
   void unregisterEditor(Editor *editor);

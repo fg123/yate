@@ -47,8 +47,13 @@ class CommandPromptWindow : public PromptWindow {
                          editor->onKeyPress(ctrl('y'));
                        }));
     items.emplace_back(
-        "Edit: Navigate", std::function<void()>([&yate]() {
+        "Navigate: Root", std::function<void()>([&yate]() {
           yate.enterPrompt(new NavigateWindow(yate, yate.root, nullptr));
+        }));
+    items.emplace_back(
+        "Navigate: Editors", std::function<void()>([&yate]() {
+          yate.enterPrompt(new NavigateWindow(
+            yate, (NavigateWindowProvider*)yate.getEditorNavigateProvider(), nullptr));
         }));
     if (DEBUG) {
       items.emplace_back("Debug: Serialize", std::function<void()>([&yate]() {

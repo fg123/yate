@@ -32,6 +32,7 @@ class TabSet : public Pane {
   void onResize(uint nx, uint ny, uint nwidth, uint nheight) override;
   void serialize(std::ostream &stream) override;
   void onMouseEvent(MEVENT *event) override;
+  void onFocusRequested(Pane *focus, Pane *child) override;
   size_t getNavigationItemsSize() override { return tabs.size() + 1; }
   std::string getNavigationItem(size_t index) override;
   bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override;

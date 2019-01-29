@@ -3,6 +3,7 @@
 #include "logging.h"
 #include "pane.h"
 #include "yate.h"
+#include "util.h"
 
 TabSet::TabSet(Yate &yate, Pane *parent, int x, int y, int width, int height, std::vector<std::string> &paths)
   : Pane(parent, x, y, width, height), yate(yate) {
@@ -152,4 +153,12 @@ void TabSet::serialize(std::ostream &stream) {
   for (auto paneSet : tabs) {
     paneSet->serialize(stream);
   }
+}
+
+void TabSet::onFocusRequested(Pane *focus, Pane *child) {
+  PaneSet *child_cast = dynamic_cast<PaneSet *>(child);
+  if (!child_cast) {
+    safe_exit(4, "Child of TabSet was not PaneSet!?");
+  }
+  selected_tab = indexOf(tabs, child_cast);
 }

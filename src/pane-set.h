@@ -33,8 +33,8 @@ class PaneSet : public Pane {
   void onResize(uint nx, uint ny, uint nwidth, uint nheight) override;
   void serialize(std::ostream &stream) override;
   void onMouseEvent(MEVENT *event) override;
-  void onFocusRequested(Pane *focus) {
-    focused_pane = focus;
+  void onFocusRequested(Pane *focus, Pane *child) override {
+    focused_pane = child;
   }
   size_t getNavigationItemsSize() override;
   std::string getNavigationItem(size_t index) override;
