@@ -36,7 +36,8 @@ void Editor::revertBuffer() {
 
 std::string Editor::generateStatusBar() {
   std::ostringstream output;
-  output << current_line << "L " << current_col << "C " <<
+  output << current_line + 1 << "L " << current_col + 1<< "C " <<
+    window_start_line << "SL " << window_start_col << "SC " <<
     yate.config.getIndentationStyle() << ": " << yate.config.getTabSize();
   return output.str();
 }
@@ -54,35 +55,42 @@ bool Editor::inSelection(LineNumber line, ColNumber col) {
 
 // TODO(felixguo): Handle line wrapping?
 void Editor::draw() {
-  if (window_start > current_line) {
-    window_start = current_line;
-  }
-
-  if (window_start + height - 2 < current_line) {
-    window_start = current_line - (height - 2);
-  }
-
   Logging::breadcrumb("Editor Draw");
-  Logging::info << "Start: " << window_start << " Height: " << height
-                << " Current: " << current_line << std::endl;
   unsigned int i = 0;
   int field_width = buffer->getLineNumberFieldWidth() + 1;
-  for (auto line :
-       buffer->getBufferWindow(window_start, window_start + height - 1)) {
+
+  if (window_start_line > current_line) {
+    window_start_line = current_line;
+  }
+
+  if (window_start_line + height - 2 < current_line) {
+    window_start_line = current_line - (height - 2);
+  }
+
+  if (window_start_col > current_col) {
+    window_start_col = current_col;
+  }
+
+  if (window_start_col + width - field_width - 2 < current_col) {
+    window_start_col = current_col - (width - field_width - 2);
+  }
+
+  for (auto line : buffer->getBufferWindow(window_start_line, window_start_line + height - 1)) {
     line = tab_replace(line, yate.config.getTabSize());
+    line = line.substr(window_start_col, width - field_width);
 
     // Right justify doesn't work.
     wattron(internal_window, A_DIM);
     wmove(internal_window, i, 0);
     wclrtoeol(internal_window);
-    std::string line_number = std::to_string(window_start + i + 1);
+    std::string line_number = std::to_string(window_start_line + i + 1);
     int spacing = field_width - line_number.length();
     mvwprintw(internal_window, i, spacing, line_number.c_str());
     wattroff(internal_window, A_DIM);
 
     // Calculate if it's part of a selection
     for (ColNumber j = 0; j < line.size(); j++) {
-      auto flag = inSelection(window_start + i, j) ? A_REVERSE : A_NORMAL;
+      auto flag = inSelection(window_start_line + i, window_start_col + j) ? A_REVERSE : A_NORMAL;
       mvwaddch(internal_window, i, field_width + 1 + j, line.at(j) | flag);
     }
     i += 1;
@@ -114,8 +122,8 @@ int Editor::capture() {
       col += yate.config.getTabSize() - 1;
     }
   }
-  return mvwgetch(internal_window, current_line - window_start,
-                  col + line_number_width);
+  return mvwgetch(internal_window, current_line - window_start_line,
+                  col + line_number_width - window_start_col);
 }
 
 const std::string& Editor::getTitle() {
@@ -271,8 +279,8 @@ void Editor::switchBuffer(Buffer* newBuffer) {
 void Editor::onMouseEvent(MEVENT *event) {
   if (event->bstate & BUTTON1_PRESSED) {
     if (yate.isCurrentFocus(this)) {
-      current_line = (event->y - y) + window_start;
-      current_col = (event->x - x) - (buffer->getLineNumberFieldWidth() + 2);
+      current_line = (event->y - y) + window_start_line;
+      current_col = (event->x - x) - (buffer->getLineNumberFieldWidth() + 2) + window_start_col;
       /* Count tabs before click point */
       limitLine();
       std::string line = buffer->getLine(current_line);

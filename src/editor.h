@@ -19,7 +19,8 @@ class Editor : public Pane, public Focusable {
   LineNumber current_line = 0;
   ColNumber current_col = 0;
   LineCol selection_start = NO_SELECTION;
-  uint window_start = 0;
+  uint window_start_line = 0;
+  uint window_start_col = 0;
 
   // For when you move cursor past an empty line
   ColNumber phantom_col_pos = 0;

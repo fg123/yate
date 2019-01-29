@@ -134,8 +134,6 @@ const bool Buffer::hasUnsavedChanges() {
 }
 
 const std::string& Buffer::getFileName() {
-  // TODO(anyone): Process it so it returns just the file
-  // instead of whole path?
   if (hasUnsavedChanges()) {
     return unsaved_path;
   }
