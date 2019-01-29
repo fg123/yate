@@ -77,7 +77,11 @@ void Editor::draw() {
 
   for (auto line : buffer->getBufferWindow(window_start_line, window_start_line + height - 1)) {
     line = tab_replace(line, yate.config.getTabSize());
-    line = line.substr(window_start_col, width - field_width);
+    if (window_start_col > line.size()) {
+      line = "";
+    } else {
+      line = line.substr(window_start_col, width - field_width);
+    }
 
     // Right justify doesn't work.
     wattron(internal_window, A_DIM);
