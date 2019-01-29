@@ -46,6 +46,7 @@ void Yate::refreshAndStartCapture() {
 
 Yate::Yate(YateConfig config, std::istream& saved_state) : config(config) {
   init();
+  wasOpenedFromSaveState = true;
   /* saved_state will start with paneset ... */
   std::string paneset;
   saved_state >> paneset;
@@ -70,9 +71,11 @@ Yate::Yate(YateConfig config, std::vector<std::string>& paths_to_open) : config(
 }
 
 Yate::~Yate() {
-  // TODO(felixguo): We might not want to truncate every time.
-  // std::ofstream config_file(config_path, std::fstream::trunc);
-  // root->serialize(config_file);
+  if (wasOpenedFromSaveState) {
+    std::ofstream config_file(".yate", std::fstream::trunc);
+    serialize(config_file);
+  }
+
   delete lastEditorNavigateProvider;
 
   delete root;

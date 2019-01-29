@@ -18,6 +18,7 @@ class Yate {
   std::vector<PromptWindow *> prompt_stack;
   Focusable *getCurrentFocus();
   bool shouldQuit = false;
+  bool wasOpenedFromSaveState = false;
 
   EditorNavigateProvider *lastEditorNavigateProvider = nullptr;
 

@@ -36,24 +36,28 @@ int main(int argc, char *argv[]) {
     if (log_path.empty()) {
       log_path = "yate.log";
     }
+    if (saved_state_path.empty()) {
+      saved_state_path = ".yate";
+    }
     YateConfig config(yate_config_path);
     Logging::init(log_path);
     Logging::info << KEY_LEFT << " " << KEY_UP << " " << KEY_RIGHT << " " << KEY_DOWN << std::endl;
     Logging::info << KEY_SLEFT << " " << KEY_UP << " " << KEY_SRIGHT << " " << KEY_DOWN << std::endl;
-    if (paths_to_open.empty()) {
-      paths_to_open.push_back("Untitled");
-    }
-    if (saved_state_path.empty()) {
+    /* If paths given, we open paths; otherwise we check for saved state */
+    std::ifstream saved_state(saved_state_path);
+    if (!paths_to_open.empty()) {
       Yate yate(config, paths_to_open);
-    } else {
-      std::ifstream saved_state(saved_state_path);
+    } else if (saved_state.good()) {
       Yate yate(config, saved_state);
+    } else {
+      paths_to_open.push_back("Untitled");
+      Yate yate(config, paths_to_open);
     }
   } catch (cpptoml::parse_exception e) {
     Logging::error << "Error parsing config TOML!" << std::endl;
   }
   Logging::cleanup();
   /* EndWin here instead of at Yate destructor */
-  endwin();
-  return 0;
+    endwin();
+    return 0;
 }
