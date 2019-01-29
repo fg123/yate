@@ -123,7 +123,7 @@ void PaneSet::onMouseEvent(MEVENT *event) {
 }
 
 void PaneSet::serialize(std::ostream &stream) {
-  stream << "paneset " << x << " " << y << " " << width << " " << height << " " << panes.size() << " " << indexOf(panes, focused_pane) << " ";
+  stream << "paneset " << x << " " << y << " " << width << " " << height << " " << panes.size() << " " << indexOf(panes, focused_pane) << std::endl;
   for (auto pane : panes) {
     pane->serialize(stream);
   }

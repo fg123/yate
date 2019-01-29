@@ -58,6 +58,7 @@ class Editor : public Pane, public Focusable {
   void serialize(std::ostream &stream) override {
     stream << "editor " << x << " " << y << " " << width << " " << height
            << " " << buffer->getPath() << " ";
+    stream << std::endl;
   }
   size_t getNavigationItemsSize() override { return 1; }
   std::string getNavigationItem(size_t index) override { return "Focus"; }

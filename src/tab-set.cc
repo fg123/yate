@@ -149,7 +149,7 @@ bool TabSet::onNavigationItemSelected(size_t index, NavigateWindow *parent) {
 }
 
 void TabSet::serialize(std::ostream &stream) {
-  stream << "tabset " << x << " " << y << " " << width << " " << height << " " << tabs.size() << " " << selected_tab << " ";
+  stream << "tabset " << x << " " << y << " " << width << " " << height << " " << tabs.size() << " " << selected_tab << std::endl;
   for (auto paneSet : tabs) {
     paneSet->serialize(stream);
   }
