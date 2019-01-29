@@ -15,44 +15,6 @@
 
 #define DEFAULT_INDENTATION_SIZE 8
 
-// TODO: this should probably get from the default.textproto file.
-std::string default_config = R"(
-state {
-	root {
-		pane {
-			x: 0
-			y: 0
-			width: 2
-			height: 2
-		}
-		tabsets {
-			pane {
-				x: 0
-				y: 0
-				width: 2
-				height: 2
-			}
-			panesets {
-				pane {
-					x: 0
-					y: 1
-					width: 2
-					height: 1
-				}
-				editors {
-					pane {
-						x: 0
-						y: 1
-						width: 2
-						height: 1
-					}
-					buffer_path: "Untitled"
-				}
-			}
-		}
-	}
-})";
-
 void Yate::init() {
   set_escdelay(50);
   initscr();

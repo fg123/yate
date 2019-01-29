@@ -54,12 +54,12 @@ bool Editor::inSelection(LineNumber line, ColNumber col) {
 
 // TODO(felixguo): Handle line wrapping?
 void Editor::draw() {
-  while (window_start > current_line) {
-    window_start -= 1;
+  if (window_start > current_line) {
+    window_start = current_line;
   }
 
-  while (window_start + height <= current_line) {
-    window_start += 1;
+  if (window_start + height - 2 < current_line) {
+    window_start = current_line - (height - 2);
   }
 
   Logging::breadcrumb("Editor Draw");
