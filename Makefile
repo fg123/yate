@@ -1,4 +1,3 @@
-CXX = g++
 EXE = yate
 SRC_DIR = src
 SRC = $(wildcard $(SRC_DIR)/*.cc)
