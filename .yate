@@ -1,9 +1,9 @@
-paneset 0 0 103 34 1 0
-tabset 0 0 103 34 2 0
-paneset 0 1 103 33 2 0
-editor 0 1 52 33 src/buffer.h 
-editor 52 1 51 33 src/buffer.cc 
-paneset 0 1 103 33 2 0
-editor 0 1 52 33 src/editor.h 
-editor 52 1 51 33 src/editor.cc 
+paneset 0 0 141 37 1 0
+tabset 0 0 141 37 2 0
+paneset 0 1 141 36 2 0
+editor 0 1 71 36 src/buffer.h 
+editor 71 1 70 36 src/buffer.cc 
+paneset 0 1 141 36 2 0
+editor 0 1 71 36 src/editor.h 
+editor 71 1 70 36 src/editor.cc 
 

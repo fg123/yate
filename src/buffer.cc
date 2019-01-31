@@ -78,7 +78,7 @@ void Buffer::revert(LineNumber &line, ColNumber &col) {
   current_edit->type = EditNode::Type::REVERT;
   std::ostringstream content;
   for (auto line : internal_buffer) {
-    content << line << std::endl;
+    content << line << '\n';
   }
   current_edit->content = content.str();
   do_revert();
@@ -235,6 +235,61 @@ void Buffer::backspace(LineNumber& line, ColNumber& col) {
   }
   create_edit_for(EditNode::Type::DELETE_BS, deleted_char, line, col);
   update_unsaved_marker();
+}
+
+std::string Buffer::getTextInRange(LineCol from, LineCol to) {
+  /* from < to */
+  LineNumber from_line = std::get<0>(from);
+  ColNumber from_col = std::get<1>(from);
+  LineNumber to_line = std::get<0>(to);
+  ColNumber to_col = std::get<1>(to);
+  if (from_line == to_line) {
+    return internal_buffer.at(from_line).substr(from_col, to_col - from_col + 1);
+  }
+  std::ostringstream builder;
+  builder << internal_buffer.at(from_line).substr(from_col) << "\n";
+  for (LineNumber line = from_line + 1; line < to_line; line++) {
+    builder << internal_buffer.at(line) << "\n";
+  }
+  builder << internal_buffer.at(to_line).substr(0, to_col + 1);
+  return builder.str();
+}
+
+void Buffer::deleteRange(LineCol from, LineCol to) {
+  if (to < from) {
+    LineCol tmp = from;
+    from = to;
+    to = tmp;
+  }
+  LineNumber from_line = std::get<0>(from);
+  ColNumber from_col = std::get<1>(from);
+  LineNumber to_line = std::get<0>(to);
+  ColNumber to_col = std::get<1>(to);
+
+  /* EditNode for history */
+  std::string content = getTextInRange(from, to);
+  if (!current_edit->content.empty()) {
+    create_edit_boundary(from_line, from_col);
+  }
+  current_edit->type = EditNode::Type::DELETE_BS;
+  current_edit->content = content;
+
+  if (from_line == to_line) {
+    /* Simple same-line delete */
+    internal_buffer.at(from_line).erase(from_col, to_col - from_col + 1);
+    return;
+  }
+
+  /* Delete lines, but we leave the first and the last line */
+  internal_buffer.erase(internal_buffer.begin() + from_line + 1, internal_buffer.begin() + to_line);
+
+  to_line = from_line + 1;
+
+  /* Now we handle deletions on the first and last line */
+  internal_buffer.at(from_line).erase(from_col);
+  internal_buffer.at(to_line).erase(0, to_col + 1);
+  internal_buffer.at(from_line) += internal_buffer.at(to_line);
+  internal_buffer.erase(internal_buffer.begin() + to_line);
 }
 
 void Buffer::_delete(LineNumber& line, ColNumber& col) {

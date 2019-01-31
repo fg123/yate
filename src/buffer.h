@@ -73,6 +73,8 @@ class Buffer {
                        std::vector<EditNode *>::size_type index);
   void do_revert();
   void update_unsaved_marker();
+  std::string getTextInRange(LineCol from, LineCol to);
+
  public:
   Buffer(Yate &yate, std::string path);
   ~Buffer();
@@ -92,6 +94,7 @@ class Buffer {
   void insertCharacter(int character, LineNumber &line, ColNumber &col);
   void backspace(LineNumber &line, ColNumber &col);
   void _delete(LineNumber &line, ColNumber &col);
+  void deleteRange(LineCol from, LineCol to);
   ColNumber getLineLength(LineNumber line);
   bool writeToFile();
   void revert(LineNumber &line, ColNumber &col);

@@ -136,10 +136,10 @@ const std::string& Editor::getTitle() {
 }
 
 void Editor::onKeyPress(int key) {
-  if (key == KEY_UP || key == KEY_DOWN || key == KEY_LEFT || key == KEY_RIGHT) {
+  if (key == KEY_UP || key == KEY_DOWN || key == KEY_LEFT || key == KEY_RIGHT || key == KEY_HOME || key == KEY_END) {
     selection_start = NO_SELECTION;
   }
-  else if (key == KEY_SUP || key == KEY_SDOWN || key == KEY_SLEFT || key == KEY_SRIGHT) {
+  else if (key == KEY_SUP || key == KEY_SDOWN || key == KEY_SLEFT || key == KEY_SRIGHT || key == KEY_SHOME || key == KEY_SEND) {
     if (selection_start == NO_SELECTION) {
       selection_start = std::make_tuple(current_line, current_col);
     }
@@ -162,10 +162,28 @@ void Editor::onKeyPress(int key) {
       break;
     case KEY_BACKSPACE:
     case 127:
-      buffer->backspace(current_line, current_col);
+      if (selection_start == NO_SELECTION) {
+        buffer->backspace(current_line, current_col);
+      } else {
+        LineCol current = std::make_tuple(current_line, current_col);
+        buffer->deleteRange(current, selection_start);
+        current = std::min(selection_start, current);
+        current_line = std::get<0>(current);
+        current_col = std::get<1>(current);
+        selection_start = NO_SELECTION;
+      }
       break;
     case KEY_DC:
-      buffer->_delete(current_line, current_col);
+      if (selection_start == NO_SELECTION) {
+        buffer->_delete(current_line, current_col);
+      } else {
+        LineCol current = std::make_tuple(current_line, current_col);
+        buffer->deleteRange(current, selection_start);
+        current = std::min(selection_start, current);
+        current_line = std::get<0>(current);
+        current_col = std::get<1>(current);
+        selection_start = NO_SELECTION;
+      }
       break;
     case ctrl('s'):
       buffer->writeToFile();
@@ -178,9 +196,16 @@ void Editor::onKeyPress(int key) {
     }
     case ctrl('z'):
       buffer->undo(current_line, current_col);
+      selection_start = NO_SELECTION;
+      break;
+    case ctrl('a'):
+      selection_start = std::make_tuple(0, 0);
+      current_line = buffer->size() - 1;
+      current_col = buffer->getLineLength(current_line);
       break;
     case ctrl('y'):
       buffer->redo(current_line, current_col);
+      selection_start = NO_SELECTION;
       break;
     case ctrl('o'):
       yate.enterPrompt(new FileSystemWindow(
@@ -216,12 +241,14 @@ void Editor::onKeyPress(int key) {
         updateColWithPhantom();
       }
       break;
+    case KEY_SHOME:
     case KEY_HOME:
       if (current_col != 0) {
         current_col = 0;
         phantom_col_pos = current_col;
       }
       break;
+    case KEY_SEND:
     case KEY_END:
       ColNumber end_col = buffer->getLineLength(current_line);
       if (current_col != end_col) {
