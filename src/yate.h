@@ -8,6 +8,7 @@
 #include "config.h"
 #include "focusable.h"
 #include "logging.h"
+#include "theme.h"
 
 class PaneSet;
 class Buffer;
@@ -22,7 +23,6 @@ class Yate {
 
   EditorNavigateProvider *lastEditorNavigateProvider = nullptr;
 
-  void init();
   void refreshAndStartCapture();
 
  public:
@@ -30,11 +30,11 @@ class Yate {
   PaneSet *root;
   std::vector<Buffer *> opened_buffers;
 
-  Yate(YateConfig config, std::istream& saved_state);
-  Yate(YateConfig config, std::vector<std::string>& paths_to_open);
+  Yate(YateConfig config, std::istream &saved_state);
+  Yate(YateConfig config, std::vector<std::string> &paths_to_open);
   ~Yate();
 
-  void serialize(std::ostream& output);
+  void serialize(std::ostream &output);
   void onCapture(int result);
   Buffer *getBuffer(std::string path);
   bool isCurrentFocus(Focusable *focus) { return getCurrentFocus() == focus; }

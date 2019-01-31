@@ -6,6 +6,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "editor-navigate-provider.h"
 #include "editor.h"
 #include "logging.h"
 #include "prompt-window.h"
@@ -13,22 +14,8 @@
 #include "tab-set.h"
 #include "util.h"
 #include "yate.h"
-#include "editor-navigate-provider.h"
 
 #define DEFAULT_INDENTATION_SIZE 8
-
-void Yate::init() {
-  set_escdelay(50);
-  initscr();
-  raw();
-  noecho();
-  nonl();
-  start_color();
-  keypad(stdscr, true);
-  mousemask(ALL_MOUSE_EVENTS, nullptr);
-
-  Logging::breadcrumb("=== Starting Yate ===");
-}
 
 void Yate::refreshAndStartCapture() {
   refresh();
@@ -45,8 +32,8 @@ void Yate::refreshAndStartCapture() {
   }
 }
 
-Yate::Yate(YateConfig config, std::istream& saved_state) : config(config) {
-  init();
+Yate::Yate(YateConfig config, std::istream &saved_state) : config(config) {
+  Logging::breadcrumb("=== Starting Yate ===");
   wasOpenedFromSaveState = true;
   /* saved_state will start with paneset ... */
   std::string paneset;
@@ -63,10 +50,11 @@ void Yate::serialize(std::ostream &output) {
   output << std::endl;
 }
 
-Yate::Yate(YateConfig config, std::vector<std::string>& paths_to_open) : config(config) {
-  init();
+Yate::Yate(YateConfig config, std::vector<std::string> &paths_to_open)
+    : config(config) {
+  Logging::breadcrumb("=== Starting Yate ===");
   root = new PaneSet(*this, nullptr, 0, 0, 1, 1);
-  TabSet* tab_set = new TabSet(*this, root, 0, 0, 1, 1, paths_to_open);
+  TabSet *tab_set = new TabSet(*this, root, 0, 0, 1, 1, paths_to_open);
   root->addPane(tab_set);
   refreshAndStartCapture();
 }
@@ -122,7 +110,8 @@ Buffer *Yate::getBuffer(std::string path) {
 static MEVENT event;
 
 void Yate::onCapture(int result) {
-  Logging::info << "Yate Capture " << result << " " << KEY_MOUSE << " " << ctrl('q') << std::endl;
+  Logging::info << "Yate Capture " << result << " " << KEY_MOUSE << " "
+                << ctrl('q') << std::endl;
   if (result == KEY_RESIZE) {
     Logging::breadcrumb("KEY_RESIZE Hit!");
     refresh();

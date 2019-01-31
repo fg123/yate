@@ -3,8 +3,8 @@
 #include <iterator>
 
 #include "command-prompt.h"
-#include "filesystem-prompt.h"
 #include "editor.h"
+#include "filesystem-prompt.h"
 #include "util.h"
 
 /* TODO(felixguo): find cross terminal for this */
@@ -12,23 +12,24 @@
 #define KEY_SUP 337
 #define KEY_SDOWN 336
 
-static std::string tab_replace(std::string line, int tab_size) {
+static std::string tab_replace(std::string& line, std::string& reference,
+                               int tab_size, char replace_with = ' ') {
+  assert(line.size() == reference.size());
   std::string result;
-  for (auto c : line) {
+  for (ColNumber i = 0; i < line.size(); i++) {
+    char c = reference[i];
     if (c == '\t') {
       for (int i = 0; i < tab_size; i++) {
-        result += ' ';
+        result += replace_with;
       }
     } else {
-      result += c;
+      result += line[i];
     }
   }
   return result;
 }
 
-void Editor::init() {
-  buffer->registerEditor(this);
-}
+void Editor::init() { buffer->registerEditor(this); }
 
 void Editor::revertBuffer() {
   buffer->revert(current_line, current_col);
@@ -38,9 +39,10 @@ void Editor::revertBuffer() {
 
 std::string Editor::generateStatusBar() {
   std::ostringstream output;
-  output << current_line + 1 << "L " << current_col + 1<< "C " <<
-    window_start_line << "SL " << window_start_col << "SC " <<
-    yate.config.getIndentationStyle() << ": " << yate.config.getTabSize();
+  output << current_line + 1 << "L " << current_col + 1 << "C "
+         << window_start_line << "SL " << window_start_col << "SC "
+         << yate.config.getIndentationStyle() << ": "
+         << yate.config.getTabSize();
   return output.str();
 }
 
@@ -57,6 +59,7 @@ bool Editor::inSelection(LineNumber line, ColNumber col) {
 
 // TODO(felixguo): Handle line wrapping?
 void Editor::draw() {
+  buffer->highlight();
   Logging::breadcrumb("Editor Draw");
   unsigned int i = 0;
   int field_width = buffer->getLineNumberFieldWidth() + 1;
@@ -76,15 +79,23 @@ void Editor::draw() {
   if (window_start_col + width - field_width - 2 < current_col) {
     window_start_col = current_col - (width - field_width - 2);
   }
-
-  for (auto line : buffer->getBufferWindow(window_start_line, window_start_line + height - 1)) {
-    line = tab_replace(line, yate.config.getTabSize());
+  BufferWindow content_window = buffer->getBufferWindow(
+      window_start_line, window_start_line + height - 1);
+  BufferWindow syntax_window = buffer->getSyntaxBufferWindow(
+      window_start_line, window_start_line + height - 1);
+  for (auto line_it = content_window.begin(), syntax_it = syntax_window.begin();
+       line_it != content_window.end() && syntax_it != syntax_window.end();
+       line_it++, syntax_it++) {
+    std::string line =
+        tab_replace(*line_it, *line_it, yate.config.getTabSize());
+    std::string syntax =
+        tab_replace(*syntax_it, *line_it, yate.config.getTabSize());
     if (window_start_col > line.size()) {
       line = "";
     } else {
       line = line.substr(window_start_col, width - field_width);
+      syntax = syntax.substr(window_start_col, width - field_width);
     }
-
     // Right justify doesn't work.
     wattron(internal_window, A_DIM);
     wmove(internal_window, i, 0);
@@ -96,8 +107,15 @@ void Editor::draw() {
 
     // Calculate if it's part of a selection
     for (ColNumber j = 0; j < line.size(); j++) {
-      auto flag = inSelection(window_start_line + i, window_start_col + j) ? A_REVERSE : A_NORMAL;
+      auto flag = inSelection(window_start_line + i, window_start_col + j)
+                      ? A_REVERSE
+                      : A_NORMAL;
+      auto syntax_color = yate.config.getTheme()->map(
+          (SyntaxHighlighting::Component)syntax.at(j));
+      init_pair(4, 64, -1);
+      wattron(internal_window, syntax_color);
       mvwaddch(internal_window, i, field_width + 1 + j, line.at(j) | flag);
+      wattroff(internal_window, syntax_color);
     }
     i += 1;
   }
@@ -132,15 +150,14 @@ int Editor::capture() {
                   col + line_number_width - window_start_col);
 }
 
-const std::string& Editor::getTitle() {
-  return buffer->getFileName();
-}
+const std::string& Editor::getTitle() { return buffer->getFileName(); }
 
 void Editor::onKeyPress(int key) {
-  if (key == KEY_UP || key == KEY_DOWN || key == KEY_LEFT || key == KEY_RIGHT || key == KEY_HOME || key == KEY_END) {
+  if (key == KEY_UP || key == KEY_DOWN || key == KEY_LEFT || key == KEY_RIGHT ||
+      key == KEY_HOME || key == KEY_END) {
     selection_start = NO_SELECTION;
-  }
-  else if (key == KEY_SUP || key == KEY_SDOWN || key == KEY_SLEFT || key == KEY_SRIGHT || key == KEY_SHOME || key == KEY_SEND) {
+  } else if (key == KEY_SUP || key == KEY_SDOWN || key == KEY_SLEFT ||
+             key == KEY_SRIGHT || key == KEY_SHOME || key == KEY_SEND) {
     if (selection_start == NO_SELECTION) {
       selection_start = std::make_tuple(current_line, current_col);
     }
@@ -153,7 +170,8 @@ void Editor::onKeyPress(int key) {
       break;
     case KEY_STAB:
     case '\t':
-      if (yate.config.getIndentationStyle() == YateConfig::IndentationStyle::TAB) {
+      if (yate.config.getIndentationStyle() ==
+          YateConfig::IndentationStyle::TAB) {
         buffer->insertCharacter('\t', current_line, current_col);
       } else {
         for (int i = 0; i < yate.config.getTabSize(); i++) {
@@ -211,8 +229,9 @@ void Editor::onKeyPress(int key) {
     case ctrl('o'):
       yate.enterPrompt(new FileSystemWindow(
           yate, this, ".",
-          std::bind(static_cast<void (Editor::*)(std::string)>(&Editor::switchBuffer),
-            this, std::placeholders::_1)));
+          std::bind(
+              static_cast<void (Editor::*)(std::string)>(&Editor::switchBuffer),
+              this, std::placeholders::_1)));
       break;
     case KEY_LEFT:
     case KEY_SLEFT:
@@ -315,13 +334,14 @@ void Editor::switchBuffer(Buffer* newBuffer) {
   limitCol();
 }
 
-void Editor::onMouseEvent(MEVENT *event) {
+void Editor::onMouseEvent(MEVENT* event) {
   if (event->bstate & BUTTON1_PRESSED) {
     if (!yate.isCurrentFocus(this)) {
       focusRequested(this);
     }
     current_line = (event->y - y) + window_start_line;
-    current_col = (event->x - x) - (buffer->getLineNumberFieldWidth() + 2) + window_start_col;
+    current_col = (event->x - x) - (buffer->getLineNumberFieldWidth() + 2) +
+                  window_start_col;
     /* Count tabs before click point */
     limitLine();
     std::string line = buffer->getLine(current_line);
@@ -329,22 +349,21 @@ void Editor::onMouseEvent(MEVENT *event) {
       if (line.at(i) == '\t') {
         if (current_col < i + yate.config.getTabSize()) {
           current_col = i;
-        }
-        else {
+        } else {
           current_col -= (yate.config.getTabSize() - 1);
         }
       }
     }
     limitCol();
   } else if (event->bstate & BUTTON4_PRESSED) {
-      Logging::info << "Here" << std::endl;
-      window_start_line -= 1;
-      current_line += 1;
-      limitLine();
+    Logging::info << "Here" << std::endl;
+    window_start_line -= 1;
+    current_line += 1;
+    limitLine();
   } else if (event->bstate & BUTTON5_PRESSED) {
-      // TODO(anyone): If we can use ncurses6, they have better support
-      window_start_line += 1;
-      current_line -= 1;
-      limitLine();
+    // TODO(anyone): If we can use ncurses6, they have better support
+    window_start_line += 1;
+    current_line -= 1;
+    limitLine();
   }
 }

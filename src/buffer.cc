@@ -1,7 +1,9 @@
 #include "buffer.h"
 #include "editor.h"
+#include "generic-syntax.h"
 #include "logging.h"
 #include "redo-prompt.h"
+#include "syntax-highlighting.h"
 #include "util.h"
 #include "yate.h"
 
@@ -45,7 +47,7 @@ std::string EditNode::getPositionPair() const {
 
 std::string EditNode::getDescription() const {
   return getTypeString() + " " + getPositionPair() + " " +
-          getSerializedContent();
+         getSerializedContent();
 }
 
 Buffer::Buffer(Yate& yate, std::string path)
@@ -67,11 +69,15 @@ Buffer::Buffer(Yate& yate, std::string path)
   head_edit->type = EditNode::Type::BASE_REVISION;
   head_edit->content = "This is the base revision.";
   head_edit->prev = nullptr;
+
+  /* Highlight buffer */
+  // TODO(felixguo): determine which language
+  highlight();
 }
 
 Buffer::~Buffer() { delete head_edit; }
 
-void Buffer::revert(LineNumber &line, ColNumber &col) {
+void Buffer::revert(LineNumber& line, ColNumber& col) {
   if (!current_edit->content.empty()) {
     create_edit_boundary(line, col);
   }
@@ -98,6 +104,13 @@ void Buffer::do_revert() {
   }
   last_save = current_edit;
   update_unsaved_marker();
+}
+
+BufferWindow Buffer::getSyntaxBufferWindow(LineNumber start, LineNumber end) {
+  start = std::max((LineNumber)0, std::min(start, syntax_components.size()));
+  end = std::max((LineNumber)0, std::min(end, syntax_components.size()));
+  return BufferWindow(syntax_components.begin() + start,
+                      syntax_components.begin() + end);
 }
 
 BufferWindow Buffer::getBufferWindow(LineNumber start, LineNumber end) {
@@ -129,9 +142,7 @@ void Buffer::updateTitle() {
   }
 }
 
-const bool Buffer::hasUnsavedChanges() {
-  return has_unsaved_changes;
-}
+const bool Buffer::hasUnsavedChanges() { return has_unsaved_changes; }
 
 const std::string& Buffer::getFileName() {
   if (hasUnsavedChanges()) {
@@ -245,7 +256,8 @@ std::string Buffer::getTextInRange(LineCol from, LineCol to) {
   LineNumber to_line = std::get<0>(to);
   ColNumber to_col = std::get<1>(to);
   if (from_line == to_line) {
-    return internal_buffer.at(from_line).substr(from_col, to_col - from_col + 1);
+    return internal_buffer.at(from_line).substr(from_col,
+                                                to_col - from_col + 1);
   }
   std::ostringstream builder;
   builder << internal_buffer.at(from_line).substr(from_col) << "\n";
@@ -282,7 +294,8 @@ void Buffer::deleteRange(LineCol from, LineCol to) {
   }
 
   /* Delete lines, but we leave the first and the last line */
-  internal_buffer.erase(internal_buffer.begin() + from_line + 1, internal_buffer.begin() + to_line);
+  internal_buffer.erase(internal_buffer.begin() + from_line + 1,
+                        internal_buffer.begin() + to_line);
 
   to_line = from_line + 1;
 
@@ -291,6 +304,13 @@ void Buffer::deleteRange(LineCol from, LineCol to) {
   internal_buffer.at(to_line).erase(0, to_col + 1);
   internal_buffer.at(from_line) += internal_buffer.at(to_line);
   internal_buffer.erase(internal_buffer.begin() + to_line);
+}
+
+void Buffer::highlight() {
+  /* TODO(felixguo): only rehighlight parts that matter */
+  GenericSyntax* syntax = new GenericSyntax();
+  SyntaxHighlighting::highlight(syntax, internal_buffer, syntax_components);
+  delete syntax;
 }
 
 void Buffer::_delete(LineNumber& line, ColNumber& col) {

@@ -12,12 +12,12 @@
 // Mask for ncurses getch keys
 #define ctrl(x) ((x)&0x1f)
 
-#define safe_exit(code, message) \
-  do {                  \
-    endwin();           \
-    std::cerr << message << std::endl; \
+#define safe_exit(code, message)            \
+  do {                                      \
+    endwin();                               \
+    std::cerr << message << std::endl;      \
     Logging::error << message << std::endl; \
-    exit(code);         \
+    exit(code);                             \
   } while (0)
 
 #define UNUSED(expr) \
@@ -50,4 +50,13 @@ inline int indexOf(std::vector<T> vector, T item) {
     return std::distance(vector.begin(), it);
   }
 }
+
+inline bool startsWith(std::string needle, std::string haystack) {
+  if (haystack.size() < needle.size()) return false;
+  for (std::string::size_type i = 0; i < needle.size(); i++) {
+    if (haystack[i] != needle[i]) return false;
+  }
+  return true;
+}
+
 #endif

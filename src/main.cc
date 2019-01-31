@@ -1,16 +1,31 @@
-#include <iostream>
 #include <ncurses.h>
+#include <iostream>
 
 #include "yate.h"
 
 int usage() {
-  std::cerr << "Usage: yate [arguments] [file ..]" << std::endl << std::endl
+  std::cerr << "Usage: yate [arguments] [file ..]" << std::endl
+            << std::endl
             << "Arguments:" << std::endl
-            << "  [-c|--config configFile]     specify a config file" << std::endl
+            << "  [-c|--config configFile]     specify a config file"
+            << std::endl
             << "  [-l|--log logFile]           specify log file" << std::endl
-            << "  [-s serializedFile]          specify a saved state" << std::endl
+            << "  [-s serializedFile]          specify a saved state"
+            << std::endl
             << "  [-h|--help]                  show this message" << std::endl;
   return 1;
+}
+
+void init_curses() {
+  set_escdelay(50);
+  initscr();
+  raw();
+  noecho();
+  nonl();
+  start_color();
+  use_default_colors();
+  keypad(stdscr, true);
+  mousemask(ALL_MOUSE_EVENTS, nullptr);
 }
 
 int main(int argc, char *argv[]) {
@@ -32,14 +47,17 @@ int main(int argc, char *argv[]) {
       paths_to_open.push_back(arg);
     }
   }
+  init_curses();
   try {
     if (saved_state_path.empty()) {
       saved_state_path = ".yate";
     }
-    YateConfig config(yate_config_path);
     Logging::init(log_path);
-    Logging::info << KEY_LEFT << " " << KEY_UP << " " << KEY_RIGHT << " " << KEY_DOWN << std::endl;
-    Logging::info << KEY_SLEFT << " " << KEY_UP << " " << KEY_SRIGHT << " " << KEY_DOWN << std::endl;
+    YateConfig config(yate_config_path);
+    Logging::info << KEY_LEFT << " " << KEY_UP << " " << KEY_RIGHT << " "
+                  << KEY_DOWN << std::endl;
+    Logging::info << KEY_SLEFT << " " << KEY_UP << " " << KEY_SRIGHT << " "
+                  << KEY_DOWN << std::endl;
     /* If paths given, we open paths; otherwise we check for saved state */
     std::ifstream saved_state(saved_state_path);
     if (!paths_to_open.empty()) {
@@ -55,6 +73,6 @@ int main(int argc, char *argv[]) {
   }
   Logging::cleanup();
   /* EndWin here instead of at Yate destructor */
-    endwin();
-    return 0;
+  endwin();
+  return 0;
 }

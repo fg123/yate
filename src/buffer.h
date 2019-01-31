@@ -57,7 +57,11 @@ class Buffer {
   bool is_bound_to_file;
   std::string path;
   std::string unsaved_path;
+
+  /* The next two buffers should always be kept in sync */
   std::vector<std::string> internal_buffer;
+  std::vector<std::string> syntax_components;
+
   bool has_unsaved_changes = false;
   std::vector<Editor *> registered_editors;
   EditNode *head_edit;
@@ -79,8 +83,11 @@ class Buffer {
   Buffer(Yate &yate, std::string path);
   ~Buffer();
   BufferWindow getBufferWindow(LineNumber start, LineNumber end);
+  BufferWindow getSyntaxBufferWindow(LineNumber start, LineNumber end);
+
   std::string &getLine(LineNumber line) { return internal_buffer.at(line); }
 
+  void highlight();
   const bool hasUnsavedChanges();
   const std::string &getFileName();
   size_t size();

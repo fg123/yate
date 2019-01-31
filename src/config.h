@@ -4,18 +4,20 @@
 #include <string>
 
 #include "cpptoml.h"
+#include "theme.h"
 
 class YateConfig {
-    std::shared_ptr<cpptoml::table> internal_config;
-public:
-    enum class IndentationStyle {
-        TAB,
-        SPACE
-    };
-    explicit YateConfig(std::string path);
-    int getTabSize() const;
-    IndentationStyle getIndentationStyle() const;
+  std::shared_ptr<cpptoml::table> internal_config;
+
+ public:
+  enum class IndentationStyle { TAB, SPACE };
+  explicit YateConfig(std::string path);
+  ~YateConfig();
+  int getTabSize() const;
+  IndentationStyle getIndentationStyle() const;
+  Theme *getTheme() const;
 };
 
-std::ostream &operator<<(std::ostream &output, YateConfig::IndentationStyle style);
+std::ostream &operator<<(std::ostream &output,
+                         YateConfig::IndentationStyle style);
 #endif
