@@ -7,8 +7,8 @@ int usage() {
   std::cerr << "Usage: yate [arguments] [file ..]" << std::endl << std::endl
             << "Arguments:" << std::endl
             << "  [-c|--config configFile]     specify a config file" << std::endl
-            << "  [-l|--log logFile]           specify log file (default: yate.log)" << std::endl
-            << "  [-s serializedFile]      specify a saved state" << std::endl
+            << "  [-l|--log logFile]           specify log file" << std::endl
+            << "  [-s serializedFile]          specify a saved state" << std::endl
             << "  [-h|--help]                  show this message" << std::endl;
   return 1;
 }
@@ -33,9 +33,6 @@ int main(int argc, char *argv[]) {
     }
   }
   try {
-    if (log_path.empty()) {
-      log_path = "yate.log";
-    }
     if (saved_state_path.empty()) {
       saved_state_path = ".yate";
     }

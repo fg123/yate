@@ -5,7 +5,7 @@ OBJ = $(SRC:$(SRC_DIR)/%.cc=$(SRC_DIR)/%.o)
 HEADERS = $(wildcard $(SRC_DIR)/*.h)
 CPPFLAGS += -I $(SRC_DIR)
 CFLAGS += -std=c++17 -g -Wall
-LDLIBS = -lncurses -lstdc++fs
+LDLIBS = -L/usr/lib -lncurses -lstdc++fs
 
 all: main
 

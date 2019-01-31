@@ -7,6 +7,7 @@
 #include "util.h"
 
 /* TODO(felixguo): find cross terminal for this */
+/* https://gist.github.com/rkumar/1237091 */
 #define KEY_SUP 337
 #define KEY_SDOWN 336
 
@@ -282,25 +283,34 @@ void Editor::switchBuffer(Buffer* newBuffer) {
 
 void Editor::onMouseEvent(MEVENT *event) {
   if (event->bstate & BUTTON1_PRESSED) {
-    if (yate.isCurrentFocus(this)) {
-      current_line = (event->y - y) + window_start_line;
-      current_col = (event->x - x) - (buffer->getLineNumberFieldWidth() + 2) + window_start_col;
-      /* Count tabs before click point */
-      limitLine();
-      std::string line = buffer->getLine(current_line);
-      for (ColNumber i = 0; i < std::min(current_col, line.size()); i++) {
-        if (line.at(i) == '\t') {
-          if (current_col < i + yate.config.getTabSize()) {
-            current_col = i;
-          }
-          else {
-            current_col -= (yate.config.getTabSize() - 1);
-          }
-        }
-      }
-      limitCol();
-    } else {
+    if (!yate.isCurrentFocus(this)) {
       focusRequested(this);
     }
+    current_line = (event->y - y) + window_start_line;
+    current_col = (event->x - x) - (buffer->getLineNumberFieldWidth() + 2) + window_start_col;
+    /* Count tabs before click point */
+    limitLine();
+    std::string line = buffer->getLine(current_line);
+    for (ColNumber i = 0; i < std::min(current_col, line.size()); i++) {
+      if (line.at(i) == '\t') {
+        if (current_col < i + yate.config.getTabSize()) {
+          current_col = i;
+        }
+        else {
+          current_col -= (yate.config.getTabSize() - 1);
+        }
+      }
+    }
+    limitCol();
+  } else if (event->bstate & BUTTON4_PRESSED) {
+      Logging::info << "Here" << std::endl;
+      window_start_line -= 1;
+      current_line += 1;
+      limitLine();
+  } else if (event->bstate & BUTTON5_PRESSED) {
+      // TODO(anyone): If we can use ncurses6, they have better support
+      window_start_line += 1;
+      current_line -= 1;
+      limitLine();
   }
 }

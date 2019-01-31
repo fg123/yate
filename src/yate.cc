@@ -24,7 +24,7 @@ void Yate::init() {
   nonl();
   start_color();
   keypad(stdscr, true);
-  mousemask(BUTTON1_PRESSED, nullptr);
+  mousemask(ALL_MOUSE_EVENTS, nullptr);
 
   Logging::breadcrumb("=== Starting Yate ===");
 }
