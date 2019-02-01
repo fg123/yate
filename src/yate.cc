@@ -9,6 +9,7 @@
 #include "editor.h"
 #include "logging.h"
 #include "prompt-window.h"
+#include "quit-prompt.h"
 #include "tab-set.h"
 #include "util.h"
 #include "yate.h"
@@ -139,7 +140,7 @@ void Yate::onCapture(int result) {
     getCurrentFocus()->onKeyPress(result);
   }
   if (result == ctrl('q')) {
-    shouldQuit = true;
+    enterPrompt(new QuitPromptWindow(*this));
   }
 }
 

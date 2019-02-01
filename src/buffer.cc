@@ -212,6 +212,7 @@ void Buffer::insertCharacter(int character, LineNumber& line, ColNumber& col) {
   ColNumber orig_c = col;
   if (insert_no_history(character, line, col)) {
     create_edit_for(EditNode::Type::INSERTION, character, orig_l, orig_c);
+    update_unsaved_marker();
   }
 }
 
