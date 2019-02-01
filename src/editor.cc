@@ -3,6 +3,7 @@
 #include <iterator>
 
 #include "command-prompt.h"
+#include "filesystem-prompt.h"
 #include "editor.h"
 #include "util.h"
 
