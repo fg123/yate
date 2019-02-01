@@ -232,6 +232,9 @@ void Editor::onKeyPress(int key) {
       if (current_line != 0) {
         current_line--;
         updateColWithPhantom();
+      } else {
+        current_col = 0;
+        phantom_col_pos = current_col;
       }
       break;
     case KEY_DOWN:
@@ -239,6 +242,9 @@ void Editor::onKeyPress(int key) {
       if (current_line != buffer->size() - 1) {
         current_line++;
         updateColWithPhantom();
+      } else {
+        current_col = buffer->getLineLength(current_line);
+        phantom_col_pos = current_col;
       }
       break;
     case KEY_SHOME:
