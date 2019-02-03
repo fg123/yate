@@ -15,8 +15,8 @@ class FileSystemWindow : public PromptWindow {
   std::function<void(std::string path)> callback;
 
   void finish(std::string path) {
-    callback(path);
-    yate.exitPrompt();
+    auto cb = callback;
+    yate.exitPromptThenRun([path, cb]() { cb(path); });
   }
 
  public:
