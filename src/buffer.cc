@@ -224,6 +224,9 @@ void Buffer::insertCharacter(int character, LineNumber& line, ColNumber& col) {
   if (insert_no_history(character, line, col)) {
     create_edit_for(EditNode::Type::INSERTION, character, orig_l, orig_c);
     update_unsaved_marker();
+
+    // TODO(felixguo): can be just surrounding lines
+    highlight();
   }
 }
 
@@ -247,6 +250,9 @@ void Buffer::backspace(LineNumber& line, ColNumber& col) {
   }
   create_edit_for(EditNode::Type::DELETE_BS, deleted_char, line, col);
   update_unsaved_marker();
+
+  // TODO(felixguo): can be just surrounding lines
+  highlight();
 }
 
 std::string Buffer::getTextInRange(LineCol from, LineCol to) {
@@ -290,7 +296,7 @@ void Buffer::deleteRange(LineCol from, LineCol to) {
   if (from_line == to_line) {
     /* Simple same-line delete */
     internal_buffer.at(from_line).erase(from_col, to_col - from_col + 1);
-    return;
+    goto finish;
   }
 
   /* Delete lines, but we leave the first and the last line */
@@ -304,6 +310,10 @@ void Buffer::deleteRange(LineCol from, LineCol to) {
   internal_buffer.at(to_line).erase(0, to_col + 1);
   internal_buffer.at(from_line) += internal_buffer.at(to_line);
   internal_buffer.erase(internal_buffer.begin() + to_line);
+
+finish:
+  // TODO(felixguo): can be just surrounding lines
+  highlight();
 }
 
 void Buffer::highlight() {
@@ -319,6 +329,9 @@ void Buffer::_delete(LineNumber& line, ColNumber& col) {
   int deleted_char = delete_no_history(line, col);
   if (deleted_char) {
     create_edit_for(EditNode::Type::DELETE_DEL, deleted_char, orig_l, orig_c);
+
+    // TODO(felixguo): can be just surrounding lines
+    highlight();
   }
 }
 
@@ -430,6 +443,9 @@ void Buffer::undo(LineNumber& line, ColNumber& col) {
     current_edit = current_edit->prev;
     update_unsaved_marker();
   }
+
+  // TODO(felixguo): determine which language
+  highlight();
 }
 
 void Buffer::apply_redo_step(LineNumber& line, ColNumber& col,
@@ -442,6 +458,9 @@ void Buffer::apply_redo_step(LineNumber& line, ColNumber& col,
       apply_edit_node(current_edit, line, col);
     }
     update_unsaved_marker();
+
+    // TODO(felixguo): determine which language
+    highlight();
   }
 }
 

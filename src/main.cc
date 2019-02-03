@@ -25,7 +25,7 @@ void init_curses() {
   start_color();
   use_default_colors();
   keypad(stdscr, true);
-  mousemask(ALL_MOUSE_EVENTS, nullptr);
+  mousemask(BUTTON1_PRESSED, nullptr);
 }
 
 int main(int argc, char *argv[]) {

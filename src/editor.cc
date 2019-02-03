@@ -5,6 +5,7 @@
 #include "command-prompt.h"
 #include "editor.h"
 #include "filesystem-prompt.h"
+#include "goto-line-prompt.h"
 #include "util.h"
 
 /* TODO(felixguo): find cross terminal for this */
@@ -14,7 +15,6 @@
 
 static std::string tab_replace(std::string& line, std::string& reference,
                                int tab_size, char replace_with = ' ') {
-  assert(line.size() == reference.size());
   std::string result;
   for (ColNumber i = 0; i < line.size(); i++) {
     char c = reference[i];
@@ -59,7 +59,6 @@ bool Editor::inSelection(LineNumber line, ColNumber col) {
 
 // TODO(felixguo): Handle line wrapping?
 void Editor::draw() {
-  buffer->highlight();
   Logging::breadcrumb("Editor Draw");
   unsigned int i = 0;
   int field_width = buffer->getLineNumberFieldWidth() + 1;
@@ -153,6 +152,12 @@ int Editor::capture() {
 
 const std::string& Editor::getTitle() { return buffer->getFileName(); }
 
+void Editor::goToLine(LineNumber n) {
+  current_line = n;
+  limitLine();
+  limitCol();
+}
+
 void Editor::onKeyPress(int key) {
   if (key == KEY_UP || key == KEY_DOWN || key == KEY_LEFT || key == KEY_RIGHT ||
       key == KEY_HOME || key == KEY_END) {
@@ -211,6 +216,11 @@ void Editor::onKeyPress(int key) {
     case ctrl('p'): {
       CommandPromptWindow* p = new CommandPromptWindow(yate, this);
       Logging::info << p << std::endl;
+      yate.enterPrompt(p);
+      break;
+    }
+    case ctrl('g'): {
+      GoToLinePromptWindow* p = new GoToLinePromptWindow(yate, this);
       yate.enterPrompt(p);
       break;
     }
@@ -356,15 +366,16 @@ void Editor::onMouseEvent(MEVENT* event) {
       }
     }
     limitCol();
-  } else if (event->bstate & BUTTON4_PRESSED) {
-    Logging::info << "Here" << std::endl;
-    window_start_line -= 1;
-    current_line += 1;
-    limitLine();
-  } else if (event->bstate & BUTTON5_PRESSED) {
-    // TODO(anyone): If we can use ncurses6, they have better support
-    window_start_line += 1;
-    current_line -= 1;
-    limitLine();
   }
+  // } else if (event->bstate & BUTTON4_PRESSED) {
+  //   Logging::info << "Here" << std::endl;
+  //   window_start_line -= 1;
+  //   current_line += 1;
+  //   limitLine();
+  // } else if (event->bstate & BUTTON5_PRESSED) {
+  //   // TODO(anyone): If we can use ncurses6, they have better support
+  //   window_start_line += 1;
+  //   current_line -= 1;
+  //   limitLine();
+  // }
 }

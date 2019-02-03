@@ -52,6 +52,9 @@ class Editor : public Pane, public Focusable {
   void draw() override;
   const std::string &getTitle() override;
   Focusable *getCurrentFocus() override { return this; }
+  Buffer *getBuffer() { return buffer; }
+  void goToLine(LineNumber n);
+
   int capture() override;
   void onKeyPress(int key) override;
   void onMouseEvent(MEVENT *event) override;
