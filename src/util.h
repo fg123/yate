@@ -59,4 +59,12 @@ inline bool startsWith(std::string needle, std::string haystack) {
   return true;
 }
 
+inline bool startsWithWordBoundary(std::string needle, std::string haystack) {
+  if (haystack.size() < needle.size()) return false;
+  std::string::size_type i = 0;
+  for (; i < needle.size(); i++) {
+    if (haystack[i] != needle[i]) return false;
+  }
+  return (i == haystack.size() || !std::isalnum(haystack[i]));
+}
 #endif

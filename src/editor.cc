@@ -89,7 +89,8 @@ void Editor::draw() {
     std::string line =
         tab_replace(*line_it, *line_it, yate.config.getTabSize());
     std::string syntax =
-        tab_replace(*syntax_it, *line_it, yate.config.getTabSize());
+        tab_replace(*syntax_it, *line_it, yate.config.getTabSize(),
+                    (char)SyntaxHighlighting::Component::WHITESPACE);
     if (window_start_col > line.size()) {
       line = "";
     } else {

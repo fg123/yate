@@ -40,8 +40,11 @@ void SyntaxHighlighting::highlight(Syntax *syntax,
 
       /* Could not parse anything else */
       if (result_col == col) {
-        Logging::info << "No matches at " << line << ", " << col << std::endl;
-        result_col = input.at(line).size();
+        /* We jump to next space and ignore characters */
+        while (result_col < input.at(line).size() &&
+               !std::isspace(input.at(line).at(result_col))) {
+          result_col++;
+        }
       } else {
         Logging::info << "Matched " << (int)longest_component << std::endl;
       }

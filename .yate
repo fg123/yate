@@ -1,6 +1,6 @@
 paneset 0 0 141 37 1 0
 tabset 0 0 141 37 2 0
-paneset 0 1 141 36 2 0
+paneset 0 1 141 36 2 1
 editor 0 1 71 36 src/buffer.h 
 editor 71 1 70 36 src/buffer.cc 
 paneset 0 1 141 36 2 0
