@@ -11,7 +11,7 @@ namespace SyntaxHighlighting {
 /* Each syntax defines how each of these are matched, each theme defines
  *   the color mapping of each of these components */
 enum class Component {
-  NO_HIGHLIGHT,
+  NO_HIGHLIGHT = 0,
   COMMENT,
   IDENTIFIER,
   PREPROCESSOR,

@@ -23,7 +23,6 @@ void init_curses() {
   noecho();
   nonl();
   start_color();
-  use_default_colors();
   keypad(stdscr, true);
   mousemask(BUTTON1_PRESSED, nullptr);
 }
