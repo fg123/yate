@@ -5,6 +5,7 @@
 #include "command-prompt.h"
 #include "editor.h"
 #include "filesystem-prompt.h"
+#include "find-prompt.h"
 #include "goto-line-prompt.h"
 #include "util.h"
 
@@ -210,12 +211,15 @@ void Editor::onKeyPress(int key) {
         selection_start = NO_SELECTION;
       }
       break;
+    case ctrl('f'): {
+      FindPromptWindow* f = new FindPromptWindow(yate, this);
+      yate.enterPrompt(f);
+    }
     case ctrl('s'):
       buffer->writeToFile();
       break;
     case ctrl('p'): {
       CommandPromptWindow* p = new CommandPromptWindow(yate, this);
-      Logging::info << p << std::endl;
       yate.enterPrompt(p);
       break;
     }

@@ -16,9 +16,9 @@ Color from_hex_string(std::string hex) {
   Color c = {0, 0, 0};
   sscanf(hex.c_str(), "%02x%02x%02x", &c.r, &c.g, &c.b);
   /* Rebalance to 0 - 1000 */
-  c.r = (short)((c.r / 256.0) * 1000);
-  c.g = (short)((c.g / 256.0) * 1000);
-  c.b = (short)((c.b / 256.0) * 1000);
+  c.r = (short)((c.r / 255.0) * 1000);
+  c.g = (short)((c.g / 255.0) * 1000);
+  c.b = (short)((c.b / 255.0) * 1000);
   return c;
 }
 

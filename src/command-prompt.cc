@@ -34,6 +34,9 @@ CommandPromptWindow::CommandPromptWindow(Yate &yate, Editor *editor)
     items.emplace_back("Edit: Redo", std::function<void()>([editor]() {
                             editor->onKeyPress(ctrl('y'));
                         }));
+    items.emplace_back("Edit: Find", std::function<void()>([editor]() {
+                            editor->onKeyPress(ctrl('f'));
+                        }));
     items.emplace_back("Navigate: Go To Line", std::function<void()>([editor]() {
                          editor->onKeyPress(ctrl('g'));
                        }));

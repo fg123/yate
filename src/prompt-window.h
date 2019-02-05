@@ -21,11 +21,11 @@ class PromptWindow : public Pane, public Focusable {
     return result;
   }
   int highlighted_index = 0;
-  std::string prompt_buffer;
 
  protected:
   Yate& yate;
   bool input_enabled = true;
+  std::string prompt_buffer;
 
  public:
   PromptWindow(Yate& yate)
