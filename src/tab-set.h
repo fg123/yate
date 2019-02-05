@@ -16,7 +16,7 @@ class TabSet : public Pane {
   std::vector<PaneSet *> tabs;
 
   /* The start index of each tab in the tab bar */
-  std::vector<int> tab_start;
+  std::vector<unsigned int> tab_start;
 
   /* How far the tab bar is offset in small screens */
   unsigned int tab_draw_offset;

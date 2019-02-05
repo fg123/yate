@@ -9,9 +9,8 @@ class GoToLinePromptWindow : public PromptWindow {
   const std::string title = "Go to line:";
 
  public:
-  GoToLinePromptWindow(Yate& yate, Editor *editor) : PromptWindow(yate), editor(editor) {
-
-  }
+  GoToLinePromptWindow(Yate& yate, Editor* editor)
+      : PromptWindow(yate), editor(editor) {}
   const std::string& getTitle() override { return title; }
   bool match(std::string buffer, size_t index) {
     std::string item = getItemString(index);
@@ -19,10 +18,14 @@ class GoToLinePromptWindow : public PromptWindow {
   }
 
   const std::string getItemString(size_t index) {
+    if (prompt_buffer.empty()) return "";
     return std::to_string(index + 1);
   }
 
-  const size_t getListSize() { return editor->getBuffer()->size(); }
+  const size_t getListSize() {
+    if (prompt_buffer.empty()) return 0;
+    return editor->getBuffer()->size();
+  }
 
   void onExecute(size_t index) {
     editor->goToLine(index);

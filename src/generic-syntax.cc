@@ -1,5 +1,6 @@
 #include "generic-syntax.h"
 
+#include "logging.h"
 #include "util.h"
 
 using Component = SyntaxHighlighting::Component;
@@ -57,7 +58,18 @@ ColNumber GenericSyntax::match(Component component, std::string &input,
     case Component::STR_LITERAL: {
       if (input[start] == '"') {
         start++;
-        while (start < input.size() && input[start] != '"') start++;
+        while (start < input.size() && input[start] != '"') {
+          start++;
+        }
+        /* Consume ending quote */
+        start++;
+      } else if (input[start] == '\'') {
+        start++;
+        while (start < input.size() && input[start] != '\'') {
+          start++;
+        }
+        /* Consume ending quote */
+        start++;
       }
       break;
     }

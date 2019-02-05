@@ -2,21 +2,23 @@
 #include "editor.h"
 #include "logging.h"
 #include "pane.h"
-#include "yate.h"
 #include "util.h"
+#include "yate.h"
 
-TabSet::TabSet(Yate &yate, Pane *parent, int x, int y, int width, int height, std::vector<std::string> &paths)
-  : Pane(parent, x, y, width, height), yate(yate) {
+TabSet::TabSet(Yate &yate, Pane *parent, int x, int y, int width, int height,
+               std::vector<std::string> &paths)
+    : Pane(parent, x, y, width, height), yate(yate) {
   for (auto path : paths) {
     PaneSet *pane_s = new PaneSet(yate, this, x, y + 1, width, height - 1);
-    Editor *editor = new Editor(yate, pane_s, yate.getBuffer(path), x,
-                                y + 1, width, height - 1);
+    Editor *editor = new Editor(yate, pane_s, yate.getBuffer(path), x, y + 1,
+                                width, height - 1);
     pane_s->addPane(editor);
     tabs.emplace_back(pane_s);
   }
 }
 
-TabSet::TabSet(Yate &yate, Pane *parent, std::istream &saved_state) : Pane(parent, saved_state), yate(yate) {
+TabSet::TabSet(Yate &yate, Pane *parent, std::istream &saved_state)
+    : Pane(parent, saved_state), yate(yate) {
   Logging::breadcrumb("Deserializing TabSet");
   int size = read<int>(saved_state);
   selected_tab = read<int>(saved_state);
@@ -25,8 +27,7 @@ TabSet::TabSet(Yate &yate, Pane *parent, std::istream &saved_state) : Pane(paren
     saved_state >> type;
     if (type == "paneset") {
       addTab(new PaneSet(yate, this, saved_state));
-    }
-    else {
+    } else {
       std::cerr << "Unknown Tab Type: " << type << std::endl;
     }
   }
@@ -47,6 +48,9 @@ void TabSet::drawTabs() {
   int selected_start_position = 0;
   int selected_len = 0;
   decltype(tabs)::size_type i = 0;
+
+  tab_start.clear();
+  tab_start.push_back(0);
   for (auto tab : tabs) {
     int flag = A_REVERSE;
     if (i == selected_tab) {
@@ -56,6 +60,7 @@ void TabSet::drawTabs() {
     }
     std::string str_to_add(' ' + tab->getTitle() + ' ');
     all_tabs += str_to_add;
+    tab_start.push_back(all_tabs.size());
     flags.insert(flags.end(), str_to_add.length(), flag);
     i += 1;
   }
@@ -76,6 +81,7 @@ void TabSet::drawTabs() {
       flags.push_back(A_REVERSE);
     }
   }
+  tab_draw_offset = start;
   for (unsigned int i = 0; i < width; i++) {
     mvwaddch(internal_window, 0, i, all_tabs[start + i] | flags[start + i]);
   }
@@ -89,9 +95,7 @@ void TabSet::draw() {
   tabs[selected_tab]->draw();
 }
 
-const std::string &TabSet::getTitle() {
-  return tabs[selected_tab]->getTitle();
-}
+const std::string &TabSet::getTitle() { return tabs[selected_tab]->getTitle(); }
 
 Focusable *TabSet::getCurrentFocus() {
   return tabs[selected_tab]->getCurrentFocus();
@@ -113,12 +117,22 @@ void TabSet::onMouseEvent(MEVENT *event) {
   if (event->bstate & BUTTON1_PRESSED) {
     if ((uint)event->y == y && (uint)event->x >= x &&
         (uint)event->x < x + width) {
-      Logging::breadcrumb("Tab Bar Clicked");
-      // Tab Bar Click
-      // TODO: Actually implement checking which tab pressed
-      selected_tab += 1;
-      if (selected_tab >= tabs.size()) {
-        selected_tab = 0;
+      uint click_pos = event->x - x + tab_draw_offset;
+      Logging::breadcrumb("Tab Bar Clicked: resolved pos: " +
+                          std::to_string(click_pos));
+      int new_tab = -1;
+      Logging::info << "0: " << tab_start[0] << std::endl;
+      for (uint i = 1; i < tab_start.size(); i++) {
+        Logging::info << i << ": " << tab_start[i] << std::endl;
+        if (click_pos >= tab_start[i - 1] && click_pos < tab_start[i]) {
+          new_tab = i - 1;
+          break;
+        }
+      }
+      if (new_tab == -1) {
+        Logging::error << "Can't resolve tab select position!" << std::endl;
+      } else {
+        selected_tab = new_tab;
       }
       draw();
     } else {
@@ -138,7 +152,7 @@ bool TabSet::onNavigationItemSelected(size_t index, NavigateWindow *parent) {
   if (index == tabs.size()) {
     PaneSet *pane_s = new PaneSet(yate, this, x, y + 1, width, height - 1);
     Editor *editor = new Editor(yate, pane_s, yate.getBuffer("Untitled"), x,
-                            y + 1, width, height - 1);
+                                y + 1, width, height - 1);
     pane_s->addPane(editor);
     addTab(pane_s);
     selected_tab = tabs.size() - 1;
@@ -149,7 +163,8 @@ bool TabSet::onNavigationItemSelected(size_t index, NavigateWindow *parent) {
 }
 
 void TabSet::serialize(std::ostream &stream) {
-  stream << "tabset " << x << " " << y << " " << width << " " << height << " " << tabs.size() << " " << selected_tab << std::endl;
+  stream << "tabset " << x << " " << y << " " << width << " " << height << " "
+         << tabs.size() << " " << selected_tab << std::endl;
   for (auto paneSet : tabs) {
     paneSet->serialize(stream);
   }
