@@ -113,7 +113,6 @@ void Editor::draw() {
                       : A_NORMAL;
       auto syntax_color = yate.config.getTheme()->map(
           (SyntaxHighlighting::Component)syntax.at(j));
-      init_pair(4, 64, -1);
       wattron(internal_window, syntax_color);
       mvwaddch(internal_window, i, field_width + 1 + j, line.at(j) | flag);
       wattroff(internal_window, syntax_color);
