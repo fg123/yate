@@ -1,4 +1,6 @@
 # Solarized Theme
-keyword = 64
-num-literal = 37
-comment = 240
+keyword = '#859900'
+num-literal = '#D33682'
+comment = '#586E75'
+str-literal = '#2AA198'
+preprocessor = '#cb4b16'

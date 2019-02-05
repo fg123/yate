@@ -51,6 +51,9 @@ int main(int argc, char *argv[]) {
     if (saved_state_path.empty()) {
       saved_state_path = ".yate";
     }
+    if (yate_config_path.empty()) {
+      yate_config_path = "yate.toml";
+    }
     Logging::init(log_path);
     YateConfig config(yate_config_path);
     Logging::info << KEY_LEFT << " " << KEY_UP << " " << KEY_RIGHT << " "

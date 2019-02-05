@@ -23,13 +23,14 @@ ColNumber GenericSyntax::match(Component component, std::string &input,
   std::string actual = input.substr(start);
   switch (component) {
     case Component::COMMENT: {
-      if (startsWith("//", actual) || startsWith("#", actual)) {
+      if (startsWith("//", actual)) {
         start = input.size();
       }
       break;
     }
     case Component::IDENTIFIER: {
-      while (start < input.size() && std::isalnum(input[start])) {
+      while (start < input.size() &&
+             (std::isalnum(input[start]) || input[start] == '_')) {
         start++;
       }
       break;
@@ -43,6 +44,9 @@ ColNumber GenericSyntax::match(Component component, std::string &input,
       break;
     }
     case Component::PREPROCESSOR:
+      if (startsWith("#", actual)) {
+        start = input.size();
+      }
       break;
     case Component::NUM_LITERAL: {
       while (start < input.size() && std::isdigit(input[start])) {
