@@ -9,12 +9,12 @@
 #include <map>
 
 struct Color {
-  short r, g, b;
+  unsigned short r, g, b;
 };
 
 Color from_hex_string(std::string hex) {
   Color c = {0, 0, 0};
-  sscanf(hex.c_str(), "%02x%02x%02x", &c.r, &c.g, &c.b);
+  sscanf(hex.c_str(), "%02hx%02hx%02hx", &c.r, &c.g, &c.b);
   /* Rebalance to 0 - 1000 */
   c.r = (short)((c.r / 255.0) * 1000);
   c.g = (short)((c.g / 255.0) * 1000);

@@ -8,11 +8,13 @@ static YateConfig::IndentationStyle indentation_style;
 static Theme *theme = nullptr;
 
 YateConfig::YateConfig(std::string path) {
-  if (!path.empty()) {
+  try {
     internal_config = cpptoml::parse_file(path);
-  } else {
+  } catch (cpptoml::parse_exception e) {
+    Logging::error << "Error parsing config TOML!" << std::endl;
     internal_config = cpptoml::make_table();
   }
+
   tab_size = internal_config->get_as<int>("tab_size").value_or(4);
   indentation_style = (YateConfig::IndentationStyle)internal_config
                           ->get_as<int>("indentation_style")
@@ -24,6 +26,7 @@ YateConfig::~YateConfig() {
   delete theme;
   theme = nullptr;
 }
+
 int YateConfig::getTabSize() const { return tab_size; }
 
 YateConfig::IndentationStyle YateConfig::getIndentationStyle() const {
