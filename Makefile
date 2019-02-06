@@ -1,9 +1,9 @@
 EXE = yate
 SRC_DIR = src
-SRC = $(wildcard $(SRC_DIR)/*.cc)
-OBJ = $(SRC:$(SRC_DIR)/%.cc=$(SRC_DIR)/%.o)
-HEADERS = $(wildcard $(SRC_DIR)/*.h)
-CPPFLAGS += -I $(SRC_DIR)
+SRC = $(shell find . -name "*.cc")
+OBJ = $(SRC:%.cc=%.o)
+HEADERS = $(wildcard $(SRC_DIR)/**/*.h)
+CPPFLAGS += -I $(SRC_DIR) -I $(SRC_DIR)/prompts
 CFLAGS += -std=c++17 -g -Wall
 LDLIBS = -L/usr/lib -lncurses -lstdc++fs
 
@@ -13,11 +13,12 @@ main: $(OBJ)
 	mkdir -p bin
 	$(CXX) $(LDFLAGS) $^ $(LDLIBS) -o bin/$(EXE)
 
-$(SRC_DIR)/%.o: $(SRC_DIR)/%.cc $(HEADERS)
+%.o: %.cc $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
 
 .PHONY: all clean
 
 clean:
-	rm -f $(SRC_DIR)/*.o *~ core $(SRC_DIR)/*~
+	find . -name "*.o" -type f -delete
+	rm -f *~ core $(SRC_DIR)/*~
