@@ -148,14 +148,55 @@ std::string TabSet::getNavigationItem(size_t index) {
   return "Tab " + std::to_string(index);
 }
 
+void TabSet::makeNewTab() {
+  Logging::info << "Make new tab!" << tabs.size() << std::endl;
+  PaneSet *pane_s = new PaneSet(yate, this, x, y + 1, width, height - 1);
+  Editor *editor = new Editor(yate, pane_s, yate.getBuffer("Untitled"), x,
+                              y + 1, width, height - 1);
+  pane_s->addPane(editor);
+  addTab(pane_s);
+  selected_tab = tabs.size() - 1;
+  draw();
+}
+
+void TabSet::closeTab() { closeTab(selected_tab); }
+
+void TabSet::closeTab(uint index) {
+  Logging::info << "Close tab: " << index << " out of " << tabs.size()
+                << std::endl;
+  PaneSet *tab = tabs[index];
+  tabs.erase(tabs.begin() + index);
+  delete tab;
+  Logging::info << "Now have " << tabs.size() << std::endl;
+  if (tabs.empty()) {
+    makeNewTab();
+  }
+  if (selected_tab >= tabs.size()) {
+    Logging::info << "Selected tab too large" << std::endl;
+    selected_tab = tabs.size() - 1;
+  }
+  draw();
+}
+
+void TabSet::nextTab() {
+  selected_tab += 1;
+  if (selected_tab >= tabs.size()) {
+    selected_tab = 0;
+  }
+  draw();
+}
+
+void TabSet::prevTab() {
+  selected_tab -= 1;
+  if (selected_tab < 0) {
+    selected_tab = tabs.size() - 1;
+  }
+  draw();
+}
+
 bool TabSet::onNavigationItemSelected(size_t index, NavigateWindow *parent) {
   if (index == tabs.size()) {
-    PaneSet *pane_s = new PaneSet(yate, this, x, y + 1, width, height - 1);
-    Editor *editor = new Editor(yate, pane_s, yate.getBuffer("Untitled"), x,
-                                y + 1, width, height - 1);
-    pane_s->addPane(editor);
-    addTab(pane_s);
-    selected_tab = tabs.size() - 1;
+    makeNewTab();
     return true;
   }
   yate.enterPrompt(new NavigateWindow(yate, tabs.at(index), parent));

@@ -45,8 +45,6 @@ void SyntaxHighlighting::highlight(Syntax *syntax,
                !std::isspace(input.at(line).at(result_col))) {
           result_col++;
         }
-      } else {
-        Logging::info << "Matched " << (int)longest_component << std::endl;
       }
       while (col < result_col && col < output.at(line).size()) {
         output.at(line).at(col) = (char)longest_component;

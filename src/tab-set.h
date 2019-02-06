@@ -30,6 +30,11 @@ class TabSet : public Pane {
   TabSet(Yate &yate, Pane *parent, std::istream &saved_state);
   ~TabSet();
   void addTab(PaneSet *paneset) { tabs.emplace_back(paneset); }
+  void makeNewTab();
+  void closeTab();
+  void closeTab(uint tab);
+  void prevTab();
+  void nextTab();
   void draw() override;
   const std::string &getTitle() override;
   Focusable *getCurrentFocus() override;

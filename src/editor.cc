@@ -7,12 +7,16 @@
 #include "filesystem-prompt.h"
 #include "find-prompt.h"
 #include "goto-line-prompt.h"
+#include "tab-set.h"
 #include "util.h"
 
 /* TODO(felixguo): find cross terminal for this */
 /* https://gist.github.com/rkumar/1237091 */
 #define KEY_SUP 337
 #define KEY_SDOWN 336
+
+#define KEY_CLEFT 553
+#define KEY_CRIGHT 568
 
 static std::string tab_replace(std::string& line, std::string& reference,
                                int tab_size, char replace_with = ' ') {
@@ -240,6 +244,23 @@ void Editor::onKeyPress(int key) {
       buffer->redo(current_line, current_col);
       selection_start = NO_SELECTION;
       break;
+    case ctrl('n'): {
+      TabSet* first = findFirstParent<TabSet>();
+      if (first) {
+        first->makeNewTab();
+      }
+      break;
+    }
+    case ctrl('w'): {
+      TabSet* first = findFirstParent<TabSet>();
+      if (first) {
+        first->closeTab();
+        /* Closing tab will kill this instance, so we
+         * don't want to do anything else */
+        return;
+      }
+      break;
+    }
     case ctrl('o'):
       yate.enterPrompt(new FileSystemWindow(
           yate, this, ".",
@@ -247,6 +268,20 @@ void Editor::onKeyPress(int key) {
               static_cast<void (Editor::*)(std::string)>(&Editor::switchBuffer),
               this, std::placeholders::_1)));
       break;
+    case KEY_CLEFT: {
+      TabSet* first = findFirstParent<TabSet>();
+      if (first) {
+        first->prevTab();
+      }
+      break;
+    }
+    case KEY_CRIGHT: {
+      TabSet* first = findFirstParent<TabSet>();
+      if (first) {
+        first->nextTab();
+      }
+      break;
+    }
     case KEY_LEFT:
     case KEY_SLEFT:
       if (current_col != 0) {

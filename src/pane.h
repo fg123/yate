@@ -3,12 +3,12 @@
 #define PANE_H
 
 #include <ncurses.h>
-#include <string>
 #include <iostream>
+#include <string>
 
+#include "focusable.h"
 #include "logging.h"
 #include "navigate-window-provider.h"
-#include "focusable.h"
 #include "util.h"
 
 using uint = unsigned int;
@@ -36,9 +36,11 @@ struct Pane : public NavigateWindowProvider {
   // onResize should be called before updated, so we can do comparison
   virtual void onResize(uint nx, uint ny, uint nwidth, uint nheight) {}
   virtual const std::string &getTitle() = 0;
-  Pane(Pane *parent, std::istream& source)
-      : x(read<int>(source)), y(read<int>(source)),
-        width(read<int>(source)), height(read<int>(source)),
+  Pane(Pane *parent, std::istream &source)
+      : x(read<int>(source)),
+        y(read<int>(source)),
+        width(read<int>(source)),
+        height(read<int>(source)),
         parent(parent) {
     Logging::breadcrumb("Deserializing Pane");
     init();
@@ -50,7 +52,8 @@ struct Pane : public NavigateWindowProvider {
   }
 
   void init() {
-    Logging::info << "Pane Init: " << x << " " << y << " " << width << " " << height << std::endl;
+    Logging::info << "Pane Init: " << x << " " << y << " " << width << " "
+                  << height << std::endl;
     internal_window = newwin(height, width, y, x);
     if (!internal_window) {
       safe_exit(3, "Error allocating internal window!");
@@ -97,6 +100,21 @@ struct Pane : public NavigateWindowProvider {
   virtual void onMouseEvent(MEVENT *event) {}
   virtual void onTitleUpdated() {}
   virtual ~Pane() { delwin(internal_window); }
+
+  template <typename T>
+  T *findFirstParent() {
+    static_assert(std::is_base_of<Pane, T>::value,
+                  "findFirstParent<type> must be derived from Pane.");
+    if (!parent) {
+      return nullptr;
+    }
+    T *potential = dynamic_cast<T *>(parent);
+    if (potential) {
+      return potential;
+    } else {
+      return parent->findFirstParent<T>();
+    }
+  }
 };
 
 #endif
