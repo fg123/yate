@@ -119,8 +119,16 @@ struct Pane : public NavigateWindowProvider {
     if (potential) {
       return potential;
     } else {
-      return parent->findFirstParent<T>();
+      return parent->findFirstParent<T>(parents);
     }
+  }
+
+  void findAllParents(std::vector<Pane *> &parents) {
+    parents.push_back(this);
+    if (!parent) {
+      return;
+    }
+    parent->findAllParents(parents);
   }
 };
 
