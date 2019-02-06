@@ -81,6 +81,7 @@ ColNumber GenericSyntax::match(Component component, std::string &input,
     }
     default:
     case Component::NO_HIGHLIGHT:
+      start++;
       break;
   }
   return start;
