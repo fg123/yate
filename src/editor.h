@@ -8,6 +8,7 @@
 #include "buffer.h"
 #include "focusable.h"
 #include "logging.h"
+#include "pane-set.h"
 #include "pane.h"
 #include "yate.h"
 
@@ -33,6 +34,13 @@ class Editor : public Pane, public Focusable {
   void switchBuffer(std::string newPath);
   std::string generateStatusBar();
 
+  /* Set to the closest pane_set parent */
+  PaneSet *paneset_parent = nullptr;
+
+  /* Set to the child of the aforementioned
+   * pane_set that holds this instance of the editor */
+  Pane *paneset_parent_child = nullptr;
+
  public:
   Editor(Yate &yate, Pane *parent, Buffer *buffer, int x, int y, int width,
          int height)
@@ -40,13 +48,15 @@ class Editor : public Pane, public Focusable {
     init();
   }
 
-  Editor(Yate &yate, Pane *parent, std::istream& saved_state)
-      : Pane(parent, saved_state), yate(yate), buffer(yate.getBuffer(read<std::string>(saved_state))) {
+  Editor(Yate &yate, Pane *parent, std::istream &saved_state)
+      : Pane(parent, saved_state),
+        yate(yate),
+        buffer(yate.getBuffer(read<std::string>(saved_state))) {
     Logging::breadcrumb("Deserializing Editor");
     init();
   }
 
-  void switchBuffer(Buffer* newBuffer);
+  void switchBuffer(Buffer *newBuffer);
   void revertBuffer();
 
   void draw() override;
@@ -59,14 +69,39 @@ class Editor : public Pane, public Focusable {
   void onKeyPress(int key) override;
   void onMouseEvent(MEVENT *event) override;
   void serialize(std::ostream &stream) override {
-    stream << "editor " << x << " " << y << " " << width << " " << height
-           << " " << buffer->getPath() << " ";
+    stream << "editor " << x << " " << y << " " << width << " " << height << " "
+           << buffer->getPath() << " ";
     stream << std::endl;
   }
-  size_t getNavigationItemsSize() override { return 1; }
-  std::string getNavigationItem(size_t index) override { return "Focus"; }
+  size_t getNavigationItemsSize() override {
+    /* Since the root of yate is a PaneSet, we can expect paneset_parent to
+     * always be set. In this case there's always a child and we can always
+     * split */
+    return 3;
+  }
+  std::string getNavigationItem(size_t index) override {
+    switch (index) {
+      case 0:
+        return "Focus";
+      case 1:
+        return "Split Vertically";
+      case 2:
+        return "Split Horizontally";
+    }
+    return "";
+  }
   bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override {
-    focusRequested(this);
+    switch (index) {
+      case 0:
+        focusRequested(this);
+        break;
+      case 1:
+        paneset_parent->verticalSplit(paneset_parent_child);
+        break;
+      case 2:
+        paneset_parent->horizontalSplit(paneset_parent_child);
+        break;
+    }
     return true;
   }
 };

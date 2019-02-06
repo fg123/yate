@@ -6,7 +6,7 @@
 #include <cmath>
 
 PaneSet::PaneSet(Yate &yate, Pane *parent, std::istream &saved_state)
-      : Pane(parent, saved_state), yate(yate) {
+    : Pane(parent, saved_state), yate(yate) {
   Logging::breadcrumb("Deserializing PaneSet");
   int size = read<int>(saved_state);
   int focusedIndex = read<int>(saved_state);
@@ -15,14 +15,11 @@ PaneSet::PaneSet(Yate &yate, Pane *parent, std::istream &saved_state)
     saved_state >> type;
     if (type == "tabset") {
       addPane(new TabSet(yate, this, saved_state));
-    }
-    else if (type == "editor") {
+    } else if (type == "editor") {
       addPane(new Editor(yate, this, saved_state));
-    }
-    else if (type == "paneset") {
+    } else if (type == "paneset") {
       addPane(new PaneSet(yate, this, saved_state));
-    }
-    else {
+    } else {
       std::cerr << "Unknown Pane Type: " << type << std::endl;
     }
     if (i == focusedIndex) {
@@ -42,6 +39,28 @@ void PaneSet::draw() {
   for (auto pane : panes) {
     pane->draw();
   }
+}
+
+void PaneSet::verticalSplit(Pane *child) {
+  uint full = child->width;
+  if (full <= 1) {
+    return;
+  }
+  child->resize(child->x, child->y, full / 2, child->height);
+  addPane(new Editor(yate, this, yate.getBuffer("Untitled"),
+                     child->x + child->width, child->y, full - child->width,
+                     child->height));
+}
+
+void PaneSet::horizontalSplit(Pane *child) {
+  uint full = child->height;
+  if (full <= 1) {
+    return;
+  }
+  child->resize(child->x, child->y, child->width, full / 2);
+  addPane(new Editor(yate, this, yate.getBuffer("Untitled"), child->x,
+                     child->y + child->height, child->width,
+                     full - child->height));
 }
 
 void PaneSet::addPane(Pane *pane) {
@@ -123,7 +142,8 @@ void PaneSet::onMouseEvent(MEVENT *event) {
 }
 
 void PaneSet::serialize(std::ostream &stream) {
-  stream << "paneset " << x << " " << y << " " << width << " " << height << " " << panes.size() << " " << indexOf(panes, focused_pane) << std::endl;
+  stream << "paneset " << x << " " << y << " " << width << " " << height << " "
+         << panes.size() << " " << indexOf(panes, focused_pane) << std::endl;
   for (auto pane : panes) {
     pane->serialize(stream);
   }

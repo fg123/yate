@@ -103,12 +103,19 @@ struct Pane : public NavigateWindowProvider {
 
   template <typename T>
   T *findFirstParent() {
+    std::vector<Pane *> useless;
+    return findFirstParent<T>(useless);
+  }
+
+  template <typename T>
+  T *findFirstParent(std::vector<Pane *> &parents) {
     static_assert(std::is_base_of<Pane, T>::value,
                   "findFirstParent<type> must be derived from Pane.");
     if (!parent) {
       return nullptr;
     }
     T *potential = dynamic_cast<T *>(parent);
+    parents.push_back(this);
     if (potential) {
       return potential;
     } else {

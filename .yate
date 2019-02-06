@@ -1,13 +1,9 @@
 paneset 0 0 172 47 1 0
-tabset 0 0 172 47 4 3
+tabset 0 0 172 47 2 1
 paneset 0 1 172 46 2 0
 editor 0 1 87 46 src/buffer.h 
 editor 87 1 85 46 src/buffer.cc 
 paneset 0 1 172 46 2 0
 editor 0 1 87 46 src/editor.h 
 editor 87 1 85 46 src/editor.cc 
-paneset 0 1 172 46 1 0
-editor 0 1 172 46 Untitled 
-paneset 0 1 172 46 1 0
-editor 0 1 172 46 Untitled 
 

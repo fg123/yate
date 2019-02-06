@@ -23,10 +23,10 @@ class PaneSet : public Pane {
   // TODO(anyone): Created better interface for proper splitting.
   void addPane(Pane *pane);
   void draw();
+  void verticalSplit(Pane *child);
+  void horizontalSplit(Pane *child);
   const std::vector<Pane *> &getPanes() { return panes; }
-  const std::string &getTitle() {
-    return focused_pane->getTitle();
-  }
+  const std::string &getTitle() { return focused_pane->getTitle(); }
   Focusable *getCurrentFocus() override {
     return focused_pane->getCurrentFocus();
   }

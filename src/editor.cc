@@ -34,7 +34,14 @@ static std::string tab_replace(std::string& line, std::string& reference,
   return result;
 }
 
-void Editor::init() { buffer->registerEditor(this); }
+void Editor::init() {
+  buffer->registerEditor(this);
+  std::vector<Pane*> parents;
+  paneset_parent = findFirstParent<PaneSet>(parents);
+  if (!parents.empty()) {
+    paneset_parent_child = parents.back();
+  }
+}
 
 void Editor::revertBuffer() {
   buffer->revert(current_line, current_col);
