@@ -230,11 +230,16 @@ void Buffer::insertCharacter(int character, LineNumber& line, ColNumber& col) {
   }
 }
 
+void Buffer::insertString(std::string str, LineNumber &line, ColNumber &col) {
+
+}
+
 void Buffer::backspace(LineNumber& line, ColNumber& col) {
   if (line < 0 || line >= size()) return;
   if (col < 0) return;
   if (!col && !line) return;
   int deleted_char;
+  ColNumber highlight_to = line + 1;
   if (col == 0) {
     // Join two lines
     col = internal_buffer[line - 1].length();
@@ -243,6 +248,7 @@ void Buffer::backspace(LineNumber& line, ColNumber& col) {
                           internal_buffer.begin() + line + 1);
     deleted_char = '\n';
     line -= 1;
+    highlight_to = size();
   } else {
     deleted_char = internal_buffer.at(line).at(col - 1);
     internal_buffer[line].erase(col - 1, 1);
@@ -251,8 +257,7 @@ void Buffer::backspace(LineNumber& line, ColNumber& col) {
   create_edit_for(EditNode::Type::DELETE_BS, deleted_char, line, col);
   update_unsaved_marker();
 
-  // TODO(felixguo): can be just surrounding lines
-  highlight();
+  highlight(line, highlight_to);
 }
 
 std::string Buffer::getTextInRange(LineCol from, LineCol to) {
@@ -316,10 +321,10 @@ finish:
   highlight();
 }
 
-void Buffer::highlight() {
+void Buffer::highlight(LineNumber from, LineNumber to) {
   /* TODO(felixguo): only rehighlight parts that matter */
   GenericSyntax* syntax = new GenericSyntax();
-  SyntaxHighlighting::highlight(syntax, internal_buffer, syntax_components);
+  SyntaxHighlighting::highlight(syntax, internal_buffer, syntax_components, from, to);
   delete syntax;
 }
 
@@ -329,9 +334,7 @@ void Buffer::_delete(LineNumber& line, ColNumber& col) {
   int deleted_char = delete_no_history(line, col);
   if (deleted_char) {
     create_edit_for(EditNode::Type::DELETE_DEL, deleted_char, orig_l, orig_c);
-
-    // TODO(felixguo): can be just surrounding lines
-    highlight();
+    highlight(line, line + 1);
   }
 }
 

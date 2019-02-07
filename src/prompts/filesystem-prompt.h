@@ -11,6 +11,7 @@
 class FileSystemWindow : public PromptWindow {
   std::string title;
   Editor *editor = nullptr;
+  FileSystemWindow *parent = nullptr;
   Directory directory;
   std::function<void(std::string path)> callback;
 
@@ -20,10 +21,11 @@ class FileSystemWindow : public PromptWindow {
   }
 
  public:
-  FileSystemWindow(Yate &yate, Editor *editor, std::string path,
+  FileSystemWindow(Yate &yate, Editor *editor, std::string path, FileSystemWindow *parent,
                    std::function<void(std::string path)> callback)
       : PromptWindow(yate),
         editor(editor),
+        parent(parent),
         directory(path),
         callback(callback) {
     title = "Choose File (" + path + ")";
@@ -40,10 +42,27 @@ class FileSystemWindow : public PromptWindow {
   }
 
   void onExecute(size_t index) override {
-    if (directory.isDirectory(index)) {
+    if (index == 0) {
+      if (parent) {
+        yate.exitPrompt();
+      }
+      else {
+        // We don't have a parent window, so we construct one */
+        std::function<void(std::string path)> cb = callback;
+        Yate &captured_yate = yate;
+        Editor *captured_editor = editor;
+        std::string path = directory.getPath(index);
+        // We want to capture all these because *this* will be destroyed
+        yate.exitPromptThenRun([&captured_yate, captured_editor, path, cb]() {
+          captured_yate.enterPrompt(new FileSystemWindow(captured_yate,
+            captured_editor, path, nullptr, cb));
+        });
+      }
+    }
+    else if (directory.isDirectory(index)) {
       yate.enterPrompt(
           new FileSystemWindow(yate, editor, directory.getPath(index),
-                               [this](std::string path) { finish(path); }));
+          this, [this](std::string path) { finish(path); }));
     } else {
       finish(directory.getPath(index));
     }

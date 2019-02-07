@@ -46,7 +46,9 @@ ColNumber GenericSyntax::match(Component component, std::string &input,
     }
     case Component::PREPROCESSOR:
       if (startsWith("#", actual)) {
-        start = input.size();
+        while (start < input.size() && !std::isspace(input[start])) {
+          start++;
+        }
       }
       break;
     case Component::NUM_LITERAL: {

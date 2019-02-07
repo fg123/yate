@@ -13,6 +13,7 @@ class Directory {
 
  public:
   explicit Directory(std::string path) : path(path) {
+    path_items.push_back(path + "/..");
     for (auto &p : fs::directory_iterator(path)) {
       path_items.push_back(p.path());
     }

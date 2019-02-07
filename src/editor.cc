@@ -182,9 +182,15 @@ void Editor::onKeyPress(int key) {
   switch (key) {
     case KEY_ENTER:
     case '\n':
-    case '\r':
+    case '\r': {
       buffer->insertCharacter('\n', current_line, current_col);
+      std::string &prev_line = buffer->getLine(current_line - 1);
+      ColNumber end = prev_line.find_first_not_of(" \t");
+      for (ColNumber i = 0; i < std::min(end, prev_line.size()); i++) {
+        buffer->insertCharacter(prev_line[i], current_line, current_col);
+      }
       break;
+    }
     case KEY_STAB:
     case '\t':
       if (yate.config.getIndentationStyle() ==
@@ -270,7 +276,7 @@ void Editor::onKeyPress(int key) {
     }
     case ctrl('o'):
       yate.enterPrompt(new FileSystemWindow(
-          yate, this, ".",
+          yate, this, ".", nullptr,
           std::bind(
               static_cast<void (Editor::*)(std::string)>(&Editor::switchBuffer),
               this, std::placeholders::_1)));
@@ -324,12 +330,17 @@ void Editor::onKeyPress(int key) {
       }
       break;
     case KEY_SHOME:
-    case KEY_HOME:
-      if (current_col != 0) {
-        current_col = 0;
+    case KEY_HOME: {
+      ColNumber desired_col = buffer->getLine(current_line).find_first_not_of(" \t");
+      if (current_col <= desired_col) {
+        desired_col = 0;
+      }
+      if (current_col != desired_col) {
+        current_col = desired_col;
         phantom_col_pos = current_col;
       }
       break;
+    }
     case KEY_SEND:
     case KEY_END:
       ColNumber end_col = buffer->getLineLength(current_line);

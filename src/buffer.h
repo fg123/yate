@@ -87,7 +87,7 @@ class Buffer {
 
   std::string &getLine(LineNumber line) { return internal_buffer.at(line); }
 
-  void highlight();
+  void highlight(LineNumber from = 0, LineNumber to = 0);
   const bool hasUnsavedChanges();
   const std::string &getFileName();
   size_t size();
@@ -99,6 +99,7 @@ class Buffer {
   void updateTitle();
   void setHasUnsavedChanges(bool hasUnsavedChanges);
   void insertCharacter(int character, LineNumber &line, ColNumber &col);
+  void insertString(std::string str, LineNumber &line, ColNumber &col);
   void backspace(LineNumber &line, ColNumber &col);
   void _delete(LineNumber &line, ColNumber &col);
   void deleteRange(LineCol from, LineCol to);
