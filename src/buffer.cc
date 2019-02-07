@@ -77,7 +77,7 @@ Buffer::Buffer(Yate& yate, std::string path)
 
 Buffer::~Buffer() { delete head_edit; }
 
-void Buffer::revert(LineNumber& line, ColNumber& col) {
+void Buffer::revert(LineNumber &line, ColNumber &col) {
   if (!current_edit->content.empty()) {
     create_edit_boundary(line, col);
   }
@@ -88,6 +88,7 @@ void Buffer::revert(LineNumber& line, ColNumber& col) {
   }
   current_edit->content = content.str();
   do_revert();
+  highlight();
 }
 
 void Buffer::do_revert() {
@@ -120,7 +121,7 @@ BufferWindow Buffer::getBufferWindow(LineNumber start, LineNumber end) {
                       internal_buffer.begin() + end);
 }
 
-bool Buffer::writeToFile() {
+bool Buffer::writeToFile(LineNumber line, ColNumber col) {
   // TODO(anyone): Might be a more efficient way to write this to file
   // without deleting and rewriting it.
   std::ofstream test_file(path, std::ios::app);
@@ -137,6 +138,9 @@ bool Buffer::writeToFile() {
   }
   last_save = current_edit;
   update_unsaved_marker();
+  if (should_trim) {
+    revert(line, col);
+  }
   return true;
 }
 

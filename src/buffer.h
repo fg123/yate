@@ -104,7 +104,7 @@ class Buffer {
   void _delete(LineNumber &line, ColNumber &col);
   void deleteRange(LineCol from, LineCol to);
   ColNumber getLineLength(LineNumber line);
-  bool writeToFile();
+  bool writeToFile(LineNumber line = 0, ColNumber col = 0);
   void revert(LineNumber &line, ColNumber &col);
 
   void undo(LineNumber &line, ColNumber &col);
