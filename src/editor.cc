@@ -235,6 +235,12 @@ void Editor::onKeyPress(int key) {
       buffer->writeToFile();
       break;
     case ctrl('p'): {
+      yate.enterPrompt(new NavigateWindow(
+        yate, (NavigateWindowProvider *)yate.getEditorNavigateProvider(),
+        nullptr));
+      break;
+    }
+    case ctrl('k'): {
       CommandPromptWindow* p = new CommandPromptWindow(yate, this);
       yate.enterPrompt(p);
       break;

@@ -1,5 +1,5 @@
 paneset 0 0 158 45 1 0
-tabset 0 0 158 45 12 0
+tabset 0 0 158 45 12 8
 paneset 0 1 158 44 2 1
 editor 0 1 80 44 src/buffer.h 
 editor 80 1 78 44 src/buffer.cc 
@@ -21,7 +21,7 @@ editor 0 1 158 44 ./src/syntax-highlighting.h
 paneset 0 1 158 44 2 0
 editor 0 1 79 44 ./src/prompts/filesystem-prompt.h 
 editor 79 1 79 44 ./src/filesystem.h 
-paneset 0 1 158 44 2 1
+paneset 0 1 158 44 2 0
 editor 0 1 79 44 ./src/editor.cc 
 editor 79 1 79 44 ./src/editor.h 
 paneset 0 1 158 44 1 0
