@@ -6,6 +6,7 @@
 static int tab_size;
 static YateConfig::IndentationStyle indentation_style;
 static Theme *theme = nullptr;
+static bool trim_trailing_whitespace;
 
 YateConfig::YateConfig(std::string path) {
   try {
@@ -19,6 +20,7 @@ YateConfig::YateConfig(std::string path) {
   indentation_style = (YateConfig::IndentationStyle)internal_config
                           ->get_as<int>("indentation_style")
                           .value_or(0);
+  trim_trailing_whitespace = internal_config->get_as<bool>("trim_trailing_whitespace").value_or(true);
   theme = new GenericTheme("themes/solarized.toml");
 }
 
@@ -28,6 +30,10 @@ YateConfig::~YateConfig() {
 }
 
 int YateConfig::getTabSize() const { return tab_size; }
+
+bool YateConfig::shouldTrimTrailingWhitespace() const {
+  return trim_trailing_whitespace;
+}
 
 YateConfig::IndentationStyle YateConfig::getIndentationStyle() const {
   return indentation_style;

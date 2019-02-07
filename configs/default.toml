@@ -2,3 +2,5 @@
 indentation_style = 0
 
 tab_size = 4
+
+trim_trailing_whitespace = true

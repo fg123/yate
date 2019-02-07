@@ -127,7 +127,12 @@ bool Buffer::writeToFile() {
   if (!test_file.good()) return false;
   test_file.close();
   std::ofstream file(path, std::ios::trunc);
+  bool should_trim = yate.config.shouldTrimTrailingWhitespace();
   for (auto line : internal_buffer) {
+    if (should_trim) {
+      ColNumber end = line.find_last_not_of(" \t");
+      line.erase(end + 1);
+    }
     file << line << std::endl;
   }
   last_save = current_edit;

@@ -1,4 +1,4 @@
 # "tabs" (0) or "spaces" (1)
 indentation_style = 1
-
+trim_trailing_whitespace = true
 tab_size = 2

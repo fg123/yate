@@ -15,6 +15,7 @@ class YateConfig {
   ~YateConfig();
   int getTabSize() const;
   IndentationStyle getIndentationStyle() const;
+  bool shouldTrimTrailingWhitespace() const;
   Theme *getTheme() const;
 };
 
