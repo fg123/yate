@@ -55,7 +55,11 @@ class Editor : public Pane, public Focusable {
     Logging::breadcrumb("Deserializing Editor");
     init();
   }
-
+  
+  ~Editor() {
+    buffer->unregisterEditor(this);
+  }
+  
   void switchBuffer(Buffer *newBuffer);
   void revertBuffer();
 
