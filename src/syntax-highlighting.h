@@ -34,7 +34,7 @@ const std::vector<std::string> COMPONENT_STRING = {
 const std::vector<Component> COMPONENT_MATCH_ORDER = {
     Component::COMMENT,     Component::PREPROCESSOR, Component::STR_LITERAL,
     Component::NUM_LITERAL, Component::KEYWORD,      Component::IDENTIFIER,
-    Component::WHITESPACE};
+    Component::WHITESPACE, Component::NO_HIGHLIGHT};
 
 void highlight(Syntax *syntax, std::vector<std::string> &input,
                std::vector<std::string> &output, LineNumber from = 0,

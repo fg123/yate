@@ -32,6 +32,8 @@ int main(int argc, char *argv[]) {
   std::string yate_config_path;
   std::string log_path;
   std::string saved_state_path;
+  bool should_save_to_state = false;
+
   for (int i = 1; i < argc; i++) {
     std::string arg(argv[i]);
     if (i != argc - 1 && (arg == "-c" || arg == "--config")) {
@@ -42,6 +44,8 @@ int main(int argc, char *argv[]) {
       saved_state_path = argv[++i];
     } else if (arg == "-h" || arg == "--help") {
       return usage();
+    } else if (arg == "--init") {
+      should_save_to_state = true;
     } else {
       paths_to_open.push_back(arg);
     }
@@ -62,12 +66,12 @@ int main(int argc, char *argv[]) {
   /* If paths given, we open paths; otherwise we check for saved state */
   std::ifstream saved_state(saved_state_path);
   if (!paths_to_open.empty()) {
-    Yate yate(config, paths_to_open);
+    Yate yate(config, should_save_to_state, paths_to_open);
   } else if (saved_state.good()) {
     Yate yate(config, saved_state);
   } else {
     paths_to_open.push_back("Untitled");
-    Yate yate(config, paths_to_open);
+    Yate yate(config, should_save_to_state, paths_to_open);
   }
   Logging::cleanup();
   /* EndWin here instead of at Yate destructor */

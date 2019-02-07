@@ -1,12 +1,12 @@
 paneset 0 0 158 45 1 0
-tabset 0 0 158 45 5 1
+tabset 0 0 158 45 8 7
 paneset 0 1 158 44 2 0
 editor 0 1 80 44 src/buffer.h 
 editor 80 1 78 44 src/buffer.cc 
 paneset 0 1 158 44 2 1
 editor 0 1 80 44 src/editor.h 
 editor 80 1 78 44 src/editor.cc 
-paneset 0 1 158 44 2 1
+paneset 0 1 158 44 2 0
 editor 0 1 79 44 ./src/config.h 
 editor 79 1 79 44 ./src/config.cc 
 paneset 0 1 158 44 1 0
@@ -14,4 +14,12 @@ editor 0 1 158 44 ./themes/solarized.toml
 paneset 0 1 158 44 2 0
 editor 0 1 79 44 ./utils/xterm-colors.txt 
 editor 79 1 79 44 ./utils/color_match.w 
+paneset 0 1 158 44 1 0
+editor 0 1 158 44 ./src/main.cc 
+paneset 0 1 158 44 2 1
+editor 0 1 79 44 ./src/yate.h 
+editor 79 1 79 44 ./src/yate.cc 
+paneset 0 1 158 44 2 1
+editor 0 1 79 44 ./src/syntax-highlighting.h 
+editor 79 1 79 44 ./src/generic-syntax.cc 
 

@@ -18,8 +18,8 @@ class EditorNavigateProvider;
 class Yate {
   std::vector<PromptWindow *> prompt_stack;
   Focusable *getCurrentFocus();
-  bool shouldQuit = false;
-  bool wasOpenedFromSaveState = false;
+  bool should_quit = false;
+  bool should_save_to_state = false;
 
   EditorNavigateProvider *lastEditorNavigateProvider = nullptr;
 
@@ -31,7 +31,8 @@ class Yate {
   std::vector<Buffer *> opened_buffers;
 
   Yate(YateConfig config, std::istream &saved_state);
-  Yate(YateConfig config, std::vector<std::string> &paths_to_open);
+  Yate(YateConfig config, bool should_save_to_state,
+       std::vector<std::string> &paths_to_open);
   ~Yate();
 
   void serialize(std::ostream &output);

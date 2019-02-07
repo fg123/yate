@@ -23,7 +23,7 @@ void Yate::refreshAndStartCapture() {
   root->draw();
 
   while (true) {
-    if (shouldQuit) break;
+    if (should_quit) break;
     int result = getCurrentFocus()->capture();
     if (result != ERR) {
       /* Some ncurses capture error */
@@ -34,7 +34,7 @@ void Yate::refreshAndStartCapture() {
 
 Yate::Yate(YateConfig config, std::istream &saved_state) : config(config) {
   Logging::breadcrumb("=== Starting Yate ===");
-  wasOpenedFromSaveState = true;
+  should_save_to_state = true;
   /* saved_state will start with paneset ... */
   std::string paneset;
   saved_state >> paneset;
@@ -50,8 +50,10 @@ void Yate::serialize(std::ostream &output) {
   output << std::endl;
 }
 
-Yate::Yate(YateConfig config, std::vector<std::string> &paths_to_open)
-    : config(config) {
+Yate::Yate(YateConfig config, bool should_save_to_state,
+           std::vector<std::string> &paths_to_open)
+    : should_save_to_state(should_save_to_state), config(config) {
+
   Logging::breadcrumb("=== Starting Yate ===");
   root = new PaneSet(*this, nullptr, 0, 0, 1, 1);
   TabSet *tab_set = new TabSet(*this, root, 0, 0, 1, 1, paths_to_open);
@@ -60,7 +62,7 @@ Yate::Yate(YateConfig config, std::vector<std::string> &paths_to_open)
 }
 
 Yate::~Yate() {
-  if (wasOpenedFromSaveState) {
+  if (should_save_to_state) {
     std::ofstream config_file(".yate", std::fstream::trunc);
     serialize(config_file);
   }
@@ -135,7 +137,7 @@ void Yate::onCapture(int result) {
 
 void Yate::quit() {
   Logging::breadcrumb("Quit");
-  shouldQuit = true;
+  should_quit = true;
 }
 
 void Yate::exitPromptThenRun(std::function<void()> function) {
