@@ -87,8 +87,14 @@ void PaneSet::onResize(uint nx, uint ny, uint nwidth, uint nheight) {
       uint new_height = std::round(pane->height * ratio_y);
       uint new_x = std::round((pane->x - x) * ratio_x) + nx;
       uint new_y = std::round((pane->y - y) * ratio_y) + ny;
-      cumulative_width += new_width;
-      cumulative_height += new_height;
+      if (pane->x + pane->width == x + width) {
+        // Bordered on the right edge
+        cumulative_height = std::max(cumulative_height, new_y + new_height);
+      }
+      if (pane->y + pane->height == y + height) {
+        // Bordered on the bottom edge
+        cumulative_width = std::max(cumulative_width, new_x + new_width);
+      }
       Logging::info << "Resizing Child Pos: (" << new_x << ", " << new_y
                     << ") with Size: (" << new_width << ", " << new_height
                     << ")" << std::endl;
@@ -98,8 +104,6 @@ void PaneSet::onResize(uint nx, uint ny, uint nwidth, uint nheight) {
   if (!bottom_right_pane) {
     safe_exit(2, "No bottom right pane!");
   }
-  cumulative_width %= nwidth;
-  cumulative_height %= nheight;
   bottom_right_pane->resize(cumulative_width + nx, cumulative_height + ny,
                             nwidth - cumulative_width,
                             nheight - cumulative_height);
