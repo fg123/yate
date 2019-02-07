@@ -205,14 +205,14 @@ bool Buffer::insert_no_history(int character, LineNumber& line,
   return true;
 }
 
-int Buffer::delete_no_history(LineNumber& line, ColNumber& col) {
+char Buffer::delete_no_history(LineNumber& line, ColNumber& col) {
   // TOOD(felixguo): Issue with undoing empty lines
   if (line < 0 || line >= size()) return 0;
   if (col < 0) return 0;
   if (col == internal_buffer[line].length() &&
       line == internal_buffer.size() - 1)
     return 0;
-  int deleted_char;
+  char deleted_char;
   if (col == internal_buffer[line].length()) {
     // Join two lines
     internal_buffer[line] += internal_buffer[line + 1];
@@ -227,11 +227,12 @@ int Buffer::delete_no_history(LineNumber& line, ColNumber& col) {
   return deleted_char;
 }
 
-void Buffer::insertCharacter(int character, LineNumber& line, ColNumber& col) {
+void Buffer::insertCharacter(char character, LineNumber& line, ColNumber& col) {
   LineNumber orig_l = line;
   ColNumber orig_c = col;
   if (insert_no_history(character, line, col)) {
-    create_edit_for(EditNode::Type::INSERTION, character, orig_l, orig_c);
+    create_edit_for(EditNode::Type::INSERTION, std::string(1, character),
+      orig_l, orig_c);
     update_unsaved_marker();
 
     highlight(line, character == '\n' ? internal_buffer.size() : line + 1);
@@ -239,14 +240,25 @@ void Buffer::insertCharacter(int character, LineNumber& line, ColNumber& col) {
 }
 
 void Buffer::insertString(std::string str, LineNumber &line, ColNumber &col) {
+  LineNumber orig_l = line;
+  ColNumber orig_c = col;
+  bool has_newline = false;
+  for (auto c : str) {
+    if (c == '\n') has_newline = true;
+    insert_no_history(c, line, col);
+  }
+  create_edit_for(EditNode::Type::INSERTION, str, orig_l, orig_c);
+  update_unsaved_marker();
 
+  // Highlight to current line
+  highlight(orig_l, has_newline ? internal_buffer.size() : orig_l + 1);
 }
 
 void Buffer::backspace(LineNumber& line, ColNumber& col) {
   if (line < 0 || line >= size()) return;
   if (col < 0) return;
   if (!col && !line) return;
-  int deleted_char;
+  char deleted_char;
   ColNumber highlight_to = line + 1;
   if (col == 0) {
     // Join two lines
@@ -262,7 +274,8 @@ void Buffer::backspace(LineNumber& line, ColNumber& col) {
     internal_buffer[line].erase(col - 1, 1);
     col -= 1;
   }
-  create_edit_for(EditNode::Type::DELETE_BS, deleted_char, line, col);
+  create_edit_for(EditNode::Type::DELETE_BS,
+    std::string(1, deleted_char), line, col);
   update_unsaved_marker();
 
   highlight(line, highlight_to);
@@ -338,9 +351,10 @@ void Buffer::highlight(LineNumber from, LineNumber to) {
 void Buffer::_delete(LineNumber& line, ColNumber& col) {
   LineNumber orig_l = line;
   ColNumber orig_c = col;
-  int deleted_char = delete_no_history(line, col);
+  char deleted_char = delete_no_history(line, col);
   if (deleted_char) {
-    create_edit_for(EditNode::Type::DELETE_DEL, deleted_char, orig_l, orig_c);
+    create_edit_for(EditNode::Type::DELETE_DEL,
+      std::string(1, deleted_char), orig_l, orig_c);
     highlight(line, deleted_char == '\n' ? internal_buffer.size() : line + 1);
   }
 }
@@ -350,14 +364,20 @@ ColNumber Buffer::getLineLength(LineNumber line) {
   return internal_buffer[line].length();
 }
 
-void Buffer::create_edit_for(EditNode::Type type, int character,
+void Buffer::create_edit_for(EditNode::Type type, std::string content,
                              const LineNumber& line, const ColNumber& col) {
   // Do we need new edit boundary!?
   if (!current_edit->content.empty()) {
     if (current_edit->type != type) {
+      // Different action
       goto new_boundary;
     }
     if (current_edit->content.length() >= 20) {
+      // Over the length for a boundary
+      goto new_boundary;
+    }
+    if (content.size() != 1) {
+      // Inserting a string, always make new boundary
       goto new_boundary;
     }
 
@@ -388,10 +408,9 @@ perform_edit:
   current_edit->type = type;
   if (type == EditNode::Type::DELETE_BS) {
     current_edit->start = std::make_tuple(line, col);
-    current_edit->content.insert(current_edit->content.begin(),
-                                 static_cast<char>(character));
+    current_edit->content.insert(0, content);
   } else {
-    current_edit->content += static_cast<char>(character);
+    current_edit->content.append(content);
   }
 }
 

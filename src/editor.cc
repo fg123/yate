@@ -230,6 +230,7 @@ void Editor::onKeyPress(int key) {
     case ctrl('f'): {
       FindPromptWindow* f = new FindPromptWindow(yate, this);
       yate.enterPrompt(f);
+      break;
     }
     case ctrl('s'):
       buffer->writeToFile();

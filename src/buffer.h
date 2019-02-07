@@ -69,10 +69,10 @@ class Buffer {
   EditNode *current_edit;
   void create_edit_boundary(const LineNumber &line, const ColNumber &col);
   void apply_edit_node(EditNode *node, LineNumber &line, ColNumber &col);
-  void create_edit_for(EditNode::Type type, int character,
+  void create_edit_for(EditNode::Type type, std::string content,
                        const LineNumber &line, const ColNumber &col);
   bool insert_no_history(int character, LineNumber &line, ColNumber &col);
-  int delete_no_history(LineNumber &line, ColNumber &col);
+  char delete_no_history(LineNumber &line, ColNumber &col);
   void apply_redo_step(LineNumber &line, ColNumber &col,
                        std::vector<EditNode *>::size_type index);
   void do_revert();
@@ -98,7 +98,7 @@ class Buffer {
   void unregisterEditor(Editor *editor);
   void updateTitle();
   void setHasUnsavedChanges(bool hasUnsavedChanges);
-  void insertCharacter(int character, LineNumber &line, ColNumber &col);
+  void insertCharacter(char character, LineNumber &line, ColNumber &col);
   void insertString(std::string str, LineNumber &line, ColNumber &col);
   void backspace(LineNumber &line, ColNumber &col);
   void _delete(LineNumber &line, ColNumber &col);
