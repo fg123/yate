@@ -7,6 +7,7 @@
 #include <vector>
 
 class Syntax;
+
 namespace SyntaxHighlighting {
 /* Each syntax defines how each of these are matched, each theme defines
  *   the color mapping of each of these components */
@@ -45,4 +46,11 @@ class Syntax {
   virtual ColNumber match(SyntaxHighlighting::Component component,
                           std::string &input, ColNumber start) = 0;
 };
+
+namespace std {
+template <>
+    struct hash <SyntaxHighlighting::Component> {size_t operator()(const SyntaxHighlighting::Component &t) const {return size_t(t);
+}  // namespace std
+  };
+}
 #endif
