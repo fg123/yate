@@ -1,5 +1,5 @@
 paneset 0 0 158 45 1 0
-tabset 0 0 158 45 11 8
+tabset 0 0 158 45 11 0
 paneset 0 1 158 44 2 1
 editor 0 1 80 44 src/buffer.h 
 editor 80 1 78 44 src/buffer.cc 

@@ -225,8 +225,7 @@ void Buffer::insertCharacter(int character, LineNumber& line, ColNumber& col) {
     create_edit_for(EditNode::Type::INSERTION, character, orig_l, orig_c);
     update_unsaved_marker();
 
-    // TODO(felixguo): can be just surrounding lines
-    highlight();
+    highlight(line, character == '\n' ? internal_buffer.size() : line + 1);
   }
 }
 
@@ -317,8 +316,7 @@ void Buffer::deleteRange(LineCol from, LineCol to) {
   internal_buffer.erase(internal_buffer.begin() + to_line);
 
 finish:
-  // TODO(felixguo): can be just surrounding lines
-  highlight();
+  highlight(from_line, internal_buffer.size());
 }
 
 void Buffer::highlight(LineNumber from, LineNumber to) {
@@ -334,7 +332,7 @@ void Buffer::_delete(LineNumber& line, ColNumber& col) {
   int deleted_char = delete_no_history(line, col);
   if (deleted_char) {
     create_edit_for(EditNode::Type::DELETE_DEL, deleted_char, orig_l, orig_c);
-    highlight(line, line + 1);
+    highlight(line, deleted_char == '\n' ? internal_buffer.size() : line + 1);
   }
 }
 
