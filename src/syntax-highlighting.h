@@ -15,6 +15,7 @@ enum class Component {
   NO_HIGHLIGHT = 0,
   COMMENT,
   IDENTIFIER,
+  CONSTANT,
   PREPROCESSOR,
   KEYWORD,
   NUM_LITERAL,
@@ -23,17 +24,17 @@ enum class Component {
 };
 
 const std::vector<Component> COMPONENTS = {
-    Component::COMMENT,   Component::IDENTIFIER,  Component::PREPROCESSOR,
+    Component::COMMENT,   Component::IDENTIFIER,  Component::CONSTANT, Component::PREPROCESSOR,
     Component::KEYWORD,   Component::NUM_LITERAL, Component::STR_LITERAL,
     Component::WHITESPACE};
 
 const std::vector<std::string> COMPONENT_STRING = {
-    "comment",     "identifier",  "preprocessor", "keyword",
+    "comment",     "identifier",  "constant", "preprocessor", "keyword",
     "num-literal", "str-literal", "whitespace"};
 
 const std::vector<Component> COMPONENT_MATCH_ORDER = {
     Component::COMMENT,     Component::PREPROCESSOR, Component::STR_LITERAL,
-    Component::NUM_LITERAL, Component::KEYWORD,      Component::IDENTIFIER,
+    Component::NUM_LITERAL, Component::KEYWORD,      Component::CONSTANT, Component::IDENTIFIER,
     Component::WHITESPACE, Component::NO_HIGHLIGHT};
 
 void highlight(Syntax *syntax, std::vector<std::string> &input,

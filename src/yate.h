@@ -29,6 +29,7 @@ class Yate {
   YateConfig config;
   PaneSet *root;
   std::vector<Buffer *> opened_buffers;
+  std::string clipboard_buffer;
 
   Yate(YateConfig config, std::istream &saved_state);
   Yate(YateConfig config, bool should_save_to_state,

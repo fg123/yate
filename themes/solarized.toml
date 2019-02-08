@@ -4,9 +4,11 @@
 # comment = '#586E75'
 # str-literal = '#2AA198'
 # preprocessor = '#cb4b16'
+# constant = '#268bd2'
 
 keyword = 100
 num-literal = 169
 comment = 242
 str-literal = 36
 preprocessor = 166
+constant = 32

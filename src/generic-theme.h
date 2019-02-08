@@ -30,6 +30,7 @@ class GenericTheme : public Theme {
     { SyntaxHighlighting::Component::NUM_LITERAL, 169 },
     { SyntaxHighlighting::Component::STR_LITERAL, 36 },
     { SyntaxHighlighting::Component::PREPROCESSOR, 166 },
+    { SyntaxHighlighting::Component::CONSTANT, 32 },
     { SyntaxHighlighting::Component::NO_HIGHLIGHT, COLOR_WHITE },
     { SyntaxHighlighting::Component::WHITESPACE, COLOR_WHITE },
     { SyntaxHighlighting::Component::IDENTIFIER, COLOR_WHITE }

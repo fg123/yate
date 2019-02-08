@@ -36,6 +36,14 @@ ColNumber GenericSyntax::match(Component component, std::string &input,
       }
       break;
     }
+    case Component::CONSTANT: {
+      // All caps
+      while (start < input.size() &&
+             (std::isupper(input[start]) || input[start] == '_')) {
+        start++;
+      }
+      break;
+    }
     case Component::KEYWORD: {
       for (auto keyword : generic_keywords) {
         if (startsWithWordBoundary(keyword, actual)) {
