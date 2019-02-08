@@ -69,6 +69,18 @@ bool Editor::inSelection(LineNumber line, ColNumber col) {
   return location >= from && location <= to;
 }
 
+ColNumber Editor::getActualColPosition() {
+  ColNumber col = current_col;
+  std::string& line = buffer->getLine(current_line);
+  for (uint i = 0; i < current_col; i++) {
+    if (line.at(i) == '\t') {
+      // Minus one because the tab character itself counts too
+      col += yate.config.getTabSize() - 1;
+    }
+  }
+  return col;
+}
+
 // TODO(felixguo): Handle line wrapping?
 void Editor::draw() {
   Logging::breadcrumb("Editor Draw");
@@ -83,12 +95,13 @@ void Editor::draw() {
     window_start_line = current_line - (height - 2);
   }
 
-  if (window_start_col > current_col) {
-    window_start_col = current_col;
+  ColNumber actual_col = getActualColPosition();
+  if (window_start_col > actual_col) {
+    window_start_col = actual_col;
   }
 
-  if (window_start_col + width - field_width - 2 < current_col) {
-    window_start_col = current_col - (width - field_width - 2);
+  if (window_start_col + width - field_width - 2 < actual_col) {
+    window_start_col = actual_col - (width - field_width - 2);
   }
   BufferWindow content_window = buffer->getBufferWindow(
       window_start_line, window_start_line + height - 1);
@@ -149,16 +162,18 @@ int Editor::capture() {
   draw();
   curs_set(1);
   int line_number_width = buffer->getLineNumberFieldWidth() + 2;
-  int col = current_col;
-  std::string& line = buffer->getLine(current_line);
-  for (uint i = 0; i < current_col; i++) {
-    if (line.at(i) == '\t') {
-      // Minus one because the tab character itself counts too
-      col += yate.config.getTabSize() - 1;
-    }
+  int col = getActualColPosition();
+  int capture = mvwgetch(internal_window, current_line - window_start_line,
+                         col + line_number_width - window_start_col);
+  if (capture == ERR) {
+    std::ostringstream s;
+    serialize(s);
+    Logging::error << "Curses ERROR CAPTURE: " << s.str();
+    Logging::error << "Capture location: " << current_line - window_start_line
+                   << ", " << col + line_number_width - window_start_col
+                   << std::endl;
   }
-  return mvwgetch(internal_window, current_line - window_start_line,
-                  col + line_number_width - window_start_col);
+  return capture;
 }
 
 const std::string& Editor::getTitle() { return buffer->getFileName(); }
@@ -184,7 +199,7 @@ void Editor::onKeyPress(int key) {
     case '\n':
     case '\r': {
       buffer->insertCharacter('\n', current_line, current_col);
-      std::string &prev_line = buffer->getLine(current_line - 1);
+      std::string& prev_line = buffer->getLine(current_line - 1);
       ColNumber end = prev_line.find_first_not_of(" \t");
       for (ColNumber i = 0; i < std::min(end, prev_line.size()); i++) {
         buffer->insertCharacter(prev_line[i], current_line, current_col);
@@ -237,8 +252,8 @@ void Editor::onKeyPress(int key) {
       break;
     case ctrl('p'): {
       yate.enterPrompt(new NavigateWindow(
-        yate, (NavigateWindowProvider *)yate.getEditorNavigateProvider(),
-        nullptr));
+          yate, (NavigateWindowProvider*)yate.getEditorNavigateProvider(),
+          nullptr));
       break;
     }
     case ctrl('k'): {
@@ -338,7 +353,8 @@ void Editor::onKeyPress(int key) {
       break;
     case KEY_SHOME:
     case KEY_HOME: {
-      ColNumber desired_col = buffer->getLine(current_line).find_first_not_of(" \t");
+      ColNumber desired_col =
+          buffer->getLine(current_line).find_first_not_of(" \t");
       if (current_col <= desired_col) {
         desired_col = 0;
       }

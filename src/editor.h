@@ -29,6 +29,7 @@ class Editor : public Pane, public Focusable {
   void limitLine();
   void limitCol();
   void init();
+  ColNumber getActualColPosition();
 
   bool inSelection(LineNumber line, ColNumber col);
   void switchBuffer(std::string newPath);
@@ -56,9 +57,7 @@ class Editor : public Pane, public Focusable {
     init();
   }
 
-  ~Editor() {
-    buffer->unregisterEditor(this);
-  }
+  ~Editor() { buffer->unregisterEditor(this); }
 
   void switchBuffer(Buffer *newBuffer);
   void revertBuffer();
