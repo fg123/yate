@@ -239,7 +239,7 @@ void Buffer::insertCharacter(char character, LineNumber& line, ColNumber& col) {
   }
 }
 
-void Buffer::insertString(std::string str, LineNumber &line, ColNumber &col) {
+void Buffer::insertString(std::string& str, LineNumber &line, ColNumber &col) {
   LineNumber orig_l = line;
   ColNumber orig_c = col;
   bool has_newline = false;
@@ -282,7 +282,11 @@ void Buffer::backspace(LineNumber& line, ColNumber& col) {
 }
 
 std::string Buffer::getTextInRange(LineCol from, LineCol to) {
-  /* from < to */
+  if (to < from) {
+    LineCol tmp = from;
+    from = to;
+    to = tmp;
+  }
   LineNumber from_line = std::get<0>(from);
   ColNumber from_col = std::get<1>(from);
   LineNumber to_line = std::get<0>(to);

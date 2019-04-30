@@ -107,6 +107,8 @@ class Editor : public Pane, public Focusable {
     }
     return true;
   }
+
+  void paste(std::string& str);
 };
 
 #endif

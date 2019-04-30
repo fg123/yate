@@ -5,6 +5,7 @@
 #include "navigate-window-provider.h"
 #include "pane-set.h"
 #include "quit-prompt.h"
+#include "paste-prompt.h"
 
 CommandPromptWindow::CommandPromptWindow(Yate &yate, Editor *editor)
     : PromptWindow(yate), editor(editor) {
@@ -33,6 +34,9 @@ CommandPromptWindow::CommandPromptWindow(Yate &yate, Editor *editor)
   items.emplace_back("Edit: Redo", std::function<void()>([editor]() {
                        editor->onKeyPress(ctrl('y'));
                      }));
+  items.emplace_back("Edit: Paste",std::function<void()>([&yate, editor]() {
+        yate.enterPrompt(new PasteWindow(yate, editor));
+      }));
   items.emplace_back("Edit: Find", std::function<void()>([editor]() {
                        editor->onKeyPress(ctrl('f'));
                      }));

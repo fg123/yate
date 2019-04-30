@@ -4,6 +4,7 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <deque>
 
 #include "config.h"
 #include "focusable.h"
@@ -29,7 +30,7 @@ class Yate {
   YateConfig config;
   PaneSet *root;
   std::vector<Buffer *> opened_buffers;
-  std::string clipboard_buffer;
+  std::deque<std::string> clipboard_buffers;
 
   Yate(YateConfig config, std::istream &saved_state);
   Yate(YateConfig config, bool should_save_to_state,

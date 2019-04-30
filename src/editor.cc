@@ -313,6 +313,26 @@ void Editor::onKeyPress(int key) {
               static_cast<void (Editor::*)(std::string)>(&Editor::switchBuffer),
               this, std::placeholders::_1)));
       break;
+    case ctrl('x'):
+    case ctrl('c'): {
+      if (selection_start == NO_SELECTION) {
+        break;
+      }
+      LineCol current = std::make_tuple(current_line, current_col);
+      yate.clipboard_buffers.push_front(buffer->getTextInRange(current, selection_start));
+      // TODO(felixguo): Make this configurable?
+      while (yate.clipboard_buffers.size() > 10) {
+        yate.clipboard_buffers.pop_back();
+      }
+      if (key == ctrl('x')) {
+        onKeyPress(KEY_BACKSPACE);
+      }
+      break;
+    }
+    case ctrl('v'): {
+      paste(yate.clipboard_buffers.front());
+      break;
+    }
     case KEY_CLEFT: {
       TabSet* first = findFirstParent<TabSet>();
       if (first) {
@@ -432,6 +452,13 @@ void Editor::switchBuffer(Buffer* newBuffer) {
   titleUpdated();
   limitLine();
   limitCol();
+}
+
+void Editor::paste(std::string& str) {
+  if (selection_start != NO_SELECTION) {
+    onKeyPress(KEY_BACKSPACE);
+  }
+  buffer->insertString(str, current_line, current_col);
 }
 
 void Editor::onMouseEvent(MEVENT* event) {
