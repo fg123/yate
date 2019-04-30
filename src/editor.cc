@@ -62,10 +62,20 @@ bool Editor::inSelection(LineNumber line, ColNumber col) {
   if (selection_start == NO_SELECTION) {
     return false;
   }
+  // Selection Start is based on buffer position, count how many tabs before
+  //   to get screen location
+  std::string& line_content = buffer->getLine(std::get<0>(selection_start));
+  size_t tab_count = 0;
+  for (size_t i = 0; i < std::get<1>(selection_start); i++) {
+    if (line_content[i] == '\t')
+      tab_count += 1;
+  }
+  LineCol modified_selection_start = selection_start;
+  std::get<1>(modified_selection_start) += tab_count * (yate.config.getTabSize() - 1);
   LineCol location = std::make_tuple(line, col);
-  LineCol cursor = std::make_tuple(current_line, current_col);
-  LineCol from = std::min(cursor, selection_start);
-  LineCol to = std::max(cursor, selection_start);
+  LineCol cursor = std::make_tuple(current_line, getActualColPosition());
+  LineCol from = std::min(cursor, modified_selection_start);
+  LineCol to = std::max(cursor, modified_selection_start);
   return location >= from && location <= to;
 }
 
