@@ -300,7 +300,7 @@ std::string Buffer::getTextInRange(LineCol from, LineCol to) {
   for (LineNumber line = from_line + 1; line < to_line; line++) {
     builder << internal_buffer.at(line) << "\n";
   }
-  builder << internal_buffer.at(to_line).substr(0, to_col + 1);
+  builder << internal_buffer.at(to_line).substr(0, to_col);
   return builder.str();
 }
 
@@ -337,7 +337,7 @@ void Buffer::deleteRange(LineCol from, LineCol to) {
 
   /* Now we handle deletions on the first and last line */
   internal_buffer.at(from_line).erase(from_col);
-  internal_buffer.at(to_line).erase(0, to_col + 1);
+  internal_buffer.at(to_line).erase(0, to_col);
   internal_buffer.at(from_line) += internal_buffer.at(to_line);
   internal_buffer.erase(internal_buffer.begin() + to_line);
 

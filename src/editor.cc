@@ -203,6 +203,14 @@ void Editor::onKeyPress(int key) {
     if (selection_start == NO_SELECTION) {
       selection_start = std::make_tuple(current_line, current_col);
     }
+    if (key == KEY_SLEFT && current_col == 0) {
+      onKeyPress(KEY_SUP);
+      key = KEY_SEND;
+    }
+    if (key == KEY_SRIGHT && current_col == buffer->getLineLength(current_line)) {
+      onKeyPress(KEY_SDOWN);
+      key = KEY_SHOME;
+    }
   }
   switch (key) {
     case KEY_ENTER:
