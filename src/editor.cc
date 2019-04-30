@@ -224,17 +224,19 @@ void Editor::onKeyPress(int key) {
       }
       break;
     }
-    case KEY_STAB:
-    case '\t':
-      if (yate.config.getIndentationStyle() ==
-          YateConfig::IndentationStyle::TAB) {
-        buffer->insertCharacter('\t', current_line, current_col);
-      } else {
-        for (int i = 0; i < yate.config.getTabSize(); i++) {
-          buffer->insertCharacter(' ', current_line, current_col);
+    case '\t': {
+      if (selection_start == NO_SELECTION) {
+        if (yate.config.getIndentationStyle() ==
+            YateConfig::IndentationStyle::TAB) {
+          buffer->insertCharacter('\t', current_line, current_col);
+        } else {
+          for (int i = 0; i < yate.config.getTabSize(); i++) {
+            buffer->insertCharacter(' ', current_line, current_col);
+          }
         }
       }
       break;
+    }
     case KEY_BACKSPACE:
     case 127:
       if (selection_start == NO_SELECTION) {
