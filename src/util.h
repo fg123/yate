@@ -27,12 +27,7 @@
 
 #include <algorithm>
 
-inline bool fuzzy_match(std::string& needle, std::string& haystack) {
-  return std::search(haystack.begin(), haystack.end(), needle.begin(),
-                     needle.end(), [](char ch1, char ch2) {
-                       return std::toupper(ch1) == std::toupper(ch2);
-                     }) != haystack.end();
-}
+bool fuzzy_match(std::string& needle, std::string& haystack);
 
 template <typename T>
 inline T read(std::istream& input) {
