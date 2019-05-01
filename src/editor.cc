@@ -194,6 +194,17 @@ void Editor::goToLine(LineNumber n) {
   limitCol();
 }
 
+void Editor::insertTab(LineNumber line, ColNumber col) {
+  if (yate.config.getIndentationStyle() ==
+      YateConfig::IndentationStyle::TAB) {
+    buffer->insertCharacter('\t', line, col);
+  } else {
+    for (int i = 0; i < yate.config.getTabSize(); i++) {
+      buffer->insertCharacter(' ', line, col);
+    }
+  }
+}
+
 void Editor::onKeyPress(int key) {
   if (key == KEY_UP || key == KEY_DOWN || key == KEY_LEFT || key == KEY_RIGHT ||
       key == KEY_HOME || key == KEY_END) {
@@ -226,13 +237,15 @@ void Editor::onKeyPress(int key) {
     }
     case '\t': {
       if (selection_start == NO_SELECTION) {
-        if (yate.config.getIndentationStyle() ==
-            YateConfig::IndentationStyle::TAB) {
-          buffer->insertCharacter('\t', current_line, current_col);
-        } else {
-          for (int i = 0; i < yate.config.getTabSize(); i++) {
-            buffer->insertCharacter(' ', current_line, current_col);
-          }
+        insertTab(current_line, current_col);
+      }
+      else {
+        LineNumber start = std::min(std::get<0>(selection_start),
+          current_line);
+        LineNumber end = std::max(std::get<0>(selection_start),
+          current_line);
+        for (LineNumber i = start; i <= end; i++) {
+          insertTab(i, 0);
         }
       }
       break;

@@ -109,6 +109,7 @@ class Editor : public Pane, public Focusable {
   }
 
   void paste(std::string& str);
+  void insertTab(LineNumber line, ColNumber col);
 };
 
 #endif
