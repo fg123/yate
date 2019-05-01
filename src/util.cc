@@ -27,6 +27,7 @@ bool fuzzy_match(std::string& needle, std::string& haystack) {
       }
       last_failure_array[i] = k;
     }
+    last_matched_string = needle;
   }
 
   for (size_t i = 0, k = 0; i < haystack.size(); ++i) {
