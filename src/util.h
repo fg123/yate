@@ -7,6 +7,9 @@
 #define DEBUG 0
 #endif
 
+#include <string>
+#include <vector>
+
 // Some utility functions / macros
 
 // Mask for ncurses getch keys
