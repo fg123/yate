@@ -188,13 +188,18 @@ int Editor::capture() {
 
 const std::string& Editor::getTitle() { return buffer->getFileName(); }
 
-void Editor::goToLine(LineNumber n) {
+void Editor::goToLine(LineNumber n, bool shouldMoveLineToCenter) {
   current_line = n;
   limitLine();
   limitCol();
+
+  if (shouldMoveLineToCenter) {
+    uint ideal_start = current_line - (height / 2);
+    window_start_line = std::max(ideal_start, (uint)0);
+  }
 }
 
-void Editor::insertTab(LineNumber line, ColNumber col) {
+void Editor::insertTab(LineNumber& line, ColNumber& col) {
   if (yate.config.getIndentationStyle() ==
       YateConfig::IndentationStyle::TAB) {
     buffer->insertCharacter('\t', line, col);
@@ -244,8 +249,11 @@ void Editor::onKeyPress(int key) {
           current_line);
         LineNumber end = std::max(std::get<0>(selection_start),
           current_line);
+        ColNumber zero = 0;
         for (LineNumber i = start; i <= end; i++) {
-          insertTab(i, 0);
+          insertTab(i, zero);
+          // Since insertTab takes reference and modifies it
+          zero = 0;
         }
       }
       break;

@@ -66,7 +66,7 @@ class Editor : public Pane, public Focusable {
   const std::string &getTitle() override;
   Focusable *getCurrentFocus() override { return this; }
   Buffer *getBuffer() { return buffer; }
-  void goToLine(LineNumber n);
+  void goToLine(LineNumber n, bool shouldMoveLineToCenter = true);
 
   int capture() override;
   void onKeyPress(int key) override;
@@ -109,7 +109,7 @@ class Editor : public Pane, public Focusable {
   }
 
   void paste(std::string& str);
-  void insertTab(LineNumber line, ColNumber col);
+  void insertTab(LineNumber& line, ColNumber& col);
 };
 
 #endif
