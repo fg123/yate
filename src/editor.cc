@@ -67,11 +67,11 @@ bool Editor::inSelection(LineNumber line, ColNumber col) {
   std::string& line_content = buffer->getLine(std::get<0>(selection_start));
   size_t tab_count = 0;
   for (size_t i = 0; i < std::get<1>(selection_start); i++) {
-    if (line_content[i] == '\t')
-      tab_count += 1;
+    if (line_content[i] == '\t') tab_count += 1;
   }
   LineCol modified_selection_start = selection_start;
-  std::get<1>(modified_selection_start) += tab_count * (yate.config.getTabSize() - 1);
+  std::get<1>(modified_selection_start) +=
+      tab_count * (yate.config.getTabSize() - 1);
   LineCol location = std::make_tuple(line, col);
   LineCol cursor = std::make_tuple(current_line, getActualColPosition());
   LineCol from = std::min(cursor, modified_selection_start);
@@ -147,9 +147,9 @@ void Editor::draw() {
                       : A_NORMAL;
       auto syntax_color = yate.config.getTheme()->map(
           (SyntaxHighlighting::Component)syntax.at(j));
-      wattron(internal_window, syntax_color);
+      if (yate.should_highlight) wattron(internal_window, syntax_color);
       mvwaddch(internal_window, i, field_width + 1 + j, line.at(j) | flag);
-      wattroff(internal_window, syntax_color);
+      if (yate.should_highlight) wattroff(internal_window, syntax_color);
     }
     i += 1;
   }
@@ -200,8 +200,7 @@ void Editor::goToLine(LineNumber n, bool shouldMoveLineToCenter) {
 }
 
 void Editor::insertTab(LineNumber& line, ColNumber& col) {
-  if (yate.config.getIndentationStyle() ==
-      YateConfig::IndentationStyle::TAB) {
+  if (yate.config.getIndentationStyle() == YateConfig::IndentationStyle::TAB) {
     buffer->insertCharacter('\t', line, col);
   } else {
     for (int i = 0; i < yate.config.getTabSize(); i++) {
@@ -223,7 +222,8 @@ void Editor::onKeyPress(int key) {
       onKeyPress(KEY_SUP);
       key = KEY_SEND;
     }
-    if (key == KEY_SRIGHT && current_col == buffer->getLineLength(current_line)) {
+    if (key == KEY_SRIGHT &&
+        current_col == buffer->getLineLength(current_line)) {
       onKeyPress(KEY_SDOWN);
       key = KEY_SHOME;
     }
@@ -243,12 +243,9 @@ void Editor::onKeyPress(int key) {
     case '\t': {
       if (selection_start == NO_SELECTION) {
         insertTab(current_line, current_col);
-      }
-      else {
-        LineNumber start = std::min(std::get<0>(selection_start),
-          current_line);
-        LineNumber end = std::max(std::get<0>(selection_start),
-          current_line);
+      } else {
+        LineNumber start = std::min(std::get<0>(selection_start), current_line);
+        LineNumber end = std::max(std::get<0>(selection_start), current_line);
         ColNumber zero = 0;
         for (LineNumber i = start; i <= end; i++) {
           insertTab(i, zero);
@@ -350,7 +347,8 @@ void Editor::onKeyPress(int key) {
         break;
       }
       LineCol current = std::make_tuple(current_line, current_col);
-      yate.clipboard_buffers.push_front(buffer->getTextInRange(current, selection_start));
+      yate.clipboard_buffers.push_front(
+          buffer->getTextInRange(current, selection_start));
       // TODO(felixguo): Make this configurable?
       while (yate.clipboard_buffers.size() > 10) {
         yate.clipboard_buffers.pop_back();

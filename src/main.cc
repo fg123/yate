@@ -10,8 +10,8 @@ int usage() {
             << "  [-c|--config configFile]     specify a config file"
             << std::endl
             << "  [-l|--log logFile]           specify log file" << std::endl
-            << "  [-s serializedFile]          specify a saved state"
-            << std::endl
+            << "  [-s serializedFile]          specify a saved state" << std::endl
+            << "  [--no-highlight]             disables syntax highlighting"<< std::endl
             << "  [-h|--help]                  show this message" << std::endl;
   return 1;
 }
@@ -33,6 +33,7 @@ int main(int argc, char *argv[]) {
   std::string log_path;
   std::string saved_state_path;
   bool should_save_to_state = false;
+  bool should_have_syntax_highlight = true;
 
   for (int i = 1; i < argc; i++) {
     std::string arg(argv[i]);
@@ -46,6 +47,8 @@ int main(int argc, char *argv[]) {
       return usage();
     } else if (arg == "--init") {
       should_save_to_state = true;
+    } else if (arg == "--no-highlight") {
+      should_have_syntax_highlight = false;
     } else {
       paths_to_open.push_back(arg);
     }
@@ -67,12 +70,14 @@ int main(int argc, char *argv[]) {
   std::ifstream saved_state(saved_state_path);
   //try {
     if (!paths_to_open.empty()) {
-      Yate yate(config, should_save_to_state, paths_to_open);
+      Yate yate(config, should_have_syntax_highlight, should_save_to_state,
+                paths_to_open);
     } else if (saved_state.good()) {
-      Yate yate(config, saved_state);
+      Yate yate(config, should_have_syntax_highlight, saved_state);
     } else {
       paths_to_open.push_back("Untitled");
-      Yate yate(config, should_save_to_state, paths_to_open);
+      Yate yate(config, should_have_syntax_highlight, should_save_to_state,
+                paths_to_open);
     }
   //}
   // catch (const std::exception &e) {

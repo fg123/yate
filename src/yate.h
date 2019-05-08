@@ -1,10 +1,10 @@
 #ifndef YATE_H
 #define YATE_H
 
+#include <deque>
 #include <functional>
 #include <string>
 #include <vector>
-#include <deque>
 
 #include "config.h"
 #include "focusable.h"
@@ -32,8 +32,9 @@ class Yate {
   std::vector<Buffer *> opened_buffers;
   std::deque<std::string> clipboard_buffers;
 
-  Yate(YateConfig config, std::istream &saved_state);
-  Yate(YateConfig config, bool should_save_to_state,
+  bool should_highlight;
+  Yate(YateConfig config, bool should_highlight, std::istream &saved_state);
+  Yate(YateConfig config, bool should_highlight, bool should_save_to_state,
        std::vector<std::string> &paths_to_open);
   ~Yate();
 

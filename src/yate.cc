@@ -28,14 +28,14 @@ void Yate::refreshAndStartCapture() {
     if (result != ERR) {
       /* Some ncurses capture error */
       onCapture(result);
-    }
-    else {
+    } else {
       safe_exit(3, "Curses capture error!");
     }
   }
 }
 
-Yate::Yate(YateConfig config, std::istream &saved_state) : config(config) {
+Yate::Yate(YateConfig config, bool should_highlight, std::istream &saved_state)
+    : config(config), should_highlight(should_highlight) {
   Logging::breadcrumb("=== Starting Yate ===");
   should_save_to_state = true;
   /* saved_state will start with paneset ... */
@@ -53,10 +53,11 @@ void Yate::serialize(std::ostream &output) {
   output << std::endl;
 }
 
-Yate::Yate(YateConfig config, bool should_save_to_state,
+Yate::Yate(YateConfig config, bool should_highlight, bool should_save_to_state,
            std::vector<std::string> &paths_to_open)
-    : should_save_to_state(should_save_to_state), config(config) {
-
+    : should_save_to_state(should_save_to_state),
+      config(config),
+      should_highlight(should_highlight) {
   Logging::breadcrumb("=== Starting Yate ===");
   root = new PaneSet(*this, nullptr, 0, 0, 1, 1);
   TabSet *tab_set = new TabSet(*this, root, 0, 0, 1, 1, paths_to_open);
