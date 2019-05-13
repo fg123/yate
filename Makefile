@@ -4,7 +4,7 @@ SRC = $(shell find . -name "*.cc")
 OBJ = $(SRC:%.cc=%.o)
 HEADERS = $(shell find . -name "*.h")
 CPPFLAGS += -I $(SRC_DIR) -I $(SRC_DIR)/prompts
-CFLAGS += -g -Wall
+CFLAGS += -g -std=c++11 -Wall
 LDLIBS = -L/usr/lib -lncurses -lstdc++fs
 
 all: main
