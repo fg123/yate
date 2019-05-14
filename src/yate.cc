@@ -5,6 +5,7 @@
 #include <cctype>
 #include <iostream>
 #include <sstream>
+#include <map>
 
 #include "editor-navigate-provider.h"
 #include "editor.h"
@@ -62,6 +63,13 @@ Yate::Yate(YateConfig config, bool should_highlight, bool should_save_to_state,
   root = new PaneSet(*this, nullptr, 0, 0, 1, 1);
   TabSet *tab_set = new TabSet(*this, root, 0, 0, 1, 1, paths_to_open);
   root->addPane(tab_set);
+  // Given paths to open, check if there was config
+  if (!config.wasLoadedFromFile) {
+    // Determine from first opened buffer
+    if (opened_buffers.size() > 0) {
+      determineConfigFromBuffer(opened_buffers[0]);
+    }
+  }
   refreshAndStartCapture();
 }
 
@@ -80,6 +88,63 @@ Yate::~Yate() {
 
   for (auto prompt : prompt_stack) {
     delete prompt;
+  }
+}
+
+void Yate::determineConfigFromBuffer(Buffer *buffer) {
+  Logging::info << "Trying to determine indentation config from buffer: "
+                << buffer->getPath() << std::endl;
+  std::map<int, int> spacing_map;
+  std::tuple<int, int> largest_pair(std::make_tuple(-1, -1));
+  std::tuple<int, int> second_largest_pair(std::make_tuple(-1, -1));
+
+  // 100 lines of source code is probably enough to determine
+  //   indentation.
+  size_t limit = std::min((size_t) 100, buffer->size());
+  for (LineNumber l = 0; l < limit; l++) {
+    std::string &line = buffer->getLine(l);
+    int key = 0;
+    if (line.length() > 0 && line.at(0) == '\t') {
+      key = -1;
+    } else {
+      ColNumber n = 0;
+      while (n < line.length() && line.at(n) == ' ') {
+        n++;
+      }
+      key = n;
+    }
+    if (key == 0) continue;
+    spacing_map[key] += 1;
+    if (key == std::get<0>(largest_pair)) {
+      std::get<1>(largest_pair) = spacing_map[key];
+    } else if (key == std::get<0>(second_largest_pair)) {
+      std::get<1>(second_largest_pair) = spacing_map[key];
+    } else if (spacing_map[key] > std::get<1>(largest_pair)) {
+      second_largest_pair = largest_pair;
+      largest_pair = std::make_tuple(key, spacing_map[key]);
+    } else if (spacing_map[key] > std::get<1>(second_largest_pair)) {
+      second_largest_pair = std::make_tuple(key, spacing_map[key]);
+    }
+  }
+  Logging::info << "Two largest is (" << std::get<0>(largest_pair) << ", "
+                << std::get<1>(largest_pair) << ") and ("
+                << std::get<0>(second_largest_pair) << ", "
+                << std::get<1>(second_largest_pair) << ")" << std::endl;
+  if (std::get<0>(largest_pair) == -1) {
+    Logging::info << "Tabs detected as most frequent starter." << std::endl;
+    config.setIndentationStyle(YateConfig::IndentationStyle::TAB);
+  } else {
+    Logging::info
+        << "Spaces detected as most frequent. Finding GCD of two largest."
+        << std::endl;
+    config.setIndentationStyle(YateConfig::IndentationStyle::SPACE);
+    int first = std::get<0>(largest_pair);
+    int second = std::get<0>(second_largest_pair);
+    if (first > 0 && second > 0) {
+      config.setTabSize(std::__gcd(first, second));
+    } else {
+      config.setTabSize(first);
+    }
   }
 }
 

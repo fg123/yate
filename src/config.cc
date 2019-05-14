@@ -11,9 +11,11 @@ static bool trim_trailing_whitespace;
 YateConfig::YateConfig(std::string path) {
   try {
     internal_config = cpptoml::parse_file(path);
+    wasLoadedFromFile = true;
   } catch (cpptoml::parse_exception e) {
     Logging::error << "Error parsing config TOML!" << std::endl;
     internal_config = cpptoml::make_table();
+    wasLoadedFromFile = false;
   }
 
   tab_size = internal_config->get_as<int>("tab_size").value_or(4);
@@ -30,6 +32,9 @@ YateConfig::~YateConfig() {
 }
 
 int YateConfig::getTabSize() const { return tab_size; }
+void YateConfig::setTabSize(int size) { tab_size = size;  }
+
+void YateConfig::setIndentationStyle(YateConfig::IndentationStyle style) { indentation_style = style; }
 
 bool YateConfig::shouldTrimTrailingWhitespace() const {
   return trim_trailing_whitespace;
@@ -40,6 +45,7 @@ YateConfig::IndentationStyle YateConfig::getIndentationStyle() const {
 }
 
 Theme *YateConfig::getTheme() const { return theme; }
+
 std::ostream &operator<<(std::ostream &output,
                          YateConfig::IndentationStyle style) {
   output << ((style == YateConfig::IndentationStyle::TAB) ? "Tabs" : "Spaces");

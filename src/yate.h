@@ -43,7 +43,7 @@ class Yate {
   Buffer *getBuffer(std::string path);
   bool isCurrentFocus(Focusable *focus) { return getCurrentFocus() == focus; }
   void enterPrompt(PromptWindow *window) { prompt_stack.push_back(window); }
-
+  void determineConfigFromBuffer(Buffer *buffer);
   EditorNavigateProvider *getEditorNavigateProvider();
 
   void quit();
