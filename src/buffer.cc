@@ -63,6 +63,9 @@ Buffer::Buffer(Yate& yate, std::string path)
     while (std::getline(file, line)) {
       internal_buffer.push_back(line);
     }
+    if (internal_buffer.empty()) {
+      internal_buffer.push_back("");
+    }
   } else {
     internal_buffer.push_back("");
   }
