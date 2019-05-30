@@ -209,6 +209,16 @@ void Editor::insertTab(LineNumber& line, ColNumber& col) {
   }
 }
 
+void Editor::deleteSelection() {
+  if (selection_start == NO_SELECTION) return;
+  LineCol current = std::make_tuple(current_line, current_col);
+  buffer->deleteRange(current, selection_start);
+  current = std::min(selection_start, current);
+  current_line = std::get<0>(current);
+  current_col = std::get<1>(current);
+  selection_start = NO_SELECTION;
+}
+
 void Editor::onKeyPress(int key) {
   if (key == KEY_UP || key == KEY_DOWN || key == KEY_LEFT || key == KEY_RIGHT ||
       key == KEY_HOME || key == KEY_END) {
@@ -232,6 +242,10 @@ void Editor::onKeyPress(int key) {
     case KEY_ENTER:
     case '\n':
     case '\r': {
+      if (selection_start != NO_SELECTION) {
+        // Delete selection if we type during selection
+        deleteSelection();
+      }
       buffer->insertCharacter('\n', current_line, current_col);
       std::string& prev_line = buffer->getLine(current_line - 1);
       ColNumber end = prev_line.find_first_not_of(" \t");
@@ -260,24 +274,14 @@ void Editor::onKeyPress(int key) {
       if (selection_start == NO_SELECTION) {
         buffer->backspace(current_line, current_col);
       } else {
-        LineCol current = std::make_tuple(current_line, current_col);
-        buffer->deleteRange(current, selection_start);
-        current = std::min(selection_start, current);
-        current_line = std::get<0>(current);
-        current_col = std::get<1>(current);
-        selection_start = NO_SELECTION;
+        deleteSelection();
       }
       break;
     case KEY_DC:
       if (selection_start == NO_SELECTION) {
         buffer->_delete(current_line, current_col);
       } else {
-        LineCol current = std::make_tuple(current_line, current_col);
-        buffer->deleteRange(current, selection_start);
-        current = std::min(selection_start, current);
-        current_line = std::get<0>(current);
-        current_col = std::get<1>(current);
-        selection_start = NO_SELECTION;
+        deleteSelection();
       }
       break;
     case ctrl('f'): {
@@ -354,7 +358,7 @@ void Editor::onKeyPress(int key) {
         yate.clipboard_buffers.pop_back();
       }
       if (key == ctrl('x')) {
-        onKeyPress(KEY_BACKSPACE);
+        deleteSelection();
       }
       break;
     }
@@ -433,6 +437,9 @@ void Editor::onKeyPress(int key) {
       break;
   }
   if (std::isprint(key)) {
+    if (selection_start != NO_SELECTION) {
+      deleteSelection();
+    }
     buffer->insertCharacter(key, current_line, current_col);
   }
   limitLine();
@@ -484,9 +491,7 @@ void Editor::switchBuffer(Buffer* newBuffer) {
 }
 
 void Editor::paste(std::string& str) {
-  if (selection_start != NO_SELECTION) {
-    onKeyPress(KEY_BACKSPACE);
-  }
+  deleteSelection();
   buffer->insertString(str, current_line, current_col);
 }
 
