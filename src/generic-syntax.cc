@@ -24,8 +24,13 @@ ColNumber GenericSyntax::match(Component component, std::string &input,
   std::string actual = input.substr(start);
   switch (component) {
     case Component::COMMENT: {
-      if (startsWith("//", actual) || startsWith("#", actual)) {
+      if (startsWith("//", actual)) {
         start = input.size();
+      }
+      if (startsWith("#", actual)) {
+        if (actual.length() < 2 || std::isspace(actual[1])) {
+          start = input.size();
+        }
       }
       break;
     }
