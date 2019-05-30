@@ -85,6 +85,17 @@ ColNumber GenericSyntax::match(Component component, std::string &input,
         }
         /* Consume ending quote */
         start++;
+      } else if (input[start] == '<') {
+        ColNumber pendingEnd = start + 1;
+
+        while (pendingEnd < input.size() && input[pendingEnd] != '>') {
+          if (std::isspace(input[pendingEnd])) break;
+          pendingEnd++;
+        }
+
+        if (input[pendingEnd] == '>') {
+          start = pendingEnd + 1;
+        }
       }
       break;
     }
