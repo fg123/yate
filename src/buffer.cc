@@ -458,7 +458,23 @@ void Buffer::apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col) {
   }
 }
 
-void Buffer::undo(LineNumber& line, ColNumber& col) {
+void Buffer::fastTravel(EditNode *location, LineNumber &line, ColNumber &col) {
+  std::vector<EditNode *> destinationParents;
+  std::vector<EditNode *> currentParents;
+
+  EditNode* curr = location;
+  while (curr->prev) {
+    destinationParents.push_back(curr);
+    curr = curr->prev;
+  }
+  curr = currentEdit;
+  while (curr->prev) {
+    currentParents.push_back(curr);
+    curr = curr->prev;
+  }
+}
+
+void Buffer::undo_no_highlight(LineNumber& line, ColNumber& col) {
   if (current_edit->prev) {
     // Apply opposite of current_edit
     if (current_edit->type == EditNode::Type::REVERT) {
@@ -479,12 +495,23 @@ void Buffer::undo(LineNumber& line, ColNumber& col) {
     current_edit = current_edit->prev;
     update_unsaved_marker();
   }
+}
 
+void Buffer::undo(LineNumber &line, ColNumber &col) {
+  undo_no_highlight(line, col);
   // TODO(felixguo): determine which language
   highlight();
 }
 
 void Buffer::apply_redo_step(LineNumber& line, ColNumber& col,
+                             std::vector<EditNode*>::size_type index) {
+  redo_no_highlight(line, col, index);
+
+  // TODO(felixguo): determine which language
+  highlight();
+}
+
+void Buffer::redo_no_highlight(LineNumber& line, ColNumber& col,
                              std::vector<EditNode*>::size_type index) {
   if (index < current_edit->next.size()) {
     current_edit = current_edit->next.at(index);
@@ -494,9 +521,6 @@ void Buffer::apply_redo_step(LineNumber& line, ColNumber& col,
       apply_edit_node(current_edit, line, col);
     }
     update_unsaved_marker();
-
-    // TODO(felixguo): determine which language
-    highlight();
   }
 }
 

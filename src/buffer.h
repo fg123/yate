@@ -9,6 +9,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <map>
 
 // Edits are insertions or deletions.
 // Edits are stored in such a way that by switching the type from one to the
@@ -67,6 +68,9 @@ class Buffer {
   EditNode *head_edit;
   EditNode *last_save;
   EditNode *current_edit;
+
+  std::map<std::string, EditNode*> tags;
+
   void create_edit_boundary(const LineNumber &line, const ColNumber &col);
   void apply_edit_node(EditNode *node, LineNumber &line, ColNumber &col);
   void create_edit_for(EditNode::Type type, std::string content,
@@ -75,6 +79,11 @@ class Buffer {
   char delete_no_history(LineNumber &line, ColNumber &col);
   void apply_redo_step(LineNumber &line, ColNumber &col,
                        std::vector<EditNode *>::size_type index);
+
+  void undo_no_highlight(LineNumber &line, ColNumber &col);
+  void redo_no_highlight(LineNumber &line, ColNumber &col,
+                         std::vector<EditNode *>::size_type index);
+
   void do_revert();
   void update_unsaved_marker();
 
@@ -85,6 +94,8 @@ class Buffer {
   BufferWindow getSyntaxBufferWindow(LineNumber start, LineNumber end);
 
   std::string &getLine(LineNumber line) { return internal_buffer.at(line); }
+  std::map<std::string, EditNode*> &getTags() { return tags; }
+  void fastTravel(EditNode *location, LineNumber &line, ColNumber &col);
 
   void highlight(LineNumber from = 0, LineNumber to = 0);
   const bool hasUnsavedChanges();

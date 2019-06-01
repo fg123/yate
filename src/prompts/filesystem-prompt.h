@@ -33,12 +33,17 @@ class FileSystemWindow : public PromptWindow {
   const std::string &getTitle() override { return title; }
 
   bool match(std::string buffer, size_t index) override {
-    std::string displayValue = directory.getDisplayString(index);
+    std::string displayValue = getItemString(index);
     return fuzzy_match(buffer, displayValue);
   }
 
   const std::string getItemString(size_t index) override {
-    return directory.getDisplayString(index);
+    if (index < directory.size()) {
+      return directory.getDisplayString(index);
+    }
+    else {
+      return "Create File '" + prompt_buffer + "'";
+    }
   }
 
   void onExecute(size_t index) override {
@@ -59,6 +64,9 @@ class FileSystemWindow : public PromptWindow {
         });
       }
     }
+    else if (index >= directory.size()) {
+      finish(directory.getPathWithBase(prompt_buffer));
+    }
     else if (directory.isDirectory(index)) {
       yate.enterPrompt(
           new FileSystemWindow(yate, editor, directory.getPath(index),
@@ -68,7 +76,11 @@ class FileSystemWindow : public PromptWindow {
     }
   }
 
-  const size_t getListSize() { return directory.size(); }
+  const size_t getListSize() {
+    if (prompt_buffer.empty())
+      return directory.size();
+    return directory.size() + 1;
+  }
 };
 
 #endif

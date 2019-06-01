@@ -29,8 +29,9 @@ class Directory {
   inline bool isDirectory(size_t index) {
     return fs::is_directory(path_items.at(index));
   }
-  const int size() { return path_items.size(); }
+  const size_t size() { return path_items.size(); }
   std::string getPath(size_t index) { return path_items.at(index).string(); }
+  std::string getPathWithBase(std::string additional) { return fs::path(path + "/" + additional).string(); }
 };
 
 #endif  // FILESYSTEM_H
