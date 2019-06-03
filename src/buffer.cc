@@ -12,6 +12,7 @@
 #include <iterator>
 #include <string>
 #include <tuple>
+#include <deque>
 
 std::string EditNode::getTypeString() const {
   switch (type) {
@@ -458,19 +459,54 @@ void Buffer::apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col) {
   }
 }
 
+void Buffer::addTag(std::string label, LineNumber &line, ColNumber &col) {
+  tags[label] = current_edit;
+  create_edit_boundary(line, col);
+}
+
 void Buffer::fastTravel(EditNode *location, LineNumber &line, ColNumber &col) {
-  std::vector<EditNode *> destinationParents;
-  std::vector<EditNode *> currentParents;
+  Logging::breadcrumb("Fast Travelling");
+  std::deque<EditNode *> destinationParents;
+  std::deque<EditNode *> currentParents;
 
   EditNode* curr = location;
-  while (curr->prev) {
-    destinationParents.push_back(curr);
+  do {
+    destinationParents.push_front(curr);
     curr = curr->prev;
+  } while (curr);
+  curr = current_edit;
+  do {
+    currentParents.push_front(curr);
+    curr = curr->prev;
+  } while (curr);
+
+  // [0] should have the head-edit / shared
+  if (currentParents[0] != destinationParents[0]) {
+    Logging::error << "Fast travel error, current and destination doesn't share root!" << std::endl;
   }
-  curr = currentEdit;
-  while (curr->prev) {
-    currentParents.push_back(curr);
-    curr = curr->prev;
+
+  Logging::info << "Looking for common parent, current: "
+                << currentParents.size() << " destination: "
+                << destinationParents.size() << std::endl;
+  size_t common_index = 0;
+
+  // First one has to be same.
+  size_t i = 1, j = 1;
+  while (i < currentParents.size() && j < destinationParents.size()) {
+    if (i == j && currentParents[i] == destinationParents[j]) {
+      i++; j++;
+      common_index++;
+    }
+    else {
+      break;
+    }
+  }
+  Logging::info << "Common index " << common_index << std::endl;
+  for (size_t i = currentParents.size() - 1; i > common_index; i--) {
+    undo_no_highlight(line, col);
+  }
+  for (size_t i = common_index + 1; i < destinationParents.size(); i++) {
+    redo_from_node(line, col, destinationParents[i]);
   }
 }
 
@@ -511,15 +547,19 @@ void Buffer::apply_redo_step(LineNumber& line, ColNumber& col,
   highlight();
 }
 
+void Buffer::redo_from_node(LineNumber& line, ColNumber& col, EditNode* node) {
+  current_edit = node;
+  if (current_edit->type == EditNode::Type::REVERT) {
+    do_revert();
+  } else {
+    apply_edit_node(current_edit, line, col);
+  }
+}
+
 void Buffer::redo_no_highlight(LineNumber& line, ColNumber& col,
                              std::vector<EditNode*>::size_type index) {
   if (index < current_edit->next.size()) {
-    current_edit = current_edit->next.at(index);
-    if (current_edit->type == EditNode::Type::REVERT) {
-      do_revert();
-    } else {
-      apply_edit_node(current_edit, line, col);
-    }
+    redo_from_node(line, col, current_edit->next.at(index));
     update_unsaved_marker();
   }
 }

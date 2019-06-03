@@ -77,6 +77,7 @@ class Buffer {
                        const LineNumber &line, const ColNumber &col);
   bool insert_no_history(int character, LineNumber &line, ColNumber &col);
   char delete_no_history(LineNumber &line, ColNumber &col);
+  void redo_from_node(LineNumber &line, ColNumber &col, EditNode* node);
   void apply_redo_step(LineNumber &line, ColNumber &col,
                        std::vector<EditNode *>::size_type index);
 
@@ -95,6 +96,7 @@ class Buffer {
 
   std::string &getLine(LineNumber line) { return internal_buffer.at(line); }
   std::map<std::string, EditNode*> &getTags() { return tags; }
+  void addTag(std::string label, LineNumber &line, ColNumber &col);
   void fastTravel(EditNode *location, LineNumber &line, ColNumber &col);
 
   void highlight(LineNumber from = 0, LineNumber to = 0);

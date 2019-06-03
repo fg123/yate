@@ -7,6 +7,7 @@
 #include "filesystem-prompt.h"
 #include "find-prompt.h"
 #include "goto-line-prompt.h"
+#include "tags-prompt.h"
 #include "tab-set.h"
 #include "util.h"
 
@@ -210,6 +211,14 @@ void Editor::insertTab(LineNumber& line, ColNumber& col) {
   }
 }
 
+void Editor::addTag(std::string label) {
+  buffer->addTag(label, current_line, current_col);
+}
+
+void Editor::fastTravel(EditNode *to) {
+  buffer->fastTravel(to, current_line, current_col);
+}
+
 void Editor::deleteSelection() {
   if (selection_start == NO_SELECTION) return;
   LineCol current = std::make_tuple(current_line, current_col);
@@ -301,6 +310,11 @@ void Editor::onKeyPress(int key) {
     }
     case ctrl('k'): {
       CommandPromptWindow* p = new CommandPromptWindow(yate, this);
+      yate.enterPrompt(p);
+      break;
+    }
+    case ctrl('t'): {
+      TagsPromptWindow* p = new TagsPromptWindow(yate, this);
       yate.enterPrompt(p);
       break;
     }

@@ -68,7 +68,7 @@ int main(int argc, char *argv[]) {
                 << KEY_DOWN << std::endl;
   /* If paths given, we open paths; otherwise we check for saved state */
   std::ifstream saved_state(saved_state_path);
-  //try {
+  try {
     if (!paths_to_open.empty()) {
       Yate yate(config, should_have_syntax_highlight, should_save_to_state,
                 paths_to_open);
@@ -79,12 +79,12 @@ int main(int argc, char *argv[]) {
       Yate yate(config, should_have_syntax_highlight, should_save_to_state,
                 paths_to_open);
     }
-  //}
-  // catch (const std::exception &e) {
-  //  endwin();
-  //  std::cout << e.what() << std::endl;
-  //  throw;
-  //}
+  }
+  catch (...) {
+    Logging::cleanup();
+    endwin();
+    throw;
+  }
   Logging::cleanup();
   /* EndWin here instead of at Yate destructor */
   endwin();
