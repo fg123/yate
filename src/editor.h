@@ -80,7 +80,7 @@ class Editor : public Pane, public Focusable {
     /* Since the root of yate is a PaneSet, we can expect paneset_parent to
      * always be set. In this case there's always a child and we can always
      * split */
-    return 3;
+    return 4;
   }
   std::string getNavigationItem(size_t index) override {
     switch (index) {
@@ -90,6 +90,8 @@ class Editor : public Pane, public Focusable {
         return "Split Vertically";
       case 2:
         return "Split Horizontally";
+      case 3:
+        return "Merge Pane (will destroy this one)";
     }
     return "";
   }
@@ -103,6 +105,9 @@ class Editor : public Pane, public Focusable {
         break;
       case 2:
         paneset_parent->horizontalSplit(paneset_parent_child);
+        break;
+      case 3:
+        paneset_parent->mergePane(paneset_parent_child);
         break;
     }
     return true;

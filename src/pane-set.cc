@@ -41,6 +41,72 @@ void PaneSet::draw() {
   }
 }
 
+void PaneSet::doMerge(Pane *goner, Pane *stayer, SharedEdge edge,
+                      size_t goner_index) {
+  switch (edge) {
+    case SharedEdge::LEFT:
+      // Stayer is on the left of goner
+      stayer->resize(stayer->x, stayer->y, stayer->width + goner->width,
+        stayer->height);
+      break;
+    case SharedEdge::RIGHT:
+      stayer->resize(goner->width, stayer->y,
+        stayer->width + goner->width, stayer->height);
+      break;
+    case SharedEdge::TOP:
+      stayer->resize(stayer->x, stayer->y, stayer->width,
+        stayer->height + goner->height);
+      break;
+    case SharedEdge::BOTTOM:
+      stayer->resize(stayer->x, goner->y, stayer->width,
+        stayer->height + goner->height);
+      break;
+    case SharedEdge::NONE:
+      Logging::error << "DoMerge called on invalid shared edge!" << std::endl;
+      break;
+  }
+  panes.erase(panes.begin() + goner_index);
+  delete goner;
+  focused_pane = stayer;
+}
+
+void PaneSet::mergePane(Pane *child) {
+  // Show prompt for panes that share an edge with child.
+  std::vector<std::pair<Pane*, SharedEdge>> bordering_siblings;
+  size_t goner_index = 0;
+  for (size_t i = 0; i < panes.size(); i++) {
+    Pane* pane = panes[i];
+    if (pane == child) goner_index = i;
+
+    bool same_height = pane->height == child->height;
+    bool same_width = pane->width == child->width;
+    SharedEdge edge = SharedEdge::NONE;
+    if (pane->x + pane->width == child->x && same_height) {
+      edge = SharedEdge::LEFT;
+    }
+    else if (pane->x == child->x + child->width && same_height) {
+      edge = SharedEdge::RIGHT;
+    }
+    else if (pane->y + pane->height == child->y && same_width) {
+      edge = SharedEdge::TOP;
+    }
+    else if (pane->y == child->y + child->height && same_width) {
+      edge = SharedEdge::BOTTOM;
+    }
+    if (edge != SharedEdge::NONE) {
+      bordering_siblings.emplace_back(pane, edge);
+    }
+  }
+  if (bordering_siblings.size() == 1) {
+    doMerge(child, std::get<0>(bordering_siblings[0]),
+      std::get<1>(bordering_siblings[0]), goner_index);
+  }
+  else if (bordering_siblings.size() > 1) {
+    // Prompt window to choose
+
+  }
+}
+
 void PaneSet::verticalSplit(Pane *child) {
   uint full = child->width;
   if (full <= 1) {

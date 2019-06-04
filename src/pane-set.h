@@ -9,6 +9,10 @@
 #include "pane.h"
 #include "yate.h"
 
+enum class SharedEdge {
+  NONE, LEFT, RIGHT, TOP, BOTTOM
+};
+
 class PaneSet : public Pane {
   Yate &yate;
   std::vector<Pane *> panes;
@@ -20,11 +24,14 @@ class PaneSet : public Pane {
   PaneSet(Yate &yate, Pane *parent, int x, int y, int width, int height)
       : Pane(parent, x, y, width, height), yate(yate) {}
   ~PaneSet();
-  // TODO(anyone): Created better interface for proper splitting.
+
   void addPane(Pane *pane);
   void draw();
   void verticalSplit(Pane *child);
   void horizontalSplit(Pane *child);
+  void mergePane(Pane *child);
+  void doMerge(Pane *goner, Pane *stayer, SharedEdge edge, size_t goner_index);
+
   const std::vector<Pane *> &getPanes() { return panes; }
   const std::string &getTitle() { return focused_pane->getTitle(); }
   Focusable *getCurrentFocus() override {
