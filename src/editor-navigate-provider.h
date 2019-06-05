@@ -1,9 +1,6 @@
 #ifndef EDITOR_NAVIGATE_PROVIDER_H
 #define EDITOR_NAVIGATE_PROVIDER_H
 
-#include <iterator>
-#include <set>
-
 #include "editor.h"
 #include "navigate-window-provider.h"
 #include "yate.h"
