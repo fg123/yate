@@ -2,6 +2,7 @@
 #include "editor.h"
 #include "navigate-prompt.h"
 #include "tab-set.h"
+#include "merge-prompt.h"
 
 #include <cmath>
 
@@ -50,7 +51,7 @@ void PaneSet::doMerge(Pane *goner, Pane *stayer, SharedEdge edge,
         stayer->height);
       break;
     case SharedEdge::RIGHT:
-      stayer->resize(goner->width, stayer->y,
+      stayer->resize(goner->x, stayer->y,
         stayer->width + goner->width, stayer->height);
       break;
     case SharedEdge::TOP:
@@ -70,16 +71,17 @@ void PaneSet::doMerge(Pane *goner, Pane *stayer, SharedEdge edge,
   focused_pane = stayer;
 }
 
-void PaneSet::mergePane(Pane *child) {
+void PaneSet::mergePane(Pane *child, NavigateWindow *navigateWindow) {
   // Show prompt for panes that share an edge with child.
+  Logging::breadcrumb("Merge Pane");
   std::vector<std::pair<Pane*, SharedEdge>> bordering_siblings;
   size_t goner_index = 0;
   for (size_t i = 0; i < panes.size(); i++) {
     Pane* pane = panes[i];
     if (pane == child) goner_index = i;
 
-    bool same_height = pane->height == child->height;
-    bool same_width = pane->width == child->width;
+    bool same_height = pane->height == child->height && pane->y == child->y;
+    bool same_width = pane->width == child->width && pane->x == child->x;
     SharedEdge edge = SharedEdge::NONE;
     if (pane->x + pane->width == child->x && same_height) {
       edge = SharedEdge::LEFT;
@@ -97,14 +99,13 @@ void PaneSet::mergePane(Pane *child) {
       bordering_siblings.emplace_back(pane, edge);
     }
   }
-  if (bordering_siblings.size() == 1) {
-    doMerge(child, std::get<0>(bordering_siblings[0]),
-      std::get<1>(bordering_siblings[0]), goner_index);
-  }
-  else if (bordering_siblings.size() > 1) {
+  if (bordering_siblings.size() > 0) {
     // Prompt window to choose
-
+    yate.enterPrompt(new MergePromptWindow(yate, this, child,
+      bordering_siblings, goner_index, navigateWindow));
+    return;
   }
+  navigateWindow->finish();
 }
 
 void PaneSet::verticalSplit(Pane *child) {

@@ -148,6 +148,17 @@ void Yate::determineConfigFromBuffer(Buffer *buffer) {
   }
 }
 
+void Yate::moveEditorToFront(Editor *editor) {
+  if (editor == editors[0]) return;
+  for (size_t i = 1; i < editors.size(); i++) {
+    if (editor == editors[i]) {
+      editors.erase(editors.begin() + i);
+      editors.insert(editors.begin(), editor);
+      break;
+    }
+  }
+}
+
 Focusable *Yate::getCurrentFocus() {
   if (prompt_stack.empty())
     return root->getCurrentFocus();
@@ -202,6 +213,16 @@ void Yate::onCapture(int result) {
   if (result == ctrl('q')) {
     enterPrompt(new QuitPromptWindow(*this));
   }
+}
+
+void Yate::registerEditor(Editor* editor) {
+  editors.push_back(editor);
+}
+
+void Yate::unregisterEditor(Editor* editor) {
+  editors.erase(
+      std::remove(editors.begin(), editors.end(), editor),
+      editors.end());
 }
 
 void Yate::quit() {

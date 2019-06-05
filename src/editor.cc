@@ -37,11 +37,17 @@ static std::string tab_replace(std::string& line, std::string& reference,
 
 void Editor::init() {
   buffer->registerEditor(this);
+  yate.registerEditor(this);
   std::vector<Pane*> parents;
   paneset_parent = findFirstParent<PaneSet>(parents);
   if (!parents.empty()) {
     paneset_parent_child = parents.back();
   }
+}
+
+Editor::~Editor() {
+    yate.unregisterEditor(this);
+    buffer->unregisterEditor(this);
 }
 
 void Editor::revertBuffer() {
@@ -185,6 +191,8 @@ int Editor::capture() {
                    << ", " << col + line_number_width - window_start_col
                    << std::endl;
   }
+
+  yate.moveEditorToFront(this);
   return capture;
 }
 

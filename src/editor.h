@@ -57,7 +57,7 @@ class Editor : public Pane, public Focusable {
     init();
   }
 
-  ~Editor() { buffer->unregisterEditor(this); }
+  ~Editor();
 
   void switchBuffer(Buffer *newBuffer);
   void revertBuffer();
@@ -107,8 +107,12 @@ class Editor : public Pane, public Focusable {
         paneset_parent->horizontalSplit(paneset_parent_child);
         break;
       case 3:
-        paneset_parent->mergePane(paneset_parent_child);
-        break;
+        paneset_parent->mergePane(paneset_parent_child, parent);
+        // MergePane could spawn another prompt window, so we return
+        //   false here so the navigate window tree stays intact.
+        // It is the responsibility of mergePane to call finish on
+        //   the active navigate window.
+        return false;
     }
     return true;
   }

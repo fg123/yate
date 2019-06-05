@@ -18,6 +18,7 @@ class EditorNavigateProvider;
 
 class Yate {
   std::vector<PromptWindow *> prompt_stack;
+
   Focusable *getCurrentFocus();
   bool should_quit = false;
   bool should_save_to_state = false;
@@ -30,6 +31,7 @@ class Yate {
   YateConfig config;
   PaneSet *root;
   std::vector<Buffer *> opened_buffers;
+  std::vector<Editor *> editors;
   std::deque<std::string> clipboard_buffers;
 
   bool should_highlight;
@@ -46,9 +48,14 @@ class Yate {
   void determineConfigFromBuffer(Buffer *buffer);
   EditorNavigateProvider *getEditorNavigateProvider();
 
+  void registerEditor(Editor *editor);
+  void unregisterEditor(Editor *editor);
+
   void quit();
   void exitPrompt();
   void exitPromptThenRun(std::function<void()> function);
+
+  void moveEditorToFront(Editor *editor);
 };
 
 #endif

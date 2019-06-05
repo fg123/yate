@@ -14,6 +14,7 @@ enum class SharedEdge {
 };
 
 class PaneSet : public Pane {
+  friend class MergePromptWindow;
   Yate &yate;
   std::vector<Pane *> panes;
 
@@ -29,7 +30,7 @@ class PaneSet : public Pane {
   void draw();
   void verticalSplit(Pane *child);
   void horizontalSplit(Pane *child);
-  void mergePane(Pane *child);
+  void mergePane(Pane *child, NavigateWindow *navigateWindow);
   void doMerge(Pane *goner, Pane *stayer, SharedEdge edge, size_t goner_index);
 
   const std::vector<Pane *> &getPanes() { return panes; }
