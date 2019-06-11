@@ -523,22 +523,26 @@ void Editor::onMouseEvent(MEVENT* event) {
     if (!yate.isCurrentFocus(this)) {
       focusRequested(this);
     }
-    current_line = (event->y - y) + window_start_line;
-    current_col = (event->x - x) - (buffer->getLineNumberFieldWidth() + 2) +
-                  window_start_col;
-    /* Count tabs before click point */
-    limitLine();
-    std::string line = buffer->getLine(current_line);
-    for (ColNumber i = 0; i < std::min(current_col, line.size()); i++) {
-      if (line.at(i) == '\t') {
-        if (current_col < i + yate.config.getTabSize()) {
-          current_col = i;
-        } else {
-          current_col -= (yate.config.getTabSize() - 1);
+    else {
+      selection_start = NO_SELECTION;
+
+      current_line = (event->y - y) + window_start_line;
+      current_col = (event->x - x) - (buffer->getLineNumberFieldWidth() + 2) +
+                    window_start_col;
+      /* Count tabs before click point */
+      limitLine();
+      std::string line = buffer->getLine(current_line);
+      for (ColNumber i = 0; i < std::min(current_col, line.size()); i++) {
+        if (line.at(i) == '\t') {
+          if (current_col < i + yate.config.getTabSize()) {
+            current_col = i;
+          } else {
+            current_col -= (yate.config.getTabSize() - 1);
+          }
         }
       }
+      limitCol();
     }
-    limitCol();
   }
   // } else if (event->bstate & BUTTON4_PRESSED) {
   //   Logging::info << "Here" << std::endl;
