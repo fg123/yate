@@ -386,7 +386,9 @@ void Editor::onKeyPress(int key) {
       break;
     }
     case ctrl('v'): {
-      paste(yate.clipboard_buffers.front());
+      if (yate.clipboard_buffers.size() > 0) {
+        paste(yate.clipboard_buffers.front());
+      }
       break;
     }
     case KEY_CLEFT: {
