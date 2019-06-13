@@ -44,8 +44,8 @@ void highlight(Syntax *syntax, std::vector<std::string> &input,
 
 class Syntax {
  public:
-  virtual ColNumber match(SyntaxHighlighting::Component component,
-                          std::string &input, ColNumber start) = 0;
+  virtual LineCol match(SyntaxHighlighting::Component component,
+                          std::vector<std::string> &input, LineCol start) = 0;
 };
 
 namespace std {

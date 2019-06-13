@@ -21,6 +21,9 @@ using LineNumber = std::vector<std::string>::size_type;
 using ColNumber = std::string::size_type;
 using LineCol = std::tuple<LineNumber, ColNumber>;
 
+#define LINE(linecol) std::get<0>(linecol)
+#define COL(linecol) std::get<1>(linecol)
+
 struct EditNode {
   EditNode() {}
   ~EditNode() {

@@ -19,74 +19,77 @@ std::vector<std::string> generic_keywords = { "alignas", "alignof", "and", "and_
 "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile",
 "wchar_t", "while", "xor", "xor_eq", "override", "final" };
 // clang-format on
-ColNumber GenericSyntax::match(Component component, std::string &input,
-                               ColNumber start) {
-  std::string actual = input.substr(start);
+LineCol GenericSyntax::match(Component component,
+                             std::vector<std::string> &document,
+                             LineCol start) {
+  std::string input = document.at(LINE(start));
+  std::string actual = input.substr(COL(start));
   switch (component) {
     case Component::COMMENT: {
       if (startsWith("//", actual)) {
-        start = input.size();
+        COL(start) = input.size();
       }
       if (startsWith("#", actual)) {
         if (actual.length() < 2 || std::isspace(actual[1])) {
-          start = input.size();
+          COL(start) = input.size();
         }
       }
       break;
     }
     case Component::IDENTIFIER: {
-      while (start < input.size() &&
-             (std::isalnum(input[start]) || input[start] == '_')) {
-        start++;
+      while (COL(start) < input.size() &&
+             (std::isalnum(input[COL(start)]) || input[COL(start)] == '_')) {
+        COL(start)++;
       }
       break;
     }
     case Component::CONSTANT: {
       // All caps
-      while (start < input.size() &&
-             (std::isupper(input[start]) || input[start] == '_')) {
-        start++;
+      while (COL(start) < input.size() &&
+             (std::isupper(input[COL(start)]) || input[COL(start)] == '_')) {
+        COL(start)++;
       }
       break;
     }
     case Component::KEYWORD: {
       for (auto keyword : generic_keywords) {
         if (startsWithWordBoundary(keyword, actual)) {
-          return start + keyword.size();
+          COL(start) += keyword.size();
+          return start;
         }
       }
       break;
     }
     case Component::PREPROCESSOR:
       if (startsWith("#", actual)) {
-        while (start < input.size() && !std::isspace(input[start])) {
-          start++;
+        while (COL(start) < input.size() && !std::isspace(input[COL(start)])) {
+          COL(start)++;
         }
       }
       break;
     case Component::NUM_LITERAL: {
-      while (start < input.size() && std::isdigit(input[start])) {
-        start++;
+      while (COL(start) < input.size() && std::isdigit(input[COL(start)])) {
+        COL(start)++;
       }
       break;
     }
     case Component::STR_LITERAL: {
-      if (input[start] == '"') {
-        start++;
-        while (start < input.size() && input[start] != '"') {
-          start++;
+      if (input[COL(start)] == '"') {
+        COL(start)++;
+        while (COL(start) < input.size() && input[COL(start)] != '"') {
+          COL(start)++;
         }
         /* Consume ending quote */
-        start++;
-      } else if (input[start] == '\'') {
-        start++;
-        while (start < input.size() && input[start] != '\'') {
-          start++;
+        COL(start)++;
+      } else if (input[COL(start)] == '\'') {
+        COL(start)++;
+        while (COL(start) < input.size() && input[COL(start)] != '\'') {
+          COL(start)++;
         }
         /* Consume ending quote */
-        start++;
-      } else if (input[start] == '<') {
-        ColNumber pendingEnd = start + 1;
+        COL(start)++;
+      } else if (input[COL(start)] == '<') {
+        ColNumber pendingEnd = COL(start) + 1;
 
         while (pendingEnd < input.size() && input[pendingEnd] != '>') {
           if (std::isspace(input[pendingEnd])) break;
@@ -94,20 +97,20 @@ ColNumber GenericSyntax::match(Component component, std::string &input,
         }
 
         if (input[pendingEnd] == '>') {
-          start = pendingEnd + 1;
+          COL(start) = pendingEnd + 1;
         }
       }
       break;
     }
     case Component::WHITESPACE: {
-      while (start < input.size() && std::isspace(input[start])) {
-        start++;
+      while (COL(start) < input.size() && std::isspace(input[COL(start)])) {
+        COL(start)++;
       }
       break;
     }
     default:
     case Component::NO_HIGHLIGHT:
-      start++;
+      COL(start)++;
       break;
   }
   return start;

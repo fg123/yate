@@ -3,6 +3,6 @@
 class GenericSyntax : public Syntax {
  public:
   virtual ~GenericSyntax() {}
-  ColNumber match(SyntaxHighlighting::Component component, std::string &input,
-                  ColNumber start) override;
+  LineCol match(SyntaxHighlighting::Component component,
+                std::vector<std::string> &input, LineCol start) override;
 };
