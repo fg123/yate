@@ -83,7 +83,8 @@ void SyntaxHighlighting::highlight(Syntax *syntax,
       if (syntax->isMultiline(longest_component)) {
         multiline_flags.at(l) = true;
       }
-      for (ColNumber c = COL(start); c < end; c++) {
+      ColNumber col_start = l == LINE(start) ? COL(start) : 0;
+      for (ColNumber c = col_start; c < end; c++) {
         output.at(l).at(c) = (char)longest_component;
       }
     }
