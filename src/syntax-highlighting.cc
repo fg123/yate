@@ -4,6 +4,7 @@
 void SyntaxHighlighting::highlight(Syntax *syntax,
                                    std::vector<std::string> &input,
                                    std::vector<std::string> &output,
+                                   std::vector<bool> &multiline_flags,
                                    LineNumber from, LineNumber to) {
   if (to == 0 || to > input.size()) {
     /* Highlight all if default */
@@ -17,10 +18,29 @@ void SyntaxHighlighting::highlight(Syntax *syntax,
     /* nothing to highlight */
     return;
   }
+  if (from > 0) {
+    if (multiline_flags.at(from - 1)) {
+      while (from > 0 && multiline_flags[from - 1]) {
+        from -= 1;
+      }
+    }
+  }
+  if (to < input.size() - 1) {
+    if (multiline_flags.at(to + 1)) {
+      while (to < input.size() - 1 && multiline_flags[to + 1]) {
+        to += 1;
+      }
+    }
+  }
   Logging::info << "Highlighting from " << from << " to " << to << std::endl;
   for (LineNumber line = from; line < to; line++) {
     std::string empty =
         std::string(input.at(line).size(), (char)Component::NO_HIGHLIGHT);
+    if (multiline_flags.size() <= line) {
+      multiline_flags.push_back(false);
+    } else {
+      multiline_flags[line] = false;
+    }
     if (output.size() <= line) {
       output.push_back(empty);
     } else {
@@ -39,8 +59,6 @@ void SyntaxHighlighting::highlight(Syntax *syntax,
         longest_component = component;
       }
     }
-    Logging::info << "Longest " << LINE(result) << " " << COL(result) << " as "
-                  << (int)longest_component << std::endl;
     if (result == start) {
       /* Could not parse anything! Move pointer to next non-whitespace. */
       while (LINE(result) < input.size() &&
@@ -53,8 +71,18 @@ void SyntaxHighlighting::highlight(Syntax *syntax,
         }
       }
     }
+    if (LINE(result) >= to) {
+      // Too far, move it back
+      LINE(result) = to - 1;
+      COL(result) = input.at(LINE(result)).size();
+    }
     for (LineNumber l = LINE(start); l <= LINE(result); l++) {
-      ColNumber end = std::min(COL(result), input.at(l).size());
+      ColNumber end = l == LINE(result)
+                          ? std::min(COL(result), input.at(l).size())
+                          : input.at(l).size();
+      if (syntax->isMultiline(longest_component)) {
+        multiline_flags.at(l) = true;
+      }
       for (ColNumber c = COL(start); c < end; c++) {
         output.at(l).at(c) = (char)longest_component;
       }

@@ -8,11 +8,11 @@
 #include "yate.h"
 
 #include <algorithm>
+#include <deque>
 #include <fstream>
 #include <iterator>
 #include <string>
 #include <tuple>
-#include <deque>
 
 std::string EditNode::getTypeString() const {
   switch (type) {
@@ -81,7 +81,7 @@ Buffer::Buffer(Yate& yate, std::string path)
 
 Buffer::~Buffer() { delete head_edit; }
 
-void Buffer::revert(LineNumber &line, ColNumber &col) {
+void Buffer::revert(LineNumber& line, ColNumber& col) {
   if (!current_edit->content.empty()) {
     create_edit_boundary(line, col);
   }
@@ -236,14 +236,14 @@ void Buffer::insertCharacter(char character, LineNumber& line, ColNumber& col) {
   ColNumber orig_c = col;
   if (insert_no_history(character, line, col)) {
     create_edit_for(EditNode::Type::INSERTION, std::string(1, character),
-      orig_l, orig_c);
+                    orig_l, orig_c);
     update_unsaved_marker();
 
     highlight(line, character == '\n' ? internal_buffer.size() : line + 1);
   }
 }
 
-void Buffer::insertString(std::string& str, LineNumber &line, ColNumber &col) {
+void Buffer::insertString(std::string& str, LineNumber& line, ColNumber& col) {
   LineNumber orig_l = line;
   ColNumber orig_c = col;
   bool has_newline = false;
@@ -278,8 +278,8 @@ void Buffer::backspace(LineNumber& line, ColNumber& col) {
     internal_buffer[line].erase(col - 1, 1);
     col -= 1;
   }
-  create_edit_for(EditNode::Type::DELETE_BS,
-    std::string(1, deleted_char), line, col);
+  create_edit_for(EditNode::Type::DELETE_BS, std::string(1, deleted_char), line,
+                  col);
   update_unsaved_marker();
 
   highlight(line, highlight_to);
@@ -352,7 +352,8 @@ finish:
 void Buffer::highlight(LineNumber from, LineNumber to) {
   /* TODO(felixguo): only rehighlight parts that matter */
   GenericSyntax* syntax = new GenericSyntax();
-  SyntaxHighlighting::highlight(syntax, internal_buffer, syntax_components, from, to);
+  SyntaxHighlighting::highlight(syntax, internal_buffer, syntax_components,
+                                syntax_has_multiline, from, to);
   delete syntax;
 }
 
@@ -361,8 +362,8 @@ void Buffer::_delete(LineNumber& line, ColNumber& col) {
   ColNumber orig_c = col;
   char deleted_char = delete_no_history(line, col);
   if (deleted_char) {
-    create_edit_for(EditNode::Type::DELETE_DEL,
-      std::string(1, deleted_char), orig_l, orig_c);
+    create_edit_for(EditNode::Type::DELETE_DEL, std::string(1, deleted_char),
+                    orig_l, orig_c);
     highlight(line, deleted_char == '\n' ? internal_buffer.size() : line + 1);
   }
 }
@@ -459,15 +460,15 @@ void Buffer::apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col) {
   }
 }
 
-void Buffer::addTag(std::string label, LineNumber &line, ColNumber &col) {
+void Buffer::addTag(std::string label, LineNumber& line, ColNumber& col) {
   tags[label] = current_edit;
   create_edit_boundary(line, col);
 }
 
-void Buffer::fastTravel(EditNode *location, LineNumber &line, ColNumber &col) {
+void Buffer::fastTravel(EditNode* location, LineNumber& line, ColNumber& col) {
   Logging::breadcrumb("Fast Travelling");
-  std::deque<EditNode *> destinationParents;
-  std::deque<EditNode *> currentParents;
+  std::deque<EditNode*> destinationParents;
+  std::deque<EditNode*> currentParents;
 
   EditNode* curr = location;
   do {
@@ -482,22 +483,24 @@ void Buffer::fastTravel(EditNode *location, LineNumber &line, ColNumber &col) {
 
   // [0] should have the head-edit / shared
   if (currentParents[0] != destinationParents[0]) {
-    Logging::error << "Fast travel error, current and destination doesn't share root!" << std::endl;
+    Logging::error
+        << "Fast travel error, current and destination doesn't share root!"
+        << std::endl;
   }
 
   Logging::info << "Looking for common parent, current: "
-                << currentParents.size() << " destination: "
-                << destinationParents.size() << std::endl;
+                << currentParents.size()
+                << " destination: " << destinationParents.size() << std::endl;
   size_t common_index = 0;
 
   // First one has to be same.
   size_t i = 1, j = 1;
   while (i < currentParents.size() && j < destinationParents.size()) {
     if (i == j && currentParents[i] == destinationParents[j]) {
-      i++; j++;
+      i++;
+      j++;
       common_index++;
-    }
-    else {
+    } else {
       break;
     }
   }
@@ -533,7 +536,7 @@ void Buffer::undo_no_highlight(LineNumber& line, ColNumber& col) {
   }
 }
 
-void Buffer::undo(LineNumber &line, ColNumber &col) {
+void Buffer::undo(LineNumber& line, ColNumber& col) {
   undo_no_highlight(line, col);
   // TODO(felixguo): determine which language
   highlight();
@@ -557,7 +560,7 @@ void Buffer::redo_from_node(LineNumber& line, ColNumber& col, EditNode* node) {
 }
 
 void Buffer::redo_no_highlight(LineNumber& line, ColNumber& col,
-                             std::vector<EditNode*>::size_type index) {
+                               std::vector<EditNode*>::size_type index) {
   if (index < current_edit->next.size()) {
     redo_from_node(line, col, current_edit->next.at(index));
     update_unsaved_marker();

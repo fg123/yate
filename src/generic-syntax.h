@@ -5,4 +5,5 @@ class GenericSyntax : public Syntax {
   virtual ~GenericSyntax() {}
   LineCol match(SyntaxHighlighting::Component component,
                 std::vector<std::string> &input, LineCol start) override;
+  bool isMultiline(SyntaxHighlighting::Component component) override;
 };

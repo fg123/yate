@@ -19,6 +19,11 @@ std::vector<std::string> generic_keywords = { "alignas", "alignof", "and", "and_
 "typeid", "typename", "union", "unsigned", "using", "virtual", "void", "volatile",
 "wchar_t", "while", "xor", "xor_eq", "override", "final" };
 // clang-format on
+
+bool GenericSyntax::isMultiline(SyntaxHighlighting::Component component) {
+  return component == Component::COMMENT;
+}
+
 LineCol GenericSyntax::match(Component component,
                              std::vector<std::string> &document,
                              LineCol start) {
@@ -28,12 +33,35 @@ LineCol GenericSyntax::match(Component component,
     case Component::COMMENT: {
       if (startsWith("//", actual)) {
         COL(start) = input.size();
-      }
-      if (startsWith("#", actual)) {
+      } else if (startsWith("#", actual)) {
         if (actual.length() < 2 || std::isspace(actual[1])) {
           COL(start) = input.size();
         }
+      } else if (startsWith("/*", actual)) {
+        Logging::info << "Multiline comment found at " << LINE(start) << " "
+                      << COL(start) << std::endl;
+        while (LINE(start) < document.size()) {
+          while (COL(start) < document.at(LINE(start)).size()) {
+            Logging::info << "Character is "
+                          << document.at(LINE(start)).at(COL(start))
+                          << std::endl;
+            if (document.at(LINE(start)).at(COL(start)) == '*') {
+              if (COL(start) + 1 < document.at(LINE(start)).size() &&
+                  document.at(LINE(start)).at(COL(start) + 1) == '/') {
+                COL(start) += 2;
+
+                Logging::info << "Multiline comment end at " << LINE(start)
+                              << " " << COL(start) << std::endl;
+                goto done;
+              }
+            }
+            COL(start)++;
+          }
+          COL(start) = 0;
+          LINE(start)++;
+        }
       }
+    done:
       break;
     }
     case Component::IDENTIFIER: {

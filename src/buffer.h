@@ -6,10 +6,10 @@
 // have a path.
 
 #include <cmath>
+#include <map>
 #include <string>
 #include <tuple>
 #include <vector>
-#include <map>
 
 // Edits are insertions or deletions.
 // Edits are stored in such a way that by switching the type from one to the
@@ -65,6 +65,7 @@ class Buffer {
   /* The next two buffers should always be kept in sync */
   std::vector<std::string> internal_buffer;
   std::vector<std::string> syntax_components;
+  std::vector<bool> syntax_has_multiline;
 
   bool has_unsaved_changes = false;
   std::vector<Editor *> registered_editors;
@@ -72,7 +73,7 @@ class Buffer {
   EditNode *last_save;
   EditNode *current_edit;
 
-  std::map<std::string, EditNode*> tags;
+  std::map<std::string, EditNode *> tags;
 
   void create_edit_boundary(const LineNumber &line, const ColNumber &col);
   void apply_edit_node(EditNode *node, LineNumber &line, ColNumber &col);
@@ -80,7 +81,7 @@ class Buffer {
                        const LineNumber &line, const ColNumber &col);
   bool insert_no_history(int character, LineNumber &line, ColNumber &col);
   char delete_no_history(LineNumber &line, ColNumber &col);
-  void redo_from_node(LineNumber &line, ColNumber &col, EditNode* node);
+  void redo_from_node(LineNumber &line, ColNumber &col, EditNode *node);
   void apply_redo_step(LineNumber &line, ColNumber &col,
                        std::vector<EditNode *>::size_type index);
 
@@ -98,7 +99,7 @@ class Buffer {
   BufferWindow getSyntaxBufferWindow(LineNumber start, LineNumber end);
 
   std::string &getLine(LineNumber line) { return internal_buffer.at(line); }
-  std::map<std::string, EditNode*> &getTags() { return tags; }
+  std::map<std::string, EditNode *> &getTags() { return tags; }
   void addTag(std::string label, LineNumber &line, ColNumber &col);
   void fastTravel(EditNode *location, LineNumber &line, ColNumber &col);
 
@@ -107,14 +108,14 @@ class Buffer {
   const std::string &getFileName();
   size_t size();
   std::string &getPath() { return path; }
-  std::vector<Editor *> &getRegisteredEditors() { return registered_editors;  }
+  std::vector<Editor *> &getRegisteredEditors() { return registered_editors; }
   size_t getLineNumberFieldWidth();
   void registerEditor(Editor *editor);
   void unregisterEditor(Editor *editor);
   void updateTitle();
   void setHasUnsavedChanges(bool hasUnsavedChanges);
   void insertCharacter(char character, LineNumber &line, ColNumber &col);
-  void insertString(std::string& str, LineNumber &line, ColNumber &col);
+  void insertString(std::string &str, LineNumber &line, ColNumber &col);
   void backspace(LineNumber &line, ColNumber &col);
   void _delete(LineNumber &line, ColNumber &col);
   void deleteRange(LineCol from, LineCol to);
