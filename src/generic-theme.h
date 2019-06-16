@@ -25,12 +25,12 @@ Color from_hex_string(std::string hex) {
 /* This takes a theme.toml file and creates a theme */
 class GenericTheme : public Theme {
   std::unordered_map<SyntaxHighlighting::Component, int> default_colors = {
-    { SyntaxHighlighting::Component::COMMENT, 242 },
-    { SyntaxHighlighting::Component::KEYWORD, 100 },
-    { SyntaxHighlighting::Component::NUM_LITERAL, 169 },
-    { SyntaxHighlighting::Component::STR_LITERAL, 36 },
-    { SyntaxHighlighting::Component::PREPROCESSOR, 166 },
-    { SyntaxHighlighting::Component::CONSTANT, 32 },
+    { SyntaxHighlighting::Component::COMMENT, 66 },
+    { SyntaxHighlighting::Component::KEYWORD, 97 },
+    { SyntaxHighlighting::Component::NUM_LITERAL, 209 },
+    { SyntaxHighlighting::Component::STR_LITERAL, 107 },
+    { SyntaxHighlighting::Component::PREPROCESSOR, 203 },
+    { SyntaxHighlighting::Component::CONSTANT, 6 },
     { SyntaxHighlighting::Component::NO_HIGHLIGHT, COLOR_WHITE },
     { SyntaxHighlighting::Component::WHITESPACE, COLOR_WHITE },
     { SyntaxHighlighting::Component::IDENTIFIER, COLOR_WHITE }
