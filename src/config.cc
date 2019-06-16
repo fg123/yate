@@ -23,7 +23,7 @@ YateConfig::YateConfig(std::string path) {
                           ->get_as<int>("indentation_style")
                           .value_or(0);
   trim_trailing_whitespace = internal_config->get_as<bool>("trim_trailing_whitespace").value_or(true);
-  theme = new GenericTheme("themes/solarized.toml");
+  theme = new GenericTheme("themes/atlas.toml");
 }
 
 YateConfig::~YateConfig() {
