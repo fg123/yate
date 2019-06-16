@@ -38,20 +38,12 @@ LineCol GenericSyntax::match(Component component,
           COL(start) = input.size();
         }
       } else if (startsWith("/*", actual)) {
-        Logging::info << "Multiline comment found at " << LINE(start) << " "
-                      << COL(start) << std::endl;
         while (LINE(start) < document.size()) {
           while (COL(start) < document.at(LINE(start)).size()) {
-            Logging::info << "Character is "
-                          << document.at(LINE(start)).at(COL(start))
-                          << std::endl;
             if (document.at(LINE(start)).at(COL(start)) == '*') {
               if (COL(start) + 1 < document.at(LINE(start)).size() &&
                   document.at(LINE(start)).at(COL(start) + 1) == '/') {
                 COL(start) += 2;
-
-                Logging::info << "Multiline comment end at " << LINE(start)
-                              << " " << COL(start) << std::endl;
                 goto done;
               }
             }
