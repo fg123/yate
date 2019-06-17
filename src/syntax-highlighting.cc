@@ -18,6 +18,20 @@ void SyntaxHighlighting::highlight(Syntax *syntax,
     /* nothing to highlight */
     return;
   }
+  for (LineNumber line = from; line < to; line++) {
+    std::string empty =
+        std::string(input.at(line).size(), (char)Component::NO_HIGHLIGHT);
+    if (multiline_flags.size() <= line) {
+      multiline_flags.push_back(false);
+    } else {
+      multiline_flags[line] = false;
+    }
+    if (output.size() <= line) {
+      output.push_back(empty);
+    } else {
+      output[line] = empty;
+    }
+  }
   if (from > 0) {
     if (multiline_flags.at(from - 1)) {
       while (from > 0 && multiline_flags[from - 1]) {
@@ -33,20 +47,6 @@ void SyntaxHighlighting::highlight(Syntax *syntax,
     }
   }
   Logging::info << "Highlighting from " << from << " to " << to << std::endl;
-  for (LineNumber line = from; line < to; line++) {
-    std::string empty =
-        std::string(input.at(line).size(), (char)Component::NO_HIGHLIGHT);
-    if (multiline_flags.size() <= line) {
-      multiline_flags.push_back(false);
-    } else {
-      multiline_flags[line] = false;
-    }
-    if (output.size() <= line) {
-      output.push_back(empty);
-    } else {
-      output[line] = empty;
-    }
-  }
   LineCol start = std::make_tuple(from, 0);
   while (LINE(start) < to) {
     /* Try each parse, find longest one */
@@ -71,9 +71,9 @@ void SyntaxHighlighting::highlight(Syntax *syntax,
         }
       }
     }
-    if (LINE(result) >= to) {
+    if (LINE(result) >= input.size()) {
       // Too far, move it back
-      LINE(result) = to - 1;
+      LINE(result) = input.size() - 1;
       COL(result) = input.at(LINE(result)).size();
     }
     for (LineNumber l = LINE(start); l <= LINE(result); l++) {
