@@ -205,7 +205,6 @@ bool Buffer::insert_no_history(int character, LineNumber& line,
                                  (char)character);
     col++;
   }
-  update_unsaved_marker();
   return true;
 }
 
@@ -227,7 +226,6 @@ char Buffer::delete_no_history(LineNumber& line, ColNumber& col) {
     deleted_char = internal_buffer.at(line).at(col);
     internal_buffer.at(line).erase(col, 1);
   }
-  update_unsaved_marker();
   return deleted_char;
 }
 
@@ -365,6 +363,7 @@ void Buffer::_delete(LineNumber& line, ColNumber& col) {
     create_edit_for(EditNode::Type::DELETE_DEL, std::string(1, deleted_char),
                     orig_l, orig_c);
     highlight(line, deleted_char == '\n' ? internal_buffer.size() : line + 1);
+    update_unsaved_marker();
   }
 }
 
@@ -376,10 +375,21 @@ ColNumber Buffer::getLineLength(LineNumber line) {
 void Buffer::create_edit_for(EditNode::Type type, std::string content,
                              const LineNumber& line, const ColNumber& col) {
   // Do we need new edit boundary!?
+  using namespace std::chrono;
+  milliseconds current_time = duration_cast<milliseconds>(
+      system_clock::now().time_since_epoch()
+  );
   if (!current_edit->content.empty()) {
     if (current_edit->type != type) {
       // Different action
       goto new_boundary;
+    }
+    Logging::info << "Time: "
+                  << current_time.count() << " "
+                  << last_modified_time.count()
+                  << std::endl;
+    if (current_time.count() - last_modified_time.count() < 50) {
+      goto perform_edit;
     }
     if (current_edit->content.length() >= 20) {
       // Over the length for a boundary
@@ -425,6 +435,10 @@ perform_edit:
 
 void Buffer::update_unsaved_marker() {
   setHasUnsavedChanges(current_edit != last_save);
+
+  using namespace std::chrono;
+  last_modified_time = duration_cast<milliseconds>(
+      system_clock::now().time_since_epoch());
 }
 
 void Buffer::create_edit_boundary(const LineNumber& line,
@@ -458,6 +472,7 @@ void Buffer::apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col) {
       delete_no_history(line, col);
     }
   }
+  update_unsaved_marker();
 }
 
 void Buffer::addTag(std::string label, LineNumber& line, ColNumber& col) {

@@ -86,7 +86,6 @@ int main(int argc, char *argv[]) {
     throw;
   }
   Logging::cleanup();
-  /* EndWin here instead of at Yate destructor */
   endwin();
   return 0;
 }

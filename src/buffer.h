@@ -10,6 +10,7 @@
 #include <string>
 #include <tuple>
 #include <vector>
+#include <chrono>
 
 // Edits are insertions or deletions.
 // Edits are stored in such a way that by switching the type from one to the
@@ -68,6 +69,7 @@ class Buffer {
   std::vector<bool> syntax_has_multiline;
 
   bool has_unsaved_changes = false;
+  std::chrono::milliseconds last_modified_time;
   std::vector<Editor *> registered_editors;
   EditNode *head_edit;
   EditNode *last_save;
