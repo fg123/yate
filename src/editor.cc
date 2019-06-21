@@ -183,15 +183,6 @@ int Editor::capture() {
   int col = getActualColPosition();
   int capture = mvwgetch(internal_window, current_line - window_start_line,
                          col + line_number_width - window_start_col);
-  if (capture == ERR) {
-    std::ostringstream s;
-    serialize(s);
-    Logging::error << "Curses ERROR CAPTURE: " << s.str();
-    Logging::error << "Capture location: " << current_line - window_start_line
-                   << ", " << col + line_number_width - window_start_col
-                   << std::endl;
-  }
-
   yate.moveEditorToFront(this);
   return capture;
 }

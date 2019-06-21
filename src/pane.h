@@ -58,6 +58,7 @@ struct Pane : public NavigateWindowProvider {
     if (!internal_window) {
       safe_exit(3, "Error allocating internal window!");
     }
+    wtimeout(internal_window, 100);
     keypad(internal_window, true);
   }
 

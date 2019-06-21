@@ -29,8 +29,6 @@ void Yate::refreshAndStartCapture() {
     if (result != ERR) {
       /* Some ncurses capture error */
       onCapture(result);
-    } else {
-      safe_exit(3, "Curses capture error!");
     }
   }
 }
