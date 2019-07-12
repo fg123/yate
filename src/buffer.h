@@ -97,6 +97,9 @@ class Buffer {
  public:
   Buffer(Yate &yate, std::string path);
   ~Buffer();
+
+  bool isInPasteMode;
+
   BufferWindow getBufferWindow(LineNumber start, LineNumber end);
   BufferWindow getSyntaxBufferWindow(LineNumber start, LineNumber end);
 

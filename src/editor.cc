@@ -256,10 +256,12 @@ void Editor::onKeyPress(int key) {
         deleteSelection();
       }
       buffer->insertCharacter('\n', current_line, current_col);
-      std::string& prev_line = buffer->getLine(current_line - 1);
-      ColNumber end = prev_line.find_first_not_of(" \t");
-      for (ColNumber i = 0; i < std::min(end, prev_line.size()); i++) {
-        buffer->insertCharacter(prev_line[i], current_line, current_col);
+      if (!buffer->isInPasteMode) {
+        std::string& prev_line = buffer->getLine(current_line - 1);
+        ColNumber end = prev_line.find_first_not_of(" \t");
+        for (ColNumber i = 0; i < std::min(end, prev_line.size()); i++) {
+          buffer->insertCharacter(prev_line[i], current_line, current_col);
+        }
       }
       break;
     }

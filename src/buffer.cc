@@ -374,6 +374,7 @@ ColNumber Buffer::getLineLength(LineNumber line) {
 
 void Buffer::create_edit_for(EditNode::Type type, std::string content,
                              const LineNumber& line, const ColNumber& col) {
+  isInPasteMode = false;
   // Do we need new edit boundary!?
   using namespace std::chrono;
   milliseconds current_time = duration_cast<milliseconds>(
@@ -384,11 +385,9 @@ void Buffer::create_edit_for(EditNode::Type type, std::string content,
       // Different action
       goto new_boundary;
     }
-    Logging::info << "Time: "
-                  << current_time.count() << " "
-                  << last_modified_time.count()
-                  << std::endl;
     if (current_time.count() - last_modified_time.count() < 50) {
+      // Pasting
+      isInPasteMode = true;
       goto perform_edit;
     }
     if (current_edit->content.length() >= 20) {
