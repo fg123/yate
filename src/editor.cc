@@ -6,6 +6,7 @@
 #include "editor.h"
 #include "filesystem-prompt.h"
 #include "find-prompt.h"
+#include "find-all-prompt.h"
 #include "goto-line-prompt.h"
 #include "tags-prompt.h"
 #include "tab-set.h"
@@ -295,6 +296,12 @@ void Editor::onKeyPress(int key) {
         deleteSelection();
       }
       break;
+    case ctrl('d'): {
+      // find-all
+      FindAllPromptWindow* f = new FindAllPromptWindow(yate);
+      yate.enterPrompt(f);
+      break;
+    }
     case ctrl('f'): {
       FindPromptWindow* f = new FindPromptWindow(yate, this);
       yate.enterPrompt(f);

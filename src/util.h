@@ -30,7 +30,7 @@
 
 #include <algorithm>
 
-bool fuzzy_match(std::string& needle, std::string& haystack);
+bool fuzzy_match(const std::string& needle, const std::string& haystack);
 
 template <typename T>
 inline T read(std::istream& input) {

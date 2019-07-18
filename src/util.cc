@@ -5,7 +5,7 @@
 std::string last_matched_string;
 std::vector<int> last_failure_array;
 
-bool fuzzy_match(std::string& needle, std::string& haystack) {
+bool fuzzy_match(const std::string& needle, const std::string& haystack) {
   // KMP Search Algorithm with:
   // - cached needle failure array
   // - case insensitive
