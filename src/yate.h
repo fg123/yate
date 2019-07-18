@@ -26,6 +26,7 @@ class Yate {
   EditorNavigateProvider *lastEditorNavigateProvider = nullptr;
 
   void refreshAndStartCapture();
+  void draw();
 
  public:
   YateConfig config;

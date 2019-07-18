@@ -20,8 +20,8 @@
 
 void Yate::refreshAndStartCapture() {
   refresh();
-  root->resize(0, 0, COLS, LINES);
-  root->draw();
+  root->resize(0, 0, COLS, LINES - 1);
+  draw();
 
   while (true) {
     if (should_quit) break;
@@ -87,6 +87,14 @@ Yate::~Yate() {
   for (auto prompt : prompt_stack) {
     delete prompt;
   }
+}
+
+void Yate::draw() {
+  root->draw();
+  static std::string bottom_bar = "yate v1.0 (Felix Guo) ";
+  mvaddstr(LINES - 1, std::max(0, (int)(COLS - bottom_bar.size())),
+    bottom_bar.c_str());
+  refresh();
 }
 
 void Yate::determineConfigFromBuffer(Buffer *buffer) {
@@ -195,8 +203,8 @@ void Yate::onCapture(int result) {
   if (result == KEY_RESIZE) {
     Logging::breadcrumb("KEY_RESIZE Hit!");
     refresh();
-    root->resize(0, 0, COLS, LINES);
-    root->draw();
+    root->resize(0, 0, COLS, LINES - 1);
+    draw();
     for (auto prompt : prompt_stack) {
       // Prompts have their own "resize" function
       prompt->onResize();
@@ -237,5 +245,5 @@ void Yate::exitPrompt() {
   PromptWindow *p = prompt_stack.back();
   delete p;
   prompt_stack.pop_back();
-  root->draw();
+  draw();
 }
