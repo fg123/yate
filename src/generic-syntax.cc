@@ -94,6 +94,9 @@ LineCol GenericSyntax::match(Component component,
       break;
     }
     case Component::STR_LITERAL: {
+      if (COL(start) != 0 && std::isalpha(input[COL(start) - 1])) {
+        break;
+      }
       if (input[COL(start)] == '"') {
         COL(start)++;
         while (COL(start) < input.size() && input[COL(start)] != '"') {
