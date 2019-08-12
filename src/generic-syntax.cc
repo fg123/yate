@@ -65,8 +65,10 @@ LineCol GenericSyntax::match(Component component,
     }
     case Component::CONSTANT: {
       // All caps
+      ColNumber s = COL(start);
       while (COL(start) < input.size() &&
-             (std::isupper(input[COL(start)]) || input[COL(start)] == '_')) {
+             (std::isupper(input[COL(start)]) || input[COL(start)] == '_' ||
+             (COL(start) != s && std::isdigit(input[COL(start)])))) {
         COL(start)++;
       }
       break;
