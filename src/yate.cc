@@ -92,6 +92,8 @@ Yate::~Yate() {
 void Yate::draw() {
   root->draw();
   static std::string bottom_bar = "yate v1.0 (Felix Guo) ";
+  move(LINES - 1, 0);
+  clrtoeol();
   mvaddstr(LINES - 1, std::max(0, (int)(COLS - bottom_bar.size())),
     bottom_bar.c_str());
   refresh();
