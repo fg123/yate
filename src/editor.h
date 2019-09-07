@@ -67,6 +67,7 @@ class Editor : public Pane, public Focusable {
   Focusable *getCurrentFocus() override { return this; }
   Buffer *getBuffer() { return buffer; }
   void goToLine(LineNumber n, bool shouldMoveLineToCenter = true);
+  void goToLineCol(LineNumber l, ColNumber c, bool shouldMoveLineToCenter = true);
 
   int capture() override;
   void onKeyPress(int key) override;

@@ -6,11 +6,17 @@ std::string last_matched_string;
 std::vector<int> last_failure_array;
 
 bool fuzzy_match(const std::string& needle, const std::string& haystack) {
+  ColNumber position = 0;
+  return fuzzy_match(needle, haystack, position);
+}
+
+bool fuzzy_match(const std::string& needle, const std::string& haystack, ColNumber& position) {
   // KMP Search Algorithm with:
   // - cached needle failure array
   // - case insensitive
   // - ignores non alphanumerical characteres
   if (needle.empty()) {
+    position = 0;
     return true;
   }
 
@@ -39,9 +45,11 @@ bool fuzzy_match(const std::string& needle, const std::string& haystack) {
       k += 1;
     }
     if (k == needle.size()) {
+      position = i - k + 1;
       return i - k + 1 >= 0;
     }
   }
 
+  position = 0;
   return false;
 }

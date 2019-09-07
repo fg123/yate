@@ -48,7 +48,9 @@ class FindAllPromptWindow : public PromptWindow {
     size_t line = index - limits_map[i];
     Editor *editor = yate.opened_buffers[i]->getRegisteredEditors()[0];
     editor->focusRequested(editor);
-    editor->goToLine(line);
+    ColNumber col;
+    fuzzy_match(prompt_buffer, getLine(index), col);
+    editor->goToLineCol(line, col);
     yate.exitPrompt();
   }
 };

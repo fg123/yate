@@ -9,7 +9,7 @@
 
 #include <string>
 #include <vector>
-
+#include "buffer.h" // for ColNumber
 // Some utility functions / macros
 
 // Mask for ncurses getch keys
@@ -31,6 +31,7 @@
 #include <algorithm>
 
 bool fuzzy_match(const std::string& needle, const std::string& haystack);
+bool fuzzy_match(const std::string& needle, const std::string& haystack, ColNumber &found_position);
 
 template <typename T>
 inline T read(std::istream& input) {

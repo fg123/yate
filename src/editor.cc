@@ -201,6 +201,16 @@ void Editor::goToLine(LineNumber n, bool shouldMoveLineToCenter) {
   }
 }
 
+void Editor::goToLineCol(LineNumber l, ColNumber c, bool shouldMoveLineToCenter) {
+  current_col = c;
+  goToLine(l, shouldMoveLineToCenter);
+
+  if (shouldMoveLineToCenter) {
+    uint ideal_start = current_col - (width / 2);
+    window_start_col = std::max(ideal_start, (uint)0);
+  }
+}
+
 void Editor::insertTab(LineNumber& line, ColNumber& col) {
   if (yate.config.getIndentationStyle() == YateConfig::IndentationStyle::TAB) {
     buffer->insertCharacter('\t', line, col);

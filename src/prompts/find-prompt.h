@@ -26,7 +26,9 @@ class FindPromptWindow : public PromptWindow {
     return buffer->size();
   }
   void onExecute(size_t index) {
-    editor->goToLine(index);
+    ColNumber col;
+    fuzzy_match(prompt_buffer, buffer->getLine(index), col);
+    editor->goToLineCol(index, col);
     yate.exitPrompt();
   }
 };
