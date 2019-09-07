@@ -196,8 +196,8 @@ void Editor::goToLine(LineNumber n, bool shouldMoveLineToCenter) {
   limitCol();
 
   if (shouldMoveLineToCenter) {
-    uint ideal_start = current_line - (height / 2);
-    window_start_line = std::max(ideal_start, (uint)0);
+    int ideal_start = current_line - (height / 2);
+    window_start_line = std::max(ideal_start, 0);
   }
 }
 
@@ -206,8 +206,8 @@ void Editor::goToLineCol(LineNumber l, ColNumber c, bool shouldMoveLineToCenter)
   goToLine(l, shouldMoveLineToCenter);
 
   if (shouldMoveLineToCenter) {
-    uint ideal_start = current_col - (width / 2);
-    window_start_col = std::max(ideal_start, (uint)0);
+    int ideal_start = current_col - (width / 2);
+    window_start_col = std::max(ideal_start, 0);
   }
 }
 
