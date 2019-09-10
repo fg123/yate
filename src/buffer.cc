@@ -1,6 +1,6 @@
 #include "buffer.h"
 #include "editor.h"
-#include "generic-syntax.h"
+#include "syntax-lookup.h"
 #include "logging.h"
 #include "redo-prompt.h"
 #include "syntax-highlighting.h"
@@ -349,10 +349,9 @@ finish:
 
 void Buffer::highlight(LineNumber from, LineNumber to) {
   /* TODO(felixguo): only rehighlight parts that matter */
-  GenericSyntax* syntax = new GenericSyntax();
+  Syntax* syntax = SyntaxHighlighting::Lookup("generic");
   SyntaxHighlighting::highlight(syntax, internal_buffer, syntax_components,
                                 syntax_has_multiline, from, to);
-  delete syntax;
 }
 
 void Buffer::_delete(LineNumber& line, ColNumber& col) {

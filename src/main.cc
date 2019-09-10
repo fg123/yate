@@ -1,6 +1,7 @@
 #include <ncurses.h>
 #include <iostream>
 
+#include "syntax-lookup.h"
 #include "yate.h"
 
 int usage() {
@@ -53,6 +54,7 @@ int main(int argc, char *argv[]) {
       paths_to_open.push_back(arg);
     }
   }
+  SyntaxHighlighting::initLookupMap();
   init_curses();
   if (saved_state_path.empty()) {
     saved_state_path = ".yate";

@@ -5,7 +5,7 @@ OBJ = $(SRC:%.cc=%.o)
 HEADERS = $(shell find . -name "*.h")
 CPPFLAGS += -I $(SRC_DIR) -I $(SRC_DIR)/prompts
 CFLAGS += -g -std=c++11 -Wall
-LDLIBS = -L/usr/lib -lncurses -lstdc++fs
+LDLIBS = -L/usr/lib -lncurses -lstdc++fs -ltinfo
 
 all: main
 
@@ -16,6 +16,8 @@ main: $(OBJ)
 %.o: %.cc $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
+src/syntax-lookup.cc: utils/generate-syntax-lookup
+	utils/generate-syntax-lookup > src/syntax-lookup.cc
 
 .PHONY: all clean
 

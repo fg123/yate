@@ -1,4 +1,4 @@
-#include "generic-syntax.h"
+#include "generic.h"
 
 #include "logging.h"
 #include "util.h"

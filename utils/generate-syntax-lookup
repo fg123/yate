@@ -1,0 +1,27 @@
+#!/bin/bash
+
+syntax_folder="${0%/*}/../src/syntax"
+cd $syntax_folder
+syntaxes=($(basename --suffix=.cc -- *.cc))
+
+echo "#include \"syntax-lookup.h\""
+
+echo "#include <map>"
+echo "#include <string>"
+
+for syntax in $syntaxes; do
+	echo "#include \"syntax/$syntax.h\""
+done
+
+echo "std::map<std::string, Syntax*> SyntaxHighlighting::lookupMap;"
+
+echo "void SyntaxHighlighting::initLookupMap() {"
+
+for syntax in $syntaxes; do
+	echo "    lookupMap[\"$syntax\"] = new ${syntax^^${syntax:0:1}}Syntax();"
+done
+
+echo "}"
+echo "Syntax* SyntaxHighlighting::Lookup(std::string key) {"
+echo "    return lookupMap.at(key);"
+echo "}"
