@@ -1,6 +1,7 @@
 #include "command-prompt.h"
 #include "buffer-select-prompt.h"
 #include "filesystem-prompt.h"
+#include "syntax-prompt.h"
 #include "navigate-prompt.h"
 #include "navigate-window-provider.h"
 #include "pane-set.h"
@@ -39,6 +40,9 @@ CommandPromptWindow::CommandPromptWindow(Yate &yate, Editor *editor)
       }));
   items.emplace_back("Edit: Find", std::function<void()>([editor]() {
                        editor->onKeyPress(ctrl('f'));
+                     }));
+  items.emplace_back("Edit: Choose Syntax", std::function<void()>([&yate, editor]() {
+                        yate.enterPrompt(new SyntaxPromptWindow(yate, editor));
                      }));
   items.emplace_back("Navigate: Tags", std::function<void()>([editor]() {
                        editor->onKeyPress(ctrl('t'));
