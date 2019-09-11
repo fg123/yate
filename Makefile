@@ -16,8 +16,9 @@ main: $(OBJ)
 %.o: %.cc $(HEADERS)
 	$(CXX) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-src/syntax-lookup.cc: utils/generate-syntax-lookup
+src/syntax-lookup.cc: utils/generate-syntax-lookup $(SRC_DIR)/syntax/*.cc
 	utils/generate-syntax-lookup > src/syntax-lookup.cc
+
 
 .PHONY: all clean
 

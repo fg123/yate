@@ -29,6 +29,7 @@ LineCol BashSyntax::match(Component component,
           COL(start) = input.size();
         }
       }
+      break;
     }
     case Component::IDENTIFIER: {
       while (COL(start) < input.size() &&

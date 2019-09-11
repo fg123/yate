@@ -36,6 +36,7 @@ class SyntaxPromptWindow : public PromptWindow {
   }
 
   void onExecute(size_t index) {
+    buffer->setSyntax(syntaxes[index]);
     yate.exitPrompt();
   }
 };

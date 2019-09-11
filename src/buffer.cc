@@ -347,9 +347,14 @@ finish:
   highlight(from_line, internal_buffer.size());
 }
 
+void Buffer::setSyntax(std::string syntax) {
+  syntax_name = syntax;
+  highlight();
+}
+
 void Buffer::highlight(LineNumber from, LineNumber to) {
   /* TODO(felixguo): only rehighlight parts that matter */
-  Syntax* syntax = SyntaxHighlighting::Lookup("generic");
+  Syntax* syntax = SyntaxHighlighting::Lookup(syntax_name);
   SyntaxHighlighting::highlight(syntax, internal_buffer, syntax_components,
                                 syntax_has_multiline, from, to);
 }

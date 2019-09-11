@@ -67,6 +67,7 @@ class Buffer {
   std::vector<std::string> internal_buffer;
   std::vector<std::string> syntax_components;
   std::vector<bool> syntax_has_multiline;
+  std::string syntax_name = "generic";
 
   bool has_unsaved_changes = false;
   std::chrono::milliseconds last_modified_time;
@@ -109,6 +110,7 @@ class Buffer {
   void fastTravel(EditNode *location, LineNumber &line, ColNumber &col);
 
   void highlight(LineNumber from = 0, LineNumber to = 0);
+  void setSyntax(std::string syntax);
   const bool hasUnsavedChanges();
   const std::string &getFileName();
   size_t size();
