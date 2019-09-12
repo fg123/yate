@@ -100,6 +100,7 @@ class Buffer {
   ~Buffer();
 
   bool isInPasteMode;
+  std::string cwd;
 
   BufferWindow getBufferWindow(LineNumber start, LineNumber end);
   BufferWindow getSyntaxBufferWindow(LineNumber start, LineNumber end);

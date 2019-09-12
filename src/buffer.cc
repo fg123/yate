@@ -57,7 +57,24 @@ Buffer::Buffer(Yate& yate, std::string path)
       unsaved_path(" + " + path),
       head_edit(new EditNode()),
       last_save(head_edit),
-      current_edit(head_edit) {
+      current_edit(head_edit),
+      cwd(path) {
+  int i = cwd.size() - 1;
+  for (; i >= 0; i--) {
+    if (cwd[i] == '/') {
+      break;
+    }
+  }
+  if (i < 0) {
+    cwd = '.';
+  }
+  else {
+    cwd = cwd.substr(0, i);
+    if (cwd.empty()) {
+      cwd = '.';
+    }
+  }
+
   std::ifstream file(path);
   if (file.good()) {
     std::string line;

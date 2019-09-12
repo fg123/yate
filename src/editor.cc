@@ -373,7 +373,7 @@ void Editor::onKeyPress(int key) {
     }
     case ctrl('o'):
       yate.enterPrompt(new FileSystemWindow(
-          yate, this, ".", nullptr,
+          yate, this, buffer->cwd, nullptr,
           std::bind(
               static_cast<void (Editor::*)(std::string)>(&Editor::switchBuffer),
               this, std::placeholders::_1)));
