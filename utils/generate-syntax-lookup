@@ -2,7 +2,7 @@
 
 syntax_folder="${0%/*}/../src/syntax"
 cd $syntax_folder
-syntaxes=$(basename --suffix=.cc -- *.cc)
+syntaxes=$(echo *.cc | sed 's/\.cc//g')
 
 echo "#include \"syntax-lookup.h\""
 
