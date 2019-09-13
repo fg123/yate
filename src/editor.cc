@@ -59,11 +59,12 @@ void Editor::revertBuffer() {
 
 std::string Editor::generateStatusBar() {
   std::ostringstream output;
-  output << current_line + 1 << "L " << current_col + 1 << "C "
+  output << current_line + 1 << "/" << buffer->size() << "L "
+         << current_col + 1 << "C "
          << window_start_line << "SL " << window_start_col << "SC "
          << yate.config.getIndentationStyle() << ": "
          << yate.config.getTabSize() << " (" << buffer->getFileName()
-         << ")";
+         << ":" << ")";
   return output.str();
 }
 
