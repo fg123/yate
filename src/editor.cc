@@ -64,7 +64,7 @@ std::string Editor::generateStatusBar() {
          << window_start_line << "SL " << window_start_col << "SC "
          << yate.config.getIndentationStyle() << ": "
          << yate.config.getTabSize() << " (" << buffer->getFileName()
-         << ":" << ")";
+         << ")";
   return output.str();
 }
 
