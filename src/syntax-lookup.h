@@ -10,6 +10,7 @@ namespace SyntaxHighlighting {
     extern std::map<std::string, Syntax*> lookupMap;
 
     void initLookupMap();
-    Syntax* Lookup(std::string key);
+    Syntax* lookup(std::string key);
+    std::string determineSyntax(Buffer *buffer);
 }
 #endif

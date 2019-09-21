@@ -24,6 +24,10 @@ bool GenericSyntax::isMultiline(SyntaxHighlighting::Component component) {
   return component == Component::COMMENT || component == Component::STR_LITERAL;
 }
 
+bool GenericSyntax::matchFile(Buffer* buffer) {
+  return true;
+}
+
 LineCol GenericSyntax::match(Component component,
                              std::vector<std::string> &document,
                              LineCol start) {

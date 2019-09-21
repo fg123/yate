@@ -15,9 +15,19 @@ bool BashSyntax::isMultiline(SyntaxHighlighting::Component component) {
   return component == Component::STR_LITERAL;
 }
 
+bool BashSyntax::matchFile(Buffer* buffer) {
+  if (buffer->size() >= 1) {
+    std::string& firstLine = buffer->getLine(0);
+    if (fuzzy_match("#!", firstLine) &&
+        (fuzzy_match("/bash", firstLine) || fuzzy_match("/sh", firstLine))) {
+      return true;
+    }
+  }
+  return false;
+}
+
 LineCol BashSyntax::match(Component component,
-                          std::vector<std::string> &document,
-                          LineCol start) {
+                          std::vector<std::string>& document, LineCol start) {
   std::string input = document.at(LINE(start));
   std::string actual = input.substr(COL(start));
   switch (component) {
@@ -43,7 +53,7 @@ LineCol BashSyntax::match(Component component,
       ColNumber s = COL(start);
       while (COL(start) < input.size() &&
              (std::isupper(input[COL(start)]) || input[COL(start)] == '_' ||
-             (COL(start) != s && std::isdigit(input[COL(start)])))) {
+              (COL(start) != s && std::isdigit(input[COL(start)])))) {
         COL(start)++;
       }
       break;

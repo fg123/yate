@@ -364,14 +364,21 @@ finish:
   highlight(from_line, internal_buffer.size());
 }
 
+std::string Buffer::getSyntax() const {
+  return syntax_name;
+}
+
 void Buffer::setSyntax(std::string syntax) {
   syntax_name = syntax;
   highlight();
 }
 
 void Buffer::highlight(LineNumber from, LineNumber to) {
-  /* TODO(felixguo): only rehighlight parts that matter */
-  Syntax* syntax = SyntaxHighlighting::Lookup(syntax_name);
+  if (syntax_name.empty()) {
+    // Determine Syntax
+    syntax_name = SyntaxHighlighting::determineSyntax(this);
+  }
+  Syntax* syntax = SyntaxHighlighting::lookup(syntax_name);
   SyntaxHighlighting::highlight(syntax, internal_buffer, syntax_components,
                                 syntax_has_multiline, from, to);
 }
@@ -573,15 +580,12 @@ void Buffer::undo_no_highlight(LineNumber& line, ColNumber& col) {
 
 void Buffer::undo(LineNumber& line, ColNumber& col) {
   undo_no_highlight(line, col);
-  // TODO(felixguo): determine which language
   highlight();
 }
 
 void Buffer::apply_redo_step(LineNumber& line, ColNumber& col,
                              std::vector<EditNode*>::size_type index) {
   redo_no_highlight(line, col, index);
-
-  // TODO(felixguo): determine which language
   highlight();
 }
 

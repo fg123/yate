@@ -1,4 +1,5 @@
 #include <ncurses.h>
+#include <exception>
 #include <iostream>
 
 #include "syntax-lookup.h"
@@ -11,8 +12,10 @@ int usage() {
             << "  [-c|--config configFile]     specify a config file"
             << std::endl
             << "  [-l|--log logFile]           specify log file" << std::endl
-            << "  [-s serializedFile]          specify a saved state" << std::endl
-            << "  [--no-highlight]             disables syntax highlighting"<< std::endl
+            << "  [-s serializedFile]          specify a saved state"
+            << std::endl
+            << "  [--no-highlight]             disables syntax highlighting"
+            << std::endl
             << "  [-h|--help]                  show this message" << std::endl;
   return 1;
 }
@@ -81,11 +84,11 @@ int main(int argc, char *argv[]) {
       Yate yate(config, should_have_syntax_highlight, should_save_to_state,
                 paths_to_open);
     }
-  }
-  catch (...) {
+  } catch (...) {
+    std::exception_ptr p = std::current_exception();
     Logging::cleanup();
     endwin();
-    throw;
+    std::rethrow_exception(p);
   }
   Logging::cleanup();
   endwin();

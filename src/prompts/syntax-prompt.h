@@ -6,14 +6,15 @@
 #include "syntax-lookup.h"
 
 class SyntaxPromptWindow : public PromptWindow {
-  const std::string title = "Choose Syntax:";
+  const std::string title;
 
   Editor *editor;
   Buffer *buffer;
 
   std::vector<std::string> syntaxes;
  public:
-  SyntaxPromptWindow(Yate &yate, Editor *editor) : PromptWindow(yate), editor(editor), buffer(editor->getBuffer()) {
+  SyntaxPromptWindow(Yate &yate, Editor *editor) : PromptWindow(yate), editor(editor),
+      buffer(editor->getBuffer()), title("Choose Syntax (" + buffer->getSyntax() + ")") {
     for (auto syntax : SyntaxHighlighting::lookupMap) {
       syntaxes.push_back(syntax.first);
     }

@@ -14,14 +14,18 @@ for syntax in $syntaxes; do
 done
 
 echo "std::map<std::string, Syntax*> SyntaxHighlighting::lookupMap;"
-
 echo "void SyntaxHighlighting::initLookupMap() {"
-
 for syntax in $syntaxes; do
-	echo "    lookupMap[\"$syntax\"] = new ${syntax^^${syntax:0:1}}Syntax();"
+	echo "    lookupMap[\"$syntax\"] = new ${syntax^^${syntax:0:1}}Syntax;"
 done
-
 echo "}"
-echo "Syntax* SyntaxHighlighting::Lookup(std::string key) {"
+echo "Syntax* SyntaxHighlighting::lookup(std::string key) {"
 echo "    return lookupMap.at(key);"
+echo "}"
+echo "std::string SyntaxHighlighting::determineSyntax(Buffer *buffer) {"
+echo "    for (auto syntax : lookupMap) {"
+echo '      if (syntax.first == "generic") continue;'
+echo "      if (syntax.second->matchFile(buffer)) return syntax.first;"
+echo "    }"
+echo '    return "generic";'
 echo "}"

@@ -48,6 +48,7 @@ class Syntax {
   virtual LineCol match(SyntaxHighlighting::Component component,
                         std::vector<std::string> &input, LineCol start) = 0;
   virtual bool isMultiline(SyntaxHighlighting::Component component) = 0;
+  virtual bool matchFile(Buffer* buffer) = 0;
 };
 
 namespace std {
