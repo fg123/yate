@@ -37,6 +37,8 @@ static std::string tab_replace(std::string& line, std::string& reference,
 }
 
 void Editor::init() {
+  current_node = nullptr;
+
   buffer->registerEditor(this);
   yate.registerEditor(this);
   std::vector<Pane*> parents;
@@ -53,8 +55,7 @@ Editor::~Editor() {
 
 void Editor::revertBuffer() {
   buffer->revert(current_line, current_col);
-  limitLine();
-  limitCol();
+  limitLineCol();
 }
 
 std::string Editor::generateStatusBar() {
@@ -64,7 +65,7 @@ std::string Editor::generateStatusBar() {
          << window_start_line << "SL " << window_start_col << "SC "
          << yate.config.getIndentationStyle() << ": "
          << yate.config.getTabSize() << " (" << buffer->getFileName()
-         << ")";
+         << ":" << current_word << (is_at_end_of_word ? ">" : "") << ")";
   return output.str();
 }
 
@@ -172,6 +173,23 @@ void Editor::draw() {
     char draw = i < bottom_bar.size() ? bottom_bar[i] : ' ';
     mvwaddch(internal_window, height - 1, i, draw | A_REVERSE);
   }
+  size_t maxlen = 0;
+  for (auto str : suggested_complete) {
+    maxlen = std::max(str.size(), maxlen);
+  }
+  for (ColNumber i = 0; i < suggested_complete.size(); i++) {
+    ColNumber j = 0;
+    for (; j < suggested_complete[i].size(); j++) {
+      mvwaddch(internal_window, current_line + 1 + i - window_start_line,
+        field_width + 1 +
+        current_col + 1 + j - window_start_col, suggested_complete[i][j] | A_REVERSE);
+    }
+    for (; j < maxlen; j++) {
+      mvwaddch(internal_window, current_line + 1 + i - window_start_line,
+        field_width + 1 +
+        current_col + 1 + j - window_start_col, ' ' | A_REVERSE);
+    }
+  }
   Logging::breadcrumb("Editor Done");
   wrefresh(internal_window);
 }
@@ -193,8 +211,7 @@ const std::string& Editor::getTitle() { return buffer->getFileName(); }
 
 void Editor::goToLine(LineNumber n, bool shouldMoveLineToCenter) {
   current_line = n;
-  limitLine();
-  limitCol();
+  limitLineCol();
 
   if (shouldMoveLineToCenter) {
     int ideal_start = current_line - (height / 2);
@@ -478,8 +495,16 @@ void Editor::onKeyPress(int key) {
     }
     buffer->insertCharacter(key, current_line, current_col);
   }
-  limitLine();
-  limitCol();
+  limitLineCol();
+  if (is_at_end_of_word && current_node) {
+    suggested_complete = current_node->getSuffixes();
+    for (auto & str : suggested_complete) {
+      str.insert(0, current_word, 0, current_word.size() - 1);
+    }
+  }
+  else {
+    suggested_complete.clear();
+  }
 }
 
 void Editor::updateColWithPhantom() {
@@ -494,14 +519,28 @@ void Editor::updateColWithPhantom() {
   }
 }
 
-void Editor::limitLine() {
+void Editor::invalidate_current_word() {
+  std::string& line = buffer->getLine(current_line);
+  ColNumber start = current_col;
+  ColNumber end = current_col;
+  while (start > 0 && isIdentifierChar(line[start - 1])) {
+    start -= 1;
+  }
+  while (end < line.size() && isIdentifierChar(line[end])) {
+    end += 1;
+  }
+  is_at_end_of_word = end == current_col;
+  current_word = line.substr(start, end - start);
+  current_node = buffer->prefix_trie.getNode(current_word);
+}
+
+// This should be called whenever anything happens to the current
+//   line or col
+void Editor::limitLineCol() {
   if (current_line < 0) current_line = 0;
   if (current_line >= buffer->size()) {
     current_line = buffer->size() - 1;
   }
-}
-
-void Editor::limitCol() {
   if (current_col < 0) current_col = 0;
   if (buffer->getLineLength(current_line) == 0) {
     /* Don't go to case below, since that will underflow
@@ -511,6 +550,13 @@ void Editor::limitCol() {
   } else if (current_col >= buffer->getLineLength(current_line)) {
     current_col = buffer->getLineLength(current_line);
   }
+
+  if (current_word_line != current_line || current_col != current_word_col) {
+    // Invalidate Current Word for SURE
+    invalidate_current_word();
+  }
+  current_word_line = current_line;
+  current_word_col = current_col;
 }
 
 void Editor::switchBuffer(std::string newPath) {
@@ -522,8 +568,7 @@ void Editor::switchBuffer(Buffer* newBuffer) {
   buffer = newBuffer;
   buffer->registerEditor(this);
   titleUpdated();
-  limitLine();
-  limitCol();
+  limitLineCol();
 }
 
 void Editor::paste(std::string& str) {
@@ -543,7 +588,7 @@ void Editor::onMouseEvent(MEVENT* event) {
       current_col = (event->x - x) - (buffer->getLineNumberFieldWidth() + 2) +
                     window_start_col;
       /* Count tabs before click point */
-      limitLine();
+      limitLineCol();
       std::string line = buffer->getLine(current_line);
       for (ColNumber i = 0; i < std::min(current_col, line.size()); i++) {
         if (line.at(i) == '\t') {
@@ -554,7 +599,7 @@ void Editor::onMouseEvent(MEVENT* event) {
           }
         }
       }
-      limitCol();
+      limitLineCol();
     }
   }
   // } else if (event->bstate & BUTTON4_PRESSED) {

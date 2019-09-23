@@ -12,6 +12,8 @@
 #include <vector>
 #include <chrono>
 
+#include "pfxtrie.h"
+
 // Edits are insertions or deletions.
 // Edits are stored in such a way that by switching the type from one to the
 // other, the operation will be reversed.
@@ -101,6 +103,7 @@ class Buffer {
 
   bool isInPasteMode;
   std::string cwd;
+  PrefixTrie prefix_trie;
 
   BufferWindow getBufferWindow(LineNumber start, LineNumber end);
   BufferWindow getSyntaxBufferWindow(LineNumber start, LineNumber end);

@@ -80,6 +80,7 @@ Buffer::Buffer(Yate& yate, std::string path)
     std::string line;
     while (std::getline(file, line)) {
       internal_buffer.push_back(line);
+      prefix_trie.insertWordsFromLine(line);
     }
     if (internal_buffer.empty()) {
       internal_buffer.push_back("");

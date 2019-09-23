@@ -15,6 +15,7 @@ void Logging::init(std::string path) {
 
 void Logging::cleanup() {
   delete Logging::stream;
+  Logging::stream = nullptr;
 }
 
 void Logging::breadcrumb(std::string msg) {

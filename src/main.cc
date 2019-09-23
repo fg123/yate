@@ -84,11 +84,13 @@ int main(int argc, char *argv[]) {
       Yate yate(config, should_have_syntax_highlight, should_save_to_state,
                 paths_to_open);
     }
-  } catch (...) {
+  }
+  catch (...) {
     std::exception_ptr p = std::current_exception();
     Logging::cleanup();
     endwin();
     std::rethrow_exception(p);
+    exit(1);
   }
   Logging::cleanup();
   endwin();

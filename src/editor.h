@@ -26,8 +26,7 @@ class Editor : public Pane, public Focusable {
   // For when you move cursor past an empty line
   ColNumber phantom_col_pos = 0;
   void updateColWithPhantom();
-  void limitLine();
-  void limitCol();
+  void limitLineCol();
   void init();
   ColNumber getActualColPosition();
 
@@ -41,6 +40,18 @@ class Editor : public Pane, public Focusable {
   /* Set to the child of the aforementioned
    * pane_set that holds this instance of the editor */
   Pane *paneset_parent_child = nullptr;
+
+  /* Keeps track of where the "currentWord" was last recorded
+   * and invalidates if needed */
+  LineNumber current_word_line;
+  ColNumber current_word_col;
+  std::string current_word;
+  TrieNode* current_node;
+  bool is_at_end_of_word;
+
+  std::vector<std::string> suggested_complete;
+
+  void invalidate_current_word();
 
  public:
   Editor(Yate &yate, Pane *parent, Buffer *buffer, int x, int y, int width,
