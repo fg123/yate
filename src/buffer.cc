@@ -215,6 +215,7 @@ bool Buffer::insert_no_history(int character, LineNumber& line,
                              internal_buffer[line].substr(col));
       internal_buffer[line].erase(col);
     }
+    syntax_components.insert(syntax_components.begin() + (line + 1), "");
     line++;
     col = 0;
   } else {
@@ -239,6 +240,8 @@ char Buffer::delete_no_history(LineNumber& line, ColNumber& col) {
     internal_buffer[line] += internal_buffer[line + 1];
     internal_buffer.erase(internal_buffer.begin() + line + 1,
                           internal_buffer.begin() + line + 2);
+    syntax_components.erase(syntax_components.begin() + line + 1,
+                            syntax_components.begin() + line + 2);
     deleted_char = '\n';
   } else {
     deleted_char = internal_buffer.at(line).at(col);
@@ -255,7 +258,7 @@ void Buffer::insertCharacter(char character, LineNumber& line, ColNumber& col) {
                     orig_l, orig_c);
     update_unsaved_marker();
 
-    highlight(line, character == '\n' ? internal_buffer.size() : line + 1);
+    highlight(line, character == '\n' ? line + 2 : line + 1);
   }
 }
 
@@ -279,16 +282,16 @@ void Buffer::backspace(LineNumber& line, ColNumber& col) {
   if (col < 0) return;
   if (!col && !line) return;
   char deleted_char;
-  ColNumber highlight_to = line + 1;
   if (col == 0) {
     // Join two lines
     col = internal_buffer[line - 1].length();
     internal_buffer[line - 1] += internal_buffer[line];
     internal_buffer.erase(internal_buffer.begin() + line,
                           internal_buffer.begin() + line + 1);
+    syntax_components.erase(syntax_components.begin() + line,
+                            syntax_components.begin() + line + 1);
     deleted_char = '\n';
     line -= 1;
-    highlight_to = size();
   } else {
     deleted_char = internal_buffer.at(line).at(col - 1);
     internal_buffer[line].erase(col - 1, 1);
@@ -298,7 +301,7 @@ void Buffer::backspace(LineNumber& line, ColNumber& col) {
                   col);
   update_unsaved_marker();
 
-  highlight(line, highlight_to);
+  highlight(deleted_char == '\n' ? line - 1 : line, line + 1);
 }
 
 std::string Buffer::getTextInRange(LineCol from, LineCol to) {
@@ -391,7 +394,7 @@ void Buffer::_delete(LineNumber& line, ColNumber& col) {
   if (deleted_char) {
     create_edit_for(EditNode::Type::DELETE_DEL, std::string(1, deleted_char),
                     orig_l, orig_c);
-    highlight(line, deleted_char == '\n' ? internal_buffer.size() : line + 1);
+    highlight(deleted_char == '\n' ? line - 1 : line, line + 1);
     update_unsaved_marker();
   }
 }
@@ -486,21 +489,30 @@ void Buffer::apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col) {
   // Otherwise extra algorithm / edge cases will have to be developed.
   Logging::info << "Applying edit node: " << static_cast<int>(node->type) << " "
                 << node->content << std::endl;
+  LineNumber start = line;
+  LineNumber end = line;
   if (node->type == EditNode::Type::INSERTION) {
     for (auto c : node->content) {
       insert_no_history(c, line, col);
+      start = std::min(start, line);
+      end = std::min(end, line);
     }
   } else if (node->type == EditNode::Type::REVERT) {
     do_revert();
+    start = 0;
+    end = size();
   } else {
     // Delete
     for (auto c : node->content) {
       UNUSED(c);
       Logging::breadcrumb("Deleting");
       delete_no_history(line, col);
+      start = std::min(start, line);
+      end = std::min(end, line);
     }
   }
   update_unsaved_marker();
+  highlight(start, end);
 }
 
 void Buffer::addTag(std::string label, LineNumber& line, ColNumber& col) {
@@ -549,14 +561,14 @@ void Buffer::fastTravel(EditNode* location, LineNumber& line, ColNumber& col) {
   }
   Logging::info << "Common index " << common_index << std::endl;
   for (size_t i = currentParents.size() - 1; i > common_index; i--) {
-    undo_no_highlight(line, col);
+    undo_highlight(line, col);
   }
   for (size_t i = common_index + 1; i < destinationParents.size(); i++) {
     redo_from_node(line, col, destinationParents[i]);
   }
 }
 
-void Buffer::undo_no_highlight(LineNumber& line, ColNumber& col) {
+void Buffer::undo_highlight(LineNumber& line, ColNumber& col) {
   if (current_edit->prev) {
     // Apply opposite of current_edit
     if (current_edit->type == EditNode::Type::REVERT) {
@@ -580,14 +592,12 @@ void Buffer::undo_no_highlight(LineNumber& line, ColNumber& col) {
 }
 
 void Buffer::undo(LineNumber& line, ColNumber& col) {
-  undo_no_highlight(line, col);
-  highlight();
+  undo_highlight(line, col);
 }
 
 void Buffer::apply_redo_step(LineNumber& line, ColNumber& col,
                              std::vector<EditNode*>::size_type index) {
-  redo_no_highlight(line, col, index);
-  highlight();
+  redo_highlight(line, col, index);
 }
 
 void Buffer::redo_from_node(LineNumber& line, ColNumber& col, EditNode* node) {
@@ -599,7 +609,7 @@ void Buffer::redo_from_node(LineNumber& line, ColNumber& col, EditNode* node) {
   }
 }
 
-void Buffer::redo_no_highlight(LineNumber& line, ColNumber& col,
+void Buffer::redo_highlight(LineNumber& line, ColNumber& col,
                                std::vector<EditNode*>::size_type index) {
   if (index < current_edit->next.size()) {
     redo_from_node(line, col, current_edit->next.at(index));

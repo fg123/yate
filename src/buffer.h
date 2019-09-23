@@ -90,8 +90,8 @@ class Buffer {
   void apply_redo_step(LineNumber &line, ColNumber &col,
                        std::vector<EditNode *>::size_type index);
 
-  void undo_no_highlight(LineNumber &line, ColNumber &col);
-  void redo_no_highlight(LineNumber &line, ColNumber &col,
+  void undo_highlight(LineNumber &line, ColNumber &col);
+  void redo_highlight(LineNumber &line, ColNumber &col,
                          std::vector<EditNode *>::size_type index);
 
   void do_revert();
