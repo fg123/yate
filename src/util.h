@@ -68,6 +68,6 @@ inline bool startsWithWordBoundary(std::string needle, std::string haystack) {
 }
 
 inline bool isIdentifierChar(char c) {
-  return std::isalpha(c) || c == '_' || c == ':';
+  return std::isalpha(c) || c == '_';
 }
 #endif

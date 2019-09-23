@@ -19,6 +19,7 @@
 
 #define KEY_CLEFT 553
 #define KEY_CRIGHT 568
+#define KEY_ESC 27
 
 static std::string tab_replace(std::string& line, std::string& reference,
                                int tab_size, char replace_with = ' ') {
@@ -104,7 +105,6 @@ ColNumber Editor::getActualColPosition() {
 
 // TODO(felixguo): Handle line wrapping?
 void Editor::draw() {
-  Logging::breadcrumb("Editor Draw");
   unsigned int i = 0;
   int field_width = buffer->getLineNumberFieldWidth() + 1;
 
@@ -175,27 +175,27 @@ void Editor::draw() {
   }
   size_t maxlen = 0;
   for (auto str : suggested_complete) {
-    maxlen = std::max(str.size(), maxlen);
+    maxlen = std::max(str.size() + 3, maxlen);
   }
   for (ColNumber i = 0; i < suggested_complete.size(); i++) {
     ColNumber j = 0;
-    for (; j < suggested_complete[i].size(); j++) {
+    std::string line = (i == suggested_complete_index ? "> " : "  ") +
+      suggested_complete[i] + " ";
+    for (; j < line.size(); j++) {
       mvwaddch(internal_window, current_line + 1 + i - window_start_line,
-        field_width + 1 +
-        current_col + 1 + j - window_start_col, suggested_complete[i][j] | A_REVERSE);
+        field_width + 1 + current_col + 1 + j - window_start_col,
+        line[j] | A_REVERSE);
     }
     for (; j < maxlen; j++) {
       mvwaddch(internal_window, current_line + 1 + i - window_start_line,
-        field_width + 1 +
-        current_col + 1 + j - window_start_col, ' ' | A_REVERSE);
+        field_width + 1 + current_col + 1 + j - window_start_col,
+        ' ' | A_REVERSE);
     }
   }
-  Logging::breadcrumb("Editor Done");
   wrefresh(internal_window);
 }
 
 int Editor::capture() {
-  Logging::breadcrumb("Editor Capture Called");
   // capture at correct location
   draw();
   curs_set(1);
@@ -280,6 +280,12 @@ void Editor::onKeyPress(int key) {
     case KEY_ENTER:
     case '\n':
     case '\r': {
+      if (shouldShowAutoComplete()) {
+        std::string insert = suggested_complete[
+          suggested_complete_index].substr(current_word.size());
+        buffer->insertString(insert, current_line, current_col);
+        break;
+      }
       if (selection_start != NO_SELECTION) {
         // Delete selection if we type during selection
         deleteSelection();
@@ -323,6 +329,9 @@ void Editor::onKeyPress(int key) {
       } else {
         deleteSelection();
       }
+      break;
+    case KEY_ESC:
+      suggested_complete.clear();
       break;
     case ctrl('d'): {
       // find-all
@@ -449,6 +458,13 @@ void Editor::onKeyPress(int key) {
       break;
     case KEY_UP:
     case KEY_SUP:
+      if (shouldShowAutoComplete()) {
+        if (suggested_complete_index == 0) {
+          suggested_complete_index = suggested_complete.size();
+        }
+        suggested_complete_index -= 1;
+        break;
+      }
       if (current_line != 0) {
         current_line--;
         updateColWithPhantom();
@@ -459,6 +475,13 @@ void Editor::onKeyPress(int key) {
       break;
     case KEY_DOWN:
     case KEY_SDOWN:
+      if (shouldShowAutoComplete()) {
+        suggested_complete_index += 1;
+        if (suggested_complete_index == suggested_complete.size()) {
+          suggested_complete_index = 0;
+        }
+        break;
+      }
       if (current_line != buffer->size() - 1) {
         current_line++;
         updateColWithPhantom();
@@ -496,8 +519,18 @@ void Editor::onKeyPress(int key) {
     buffer->insertCharacter(key, current_line, current_col);
   }
   limitLineCol();
-  if (is_at_end_of_word && current_node) {
+  Logging::breadcrumb("Before checking suggest");
+  if (is_at_end_of_word &&
+      current_node &&
+      (shouldShowAutoComplete() || std::isprint(key))) {
     suggested_complete = current_node->getSuffixes();
+    if (suggested_complete.size() > 0 &&
+        suggested_complete[0].size() == 1) {
+        suggested_complete.erase(suggested_complete.begin());
+    }
+    if (suggested_complete_index >= suggested_complete.size()) {
+      suggested_complete_index = suggested_complete.size();
+    }
     for (auto & str : suggested_complete) {
       str.insert(0, current_word, 0, current_word.size() - 1);
     }
@@ -505,6 +538,10 @@ void Editor::onKeyPress(int key) {
   else {
     suggested_complete.clear();
   }
+}
+
+bool Editor::shouldShowAutoComplete() {
+  return is_at_end_of_word && current_node && suggested_complete.size() > 0;
 }
 
 void Editor::updateColWithPhantom() {

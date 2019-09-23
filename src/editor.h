@@ -50,6 +50,7 @@ class Editor : public Pane, public Focusable {
   bool is_at_end_of_word;
 
   std::vector<std::string> suggested_complete;
+  size_t suggested_complete_index;
 
   void invalidate_current_word();
 
@@ -79,6 +80,7 @@ class Editor : public Pane, public Focusable {
   Buffer *getBuffer() { return buffer; }
   void goToLine(LineNumber n, bool shouldMoveLineToCenter = true);
   void goToLineCol(LineNumber l, ColNumber c, bool shouldMoveLineToCenter = true);
+  bool shouldShowAutoComplete();
 
   int capture() override;
   void onKeyPress(int key) override;
