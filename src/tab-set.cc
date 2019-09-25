@@ -187,9 +187,11 @@ void TabSet::nextTab() {
 }
 
 void TabSet::prevTab() {
-  selected_tab -= 1;
-  if (selected_tab < 0) {
+  if (selected_tab == 0) {
     selected_tab = tabs.size() - 1;
+  }
+  else {
+    selected_tab -= 1;
   }
   draw();
 }
