@@ -22,9 +22,9 @@ TrieNode::~TrieNode() {
 }
 
 std::vector<std::string> TrieNode::getSuffixes() {
-  if (cached_suffixes.size() > 0) {
-    return cached_suffixes;
-  }
+  //if (cached_suffixes.size() > 0) {
+  //  return cached_suffixes;
+  //}
   std::vector<std::string> results;
   if (children[0] > 0) {
     results.emplace_back(1, val);
@@ -43,7 +43,7 @@ std::vector<std::string> TrieNode::getSuffixes() {
   return results;
 }
 
-PrefixTrie::PrefixTrie() : root (new TrieNode('*', nullptr)) {
+PrefixTrie::PrefixTrie() : root(new TrieNode('*', nullptr)) {
 
 }
 
@@ -58,17 +58,23 @@ void PrefixTrie::insert(const std::string& word) {
 void PrefixTrie::insertWordsFromLine(const std::string& line) {
   TrieNode* curr = root;
   for (size_t i = 0; i < line.size(); i++) {
+    // Dirty
+    curr->cached_suffixes.clear();
     if (!isIdentifierChar(line[i])) {
       // End of word
       // Use pointer storage to store the count
       if (curr != root) {
-        curr->children[0] = (TrieNode*)((size_t) curr->children[0] + 1);
+        // Don't increment for now since we never delete
+        //   anything from the prefix trie
+        curr->children[0] = (TrieNode*) 1;
+          //(TrieNode*)((size_t) curr->children[0] + 1);
       }
       curr = root;
       continue;
     }
     if (!curr->children[(size_t)line[i]]) {
-      curr->children[(size_t)line[i]] = new TrieNode(line[i], curr);
+      curr->children[(size_t)line[i]] =
+        new TrieNode(line[i], curr);
     }
     curr = curr->children[(size_t)line[i]];
   }
@@ -109,5 +115,4 @@ std::vector<std::string> PrefixTrie::getMatchingPrefixes(const std::string& word
   }
   return std::vector<std::string>();
 }
-
 

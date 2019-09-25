@@ -1,9 +1,9 @@
 #include "buffer.h"
 #include "editor.h"
-#include "syntax-lookup.h"
 #include "logging.h"
 #include "redo-prompt.h"
 #include "syntax-highlighting.h"
+#include "syntax-lookup.h"
 #include "util.h"
 #include "yate.h"
 
@@ -67,8 +67,7 @@ Buffer::Buffer(Yate& yate, std::string path)
   }
   if (i < 0) {
     cwd = '.';
-  }
-  else {
+  } else {
     cwd = cwd.substr(0, i);
     if (cwd.empty()) {
       cwd = '.';
@@ -93,7 +92,6 @@ Buffer::Buffer(Yate& yate, std::string path)
   head_edit->prev = nullptr;
 
   /* Highlight buffer */
-  // TODO(felixguo): determine which language
   highlight();
 }
 
@@ -144,8 +142,6 @@ BufferWindow Buffer::getBufferWindow(LineNumber start, LineNumber end) {
 }
 
 bool Buffer::writeToFile(LineNumber line, ColNumber col) {
-  // TODO(anyone): Might be a more efficient way to write this to file
-  // without deleting and rewriting it.
   std::ofstream test_file(path, std::ios::app);
   if (!test_file.good()) return false;
   test_file.close();
@@ -224,6 +220,8 @@ bool Buffer::insert_no_history(int character, LineNumber& line,
                                  (char)character);
     col++;
   }
+  // TODO: this is super simplified
+  prefix_trie.insertWordsFromLine(internal_buffer[line]);
   return true;
 }
 
@@ -258,7 +256,7 @@ void Buffer::insertCharacter(char character, LineNumber& line, ColNumber& col) {
                     orig_l, orig_c);
     update_unsaved_marker();
 
-    highlight(line, character == '\n' ? line + 2 : line + 1);
+    highlight(character == '\n' ? line - 1 : line, line + 1);
   }
 }
 
@@ -368,9 +366,7 @@ finish:
   highlight(from_line, internal_buffer.size());
 }
 
-std::string Buffer::getSyntax() const {
-  return syntax_name;
-}
+std::string Buffer::getSyntax() const { return syntax_name; }
 
 void Buffer::setSyntax(std::string syntax) {
   syntax_name = syntax;
@@ -409,9 +405,8 @@ void Buffer::create_edit_for(EditNode::Type type, std::string content,
   isInPasteMode = false;
   // Do we need new edit boundary!?
   using namespace std::chrono;
-  milliseconds current_time = duration_cast<milliseconds>(
-      system_clock::now().time_since_epoch()
-  );
+  milliseconds current_time =
+      duration_cast<milliseconds>(system_clock::now().time_since_epoch());
   if (!current_edit->content.empty()) {
     if (current_edit->type != type) {
       // Different action
@@ -468,8 +463,8 @@ void Buffer::update_unsaved_marker() {
   setHasUnsavedChanges(current_edit != last_save);
 
   using namespace std::chrono;
-  last_modified_time = duration_cast<milliseconds>(
-      system_clock::now().time_since_epoch());
+  last_modified_time =
+      duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 }
 
 void Buffer::create_edit_boundary(const LineNumber& line,
@@ -495,7 +490,7 @@ void Buffer::apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col) {
     for (auto c : node->content) {
       insert_no_history(c, line, col);
       start = std::min(start, line);
-      end = std::min(end, line);
+      end = std::max(end, line);
     }
   } else if (node->type == EditNode::Type::REVERT) {
     do_revert();
@@ -508,11 +503,11 @@ void Buffer::apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col) {
       Logging::breadcrumb("Deleting");
       delete_no_history(line, col);
       start = std::min(start, line);
-      end = std::min(end, line);
+      end = std::max(end, line);
     }
   }
   update_unsaved_marker();
-  highlight(start, end);
+  highlight(start, end + 1);
 }
 
 void Buffer::addTag(std::string label, LineNumber& line, ColNumber& col) {
@@ -610,7 +605,7 @@ void Buffer::redo_from_node(LineNumber& line, ColNumber& col, EditNode* node) {
 }
 
 void Buffer::redo_highlight(LineNumber& line, ColNumber& col,
-                               std::vector<EditNode*>::size_type index) {
+                            std::vector<EditNode*>::size_type index) {
   if (index < current_edit->next.size()) {
     redo_from_node(line, col, current_edit->next.at(index));
     update_unsaved_marker();

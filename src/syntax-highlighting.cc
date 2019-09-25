@@ -6,13 +6,20 @@ void SyntaxHighlighting::highlight(Syntax *syntax,
                                    std::vector<std::string> &output,
                                    std::vector<bool> &multiline_flags,
                                    LineNumber from, LineNumber to) {
-  if (to == 0 || to > input.size()) {
-    /* Highlight all if default */
+  if (to == 0) {
+    // Default parameter
     to = input.size();
   }
   if (from > to) {
     /* swap */
     std::swap(from, to);
+  }
+  if (to > input.size()) {
+    /* Highlight all if default */
+    to = input.size();
+  }
+  if (from < 0) {
+    from = 0;
   }
   if (from == to) {
     /* nothing to highlight */

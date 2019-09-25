@@ -1,7 +1,8 @@
 #include <ncurses.h>
-#include <exception>
+#include <stdio.h>
+#include <cstdlib>    // std::abort
+#include <exception>  // std::set_terminate
 #include <iostream>
-
 #include "syntax-lookup.h"
 #include "yate.h"
 
@@ -31,7 +32,14 @@ void init_curses() {
   mousemask(BUTTON1_PRESSED, nullptr);
 }
 
+void terminate() {
+  Logging::cleanup();
+  endwin();
+  abort();
+}
+
 int main(int argc, char *argv[]) {
+  std::set_terminate(terminate);
   std::vector<std::string> paths_to_open;
   std::string yate_config_path;
   std::string log_path;
@@ -73,24 +81,15 @@ int main(int argc, char *argv[]) {
                 << KEY_DOWN << std::endl;
   /* If paths given, we open paths; otherwise we check for saved state */
   std::ifstream saved_state(saved_state_path);
-  try {
-    if (!paths_to_open.empty()) {
-      Yate yate(config, should_have_syntax_highlight, should_save_to_state,
-                paths_to_open);
-    } else if (saved_state.good()) {
-      Yate yate(config, should_have_syntax_highlight, saved_state);
-    } else {
-      paths_to_open.push_back("Untitled");
-      Yate yate(config, should_have_syntax_highlight, should_save_to_state,
-                paths_to_open);
-    }
-  }
-  catch (...) {
-    std::exception_ptr p = std::current_exception();
-    Logging::cleanup();
-    endwin();
-    std::rethrow_exception(p);
-    exit(1);
+  if (!paths_to_open.empty()) {
+    Yate yate(config, should_have_syntax_highlight, should_save_to_state,
+              paths_to_open);
+  } else if (saved_state.good()) {
+    Yate yate(config, should_have_syntax_highlight, saved_state);
+  } else {
+    paths_to_open.push_back("Untitled");
+    Yate yate(config, should_have_syntax_highlight, should_save_to_state,
+              paths_to_open);
   }
   Logging::cleanup();
   endwin();
