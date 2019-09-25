@@ -78,6 +78,9 @@ class Editor : public Pane, public Focusable {
   const std::string &getTitle() override;
   Focusable *getCurrentFocus() override { return this; }
   Buffer *getBuffer() { return buffer; }
+
+  void goToLineOffset(int offset, bool shouldMoveLineToCenter = true);
+
   void goToLine(LineNumber n, bool shouldMoveLineToCenter = true);
   void goToLineCol(LineNumber l, ColNumber c, bool shouldMoveLineToCenter = true);
   bool shouldShowAutoComplete();

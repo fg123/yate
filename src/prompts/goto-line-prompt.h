@@ -27,6 +27,22 @@ class GoToLinePromptWindow : public PromptWindow {
     return editor->getBuffer()->size();
   }
 
+  bool onEmptyExecute() override {
+    std::string command = prompt_buffer;
+    for (size_t i = 0, j = 0; i < command.size(); i++) {
+      if (!std::isspace(command[i])) {
+        command[j++] = command[i];
+      }
+    }
+    if (command.size() >= 2) {
+      char first = command[0];
+      int distance = std::stoi(command.substr(1));
+      if (first == '+' || first == '-')
+        editor->goToLineOffset((first == '+' ? 1 : -1) * distance);
+    }
+    return false;
+  }
+
   void onExecute(size_t index) {
     editor->goToLine(index);
     yate.exitPrompt();

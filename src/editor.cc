@@ -209,6 +209,14 @@ int Editor::capture() {
 
 const std::string& Editor::getTitle() { return buffer->getFileName(); }
 
+void Editor::goToLineOffset(int offset, bool shouldMoveLineToCenter) {
+  LineNumber go = current_line + offset;
+  if (offset < 0 && current_line <= (unsigned int)(- offset)) {
+    go = 0;
+  }
+  goToLine(go, shouldMoveLineToCenter);
+}
+
 void Editor::goToLine(LineNumber n, bool shouldMoveLineToCenter) {
   current_line = n;
   limitLineCol();

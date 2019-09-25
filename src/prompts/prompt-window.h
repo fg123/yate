@@ -67,12 +67,12 @@ class PromptWindow : public Pane, public Focusable {
       case KEY_ENTER:
       case 10:
       case 13:
-        if (highlighted_index < 0) {
-          yate.exitPrompt();
-        } else {
+        if (highlighted_index >= 0) {
           /* Calculate actual hovered item */
           std::vector<size_t> matched_items = get_matching_items();
           onExecute(matched_items.at(highlighted_index));
+        } else if (!this->onEmptyExecute()) {
+          yate.exitPrompt();
         }
         break;
     }
@@ -139,11 +139,12 @@ class PromptWindow : public Pane, public Focusable {
   virtual bool match(std::string buffer, size_t index) = 0;
   virtual const std::string getItemString(size_t index) = 0;
   virtual const size_t getListSize() = 0;
+
+  // Overridable handler to for if we do our own processing
+  virtual bool onEmptyExecute() { return false; }
   virtual void onExecute(size_t index) = 0;
 
-  virtual Focusable *getCurrentFocus() override {
-    return this;
-  }
+  virtual Focusable* getCurrentFocus() override { return this; }
 
   // TODO: I feel like prompt window shouldn't be a pane, because these
   // shouldn't live here
