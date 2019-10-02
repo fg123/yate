@@ -33,6 +33,7 @@ public:
   size_t count(const std::string& word);
   void reset();
   void insertWordsFromLine(const std::string& line);
+
   std::vector<std::string> getMatchingPrefixes(const std::string& word);
 };
 

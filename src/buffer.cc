@@ -108,7 +108,6 @@ void Buffer::revert(LineNumber& line, ColNumber& col) {
   }
   current_edit->content = content.str();
   do_revert();
-  highlight();
 }
 
 void Buffer::do_revert() {
@@ -125,6 +124,7 @@ void Buffer::do_revert() {
   }
   last_save = current_edit;
   update_unsaved_marker();
+  highlight();
 }
 
 BufferWindow Buffer::getSyntaxBufferWindow(LineNumber start, LineNumber end) {

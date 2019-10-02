@@ -14,9 +14,12 @@ class FindAllPromptWindow : public PromptWindow {
     limits_map.push_back(0);
     for (size_t i = 0; i < yate.opened_buffers.size(); i++) {
       auto buffer = yate.opened_buffers[i];
-      total_size += buffer->size();
-      limits_map.push_back(total_size);
-      index_map.insert(index_map.end(), buffer->size(), i);
+      if (buffer->getRegisteredEditors().size()) {
+        // Only search for it if it has more than 0 registered editors
+        total_size += buffer->size();
+        limits_map.push_back(total_size);
+        index_map.insert(index_map.end(), buffer->size(), i);
+      }
     }
   }
 
@@ -46,7 +49,8 @@ class FindAllPromptWindow : public PromptWindow {
   void onExecute(size_t index) {
     size_t i = index_map[index];
     size_t line = index - limits_map[i];
-    Editor *editor = yate.opened_buffers[i]->getRegisteredEditors()[0];
+    std::vector<Editor*> editors = yate.opened_buffers[i]->getRegisteredEditors();
+    Editor *editor = editors[0];
     editor->focusRequested(editor);
     ColNumber col;
     fuzzy_match(prompt_buffer, getLine(index), col);
