@@ -25,19 +25,19 @@ void SyntaxHighlighting::highlight(Syntax *syntax,
     /* nothing to highlight */
     return;
   }
+  while (multiline_flags.size() < input.size()) {
+    multiline_flags.push_back(false);
+  }
+  while (output.size() < input.size()) {
+    std::string empty = std::string(input.at(output.size()).size(),
+                                    (char)Component::NO_HIGHLIGHT);
+    output.push_back(empty);
+  }
   for (LineNumber line = from; line < to; line++) {
     std::string empty =
         std::string(input.at(line).size(), (char)Component::NO_HIGHLIGHT);
-    if (multiline_flags.size() <= line) {
-      multiline_flags.push_back(false);
-    } else {
-      multiline_flags[line] = false;
-    }
-    if (output.size() <= line) {
-      output.push_back(empty);
-    } else {
-      output[line] = empty;
-    }
+    multiline_flags[line] = false;
+    output[line] = empty;
   }
   if (from > 0) {
     if (multiline_flags.at(from - 1)) {
