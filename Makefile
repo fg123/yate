@@ -1,6 +1,6 @@
 EXE = yate
 SRC_DIR = src
-SRC = $(shell find . -name "*.cc")
+SRC = $(shell find . -name "*.cc") src/syntax-lookup.cc
 OBJ = $(SRC:%.cc=%.o)
 HEADERS = $(shell find . -name "*.h")
 CPPFLAGS += -I $(SRC_DIR) -I $(SRC_DIR)/prompts
