@@ -5,11 +5,11 @@
 #include "command-prompt.h"
 #include "editor.h"
 #include "filesystem-prompt.h"
-#include "find-prompt.h"
 #include "find-all-prompt.h"
+#include "find-prompt.h"
 #include "goto-line-prompt.h"
-#include "tags-prompt.h"
 #include "tab-set.h"
+#include "tags-prompt.h"
 #include "util.h"
 
 /* TODO(felixguo): find cross terminal for this */
@@ -50,8 +50,8 @@ void Editor::init() {
 }
 
 Editor::~Editor() {
-    yate.unregisterEditor(this);
-    buffer->unregisterEditor(this);
+  yate.unregisterEditor(this);
+  buffer->unregisterEditor(this);
 }
 
 void Editor::revertBuffer() {
@@ -61,12 +61,11 @@ void Editor::revertBuffer() {
 
 std::string Editor::generateStatusBar() {
   std::ostringstream output;
-  output << current_line + 1 << "/" << buffer->size() << "L "
-         << current_col + 1 << "C "
-         << window_start_line << "SL " << window_start_col << "SC "
+  output << current_line + 1 << "/" << buffer->size() << "L " << current_col + 1
+         << "C " << window_start_line << "SL " << window_start_col << "SC "
          << yate.config.getIndentationStyle() << ": "
-         << yate.config.getTabSize() << " (" << buffer->getFileName()
-         << ":" << current_word << (is_at_end_of_word ? ">" : "") << ")";
+         << yate.config.getTabSize() << " (" << buffer->getFileName() << ":"
+         << current_word << (is_at_end_of_word ? ">" : "") << ")";
   return output.str();
 }
 
@@ -180,16 +179,16 @@ void Editor::draw() {
   for (ColNumber i = 0; i < suggested_complete.size(); i++) {
     ColNumber j = 0;
     std::string line = (i == suggested_complete_index ? "> " : "  ") +
-      suggested_complete[i] + " ";
+                       suggested_complete[i] + " ";
     for (; j < line.size(); j++) {
       mvwaddch(internal_window, current_line + 1 + i - window_start_line,
-        field_width + 1 + current_col + 1 + j - window_start_col,
-        line[j] | A_REVERSE);
+               field_width + 1 + current_col + 1 + j - window_start_col,
+               line[j] | A_REVERSE);
     }
     for (; j < maxlen; j++) {
       mvwaddch(internal_window, current_line + 1 + i - window_start_line,
-        field_width + 1 + current_col + 1 + j - window_start_col,
-        ' ' | A_REVERSE);
+               field_width + 1 + current_col + 1 + j - window_start_col,
+               ' ' | A_REVERSE);
     }
   }
   wrefresh(internal_window);
@@ -207,11 +206,13 @@ int Editor::capture() {
   return capture;
 }
 
-const std::string& Editor::getTitle() { return buffer->getFileName(); }
+const std::string& Editor::getTitle() {
+  return buffer->getFileName();
+}
 
 void Editor::goToLineOffset(int offset, bool shouldMoveLineToCenter) {
   LineNumber go = current_line + offset;
-  if (offset < 0 && current_line <= (unsigned int)(- offset)) {
+  if (offset < 0 && current_line <= (unsigned int)(-offset)) {
     go = 0;
   }
   goToLine(go, shouldMoveLineToCenter);
@@ -227,7 +228,8 @@ void Editor::goToLine(LineNumber n, bool shouldMoveLineToCenter) {
   }
 }
 
-void Editor::goToLineCol(LineNumber l, ColNumber c, bool shouldMoveLineToCenter) {
+void Editor::goToLineCol(LineNumber l, ColNumber c,
+                         bool shouldMoveLineToCenter) {
   current_col = c;
   goToLine(l, shouldMoveLineToCenter);
 
@@ -251,7 +253,7 @@ void Editor::addTag(std::string label) {
   buffer->addTag(label, current_line, current_col);
 }
 
-void Editor::fastTravel(EditNode *to) {
+void Editor::fastTravel(EditNode* to) {
   buffer->fastTravel(to, current_line, current_col);
 }
 
@@ -289,8 +291,9 @@ void Editor::onKeyPress(int key) {
     case '\n':
     case '\r': {
       if (shouldShowAutoComplete()) {
-        std::string insert = suggested_complete[
-          suggested_complete_index].substr(current_word.size());
+        std::string insert =
+            suggested_complete[suggested_complete_index].substr(
+                current_word.size());
         buffer->insertString(insert, current_line, current_col);
         break;
       }
@@ -527,23 +530,19 @@ void Editor::onKeyPress(int key) {
     buffer->insertCharacter(key, current_line, current_col);
   }
   limitLineCol();
-  Logging::breadcrumb("Before checking suggest");
-  if (is_at_end_of_word &&
-      current_node &&
+  if (is_at_end_of_word && current_node &&
       (shouldShowAutoComplete() || std::isprint(key))) {
     suggested_complete = current_node->getSuffixes();
-    if (suggested_complete.size() > 0 &&
-        suggested_complete[0].size() == 1) {
-        suggested_complete.erase(suggested_complete.begin());
+    if (suggested_complete.size() > 0 && suggested_complete[0].size() == 1) {
+      suggested_complete.erase(suggested_complete.begin());
     }
     if (suggested_complete_index >= suggested_complete.size()) {
-      suggested_complete_index = suggested_complete.size();
+      suggested_complete_index = suggested_complete.size() - 1;
     }
-    for (auto & str : suggested_complete) {
+    for (auto& str : suggested_complete) {
       str.insert(0, current_word, 0, current_word.size() - 1);
     }
-  }
-  else {
+  } else {
     suggested_complete.clear();
   }
 }
@@ -565,17 +564,7 @@ void Editor::updateColWithPhantom() {
 }
 
 void Editor::invalidate_current_word() {
-  std::string& line = buffer->getLine(current_line);
-  ColNumber start = current_col;
-  ColNumber end = current_col;
-  while (start > 0 && isIdentifierChar(line[start - 1])) {
-    start -= 1;
-  }
-  while (end < line.size() && isIdentifierChar(line[end])) {
-    end += 1;
-  }
-  is_at_end_of_word = end == current_col;
-  current_word = line.substr(start, end - start);
+  current_word = buffer->getWordAt(current_line, current_col, &is_at_end_of_word);
   current_node = buffer->prefix_trie.getNode(current_word);
 }
 
@@ -625,8 +614,7 @@ void Editor::onMouseEvent(MEVENT* event) {
   if (event->bstate & BUTTON1_PRESSED) {
     if (!yate.isCurrentFocus(this)) {
       focusRequested(this);
-    }
-    else {
+    } else {
       selection_start = NO_SELECTION;
 
       current_line = (event->y - y) + window_start_line;

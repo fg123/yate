@@ -1,4 +1,10 @@
 #include "buffer.h"
+#include <algorithm>
+#include <deque>
+#include <fstream>
+#include <iterator>
+#include <string>
+#include <tuple>
 #include "editor.h"
 #include "logging.h"
 #include "redo-prompt.h"
@@ -6,13 +12,6 @@
 #include "syntax-lookup.h"
 #include "util.h"
 #include "yate.h"
-
-#include <algorithm>
-#include <deque>
-#include <fstream>
-#include <iterator>
-#include <string>
-#include <tuple>
 
 std::string EditNode::getTypeString() const {
   switch (type) {
@@ -216,13 +215,40 @@ bool Buffer::insert_no_history(int character, LineNumber& line,
     col = 0;
   } else {
     // To force pick an overload
+    prefix_trie.remove(getWordAt(line, col));
     internal_buffer[line].insert(internal_buffer[line].begin() + col, 1,
                                  (char)character);
     col++;
+
+    prefix_trie.insert(getWordAt(line, col));
+    if (!isIdentifierChar(character)) {
+      prefix_trie.insert(getWordAt(line, col - 1));
+    }
   }
-  // TODO: this is super simplified
-  prefix_trie.insertWordsFromLine(internal_buffer[line]);
   return true;
+}
+
+std::string Buffer::getWordAt(const LineNumber& line, const ColNumber& col,
+                              bool* is_at_end_of_word) {
+  if (line >= internal_buffer.size()) {
+    return "";
+  }
+  if (col >= internal_buffer[line].length() + 1) {
+    return "";
+  }
+  ColNumber start = col;
+  ColNumber end = col;
+  while (start > 0 && isIdentifierChar(internal_buffer[line][start - 1])) {
+    start -= 1;
+  }
+  while (end < internal_buffer[line].length() &&
+         isIdentifierChar(internal_buffer[line][end])) {
+    end += 1;
+  }
+  if (is_at_end_of_word) {
+    *is_at_end_of_word = end == col;
+  }
+  return internal_buffer[line].substr(start, end - start);
 }
 
 char Buffer::delete_no_history(LineNumber& line, ColNumber& col) {
@@ -235,16 +261,24 @@ char Buffer::delete_no_history(LineNumber& line, ColNumber& col) {
   char deleted_char;
   if (col == internal_buffer[line].length()) {
     // Join two lines
+    std::string left = getWordAt(line, col);
+    std::string right = getWordAt(line + 1, 0);
+
     internal_buffer[line] += internal_buffer[line + 1];
     internal_buffer.erase(internal_buffer.begin() + line + 1,
                           internal_buffer.begin() + line + 2);
     syntax_components.erase(syntax_components.begin() + line + 1,
                             syntax_components.begin() + line + 2);
     deleted_char = '\n';
+
+    prefix_trie.remove(left);
+    prefix_trie.remove(right);
   } else {
     deleted_char = internal_buffer.at(line).at(col);
+    prefix_trie.remove(getWordAt(line, col));
     internal_buffer.at(line).erase(col, 1);
   }
+  prefix_trie.insert(getWordAt(line, col));
   return deleted_char;
 }
 
@@ -353,7 +387,6 @@ void Buffer::deleteRange(LineCol from, LineCol to) {
   /* Delete lines, but we leave the first and the last line */
   internal_buffer.erase(internal_buffer.begin() + from_line + 1,
                         internal_buffer.begin() + to_line);
-
   to_line = from_line + 1;
 
   /* Now we handle deletions on the first and last line */

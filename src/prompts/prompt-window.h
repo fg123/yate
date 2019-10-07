@@ -143,7 +143,6 @@ class PromptWindow : public Pane, public Focusable {
   // Overridable handler to for if we do our own processing
   virtual bool onEmptyExecute() { return false; }
   virtual void onExecute(size_t index) = 0;
-
   virtual Focusable* getCurrentFocus() override { return this; }
 
   // TODO: I feel like prompt window shouldn't be a pane, because these

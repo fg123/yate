@@ -139,6 +139,9 @@ class Buffer {
 
   void undo(LineNumber &line, ColNumber &col);
   void redo(LineNumber &line, ColNumber &col);
+
+  std::string getWordAt(const LineNumber& line, const ColNumber &col,
+    bool* is_at_end_of_word = nullptr);
 };
 
 #endif

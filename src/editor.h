@@ -11,6 +11,7 @@
 #include "pane-set.h"
 #include "pane.h"
 #include "yate.h"
+#include "resize-prompt.h"
 
 const LineCol NO_SELECTION = std::make_tuple(-1, -1);
 
@@ -97,7 +98,7 @@ class Editor : public Pane, public Focusable {
     /* Since the root of yate is a PaneSet, we can expect paneset_parent to
      * always be set. In this case there's always a child and we can always
      * split */
-    return 4;
+    return 5;
   }
   std::string getNavigationItem(size_t index) override {
     switch (index) {
@@ -109,6 +110,8 @@ class Editor : public Pane, public Focusable {
         return "Split Horizontally";
       case 3:
         return "Merge Pane (will destroy this one)";
+      case 4:
+        return "Resize Pane";
     }
     return "";
   }
@@ -129,6 +132,9 @@ class Editor : public Pane, public Focusable {
         //   false here so the navigate window tree stays intact.
         // It is the responsibility of mergePane to call finish on
         //   the active navigate window.
+        return false;
+      case 4:
+        yate.enterPrompt(new ResizePromptWindow(yate, parent));
         return false;
     }
     return true;

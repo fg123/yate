@@ -1,40 +1,103 @@
-paneset 0 0 158 45 1 0
-tabset 0 0 158 45 16 5
-paneset 0 1 158 44 2 1
-editor 0 1 80 44 src/buffer.h
-editor 80 1 78 44 src/buffer.cc
-paneset 0 1 158 44 2 0
-editor 0 1 80 44 ./src/config.h
-editor 80 1 78 44 ./src/config.cc
-paneset 0 1 158 44 1 0
-editor 0 1 158 44 ./themes/solarized.toml
-paneset 0 1 158 44 1 0
-editor 0 1 158 44 ./src/main.cc
-paneset 0 1 158 44 2 0
-editor 0 1 80 44 ./src/yate.h
-editor 80 1 78 44 ./src/yate.cc
-paneset 0 1 158 44 2 1
-editor 0 1 80 44 ./src/generic-syntax.h
-editor 80 1 78 44 ./src/generic-syntax.cc
-paneset 0 1 158 44 1 0
-editor 0 1 158 44 ./src/syntax-highlighting.h
-paneset 0 1 158 44 2 0
-editor 0 1 79 44 ./src/prompts/filesystem-prompt.h
-editor 79 1 79 44 ./src/filesystem.h
-paneset 0 1 158 44 2 0
-editor 0 1 79 44 ./src/editor.cc
-editor 79 1 79 44 ./src/prompts/command-prompt.cc
-paneset 0 1 158 44 1 0
-editor 0 1 158 44 ./src/prompts/command-prompt.cc
-paneset 0 1 158 44 1 0
-editor 0 1 158 44 ./src/editor-navigate-provider.h
-paneset 0 1 158 44 1 0
-editor 0 1 158 44 ./src/config.h
-paneset 0 1 158 44 1 0
-editor 0 1 158 44 ./src/pane-set.cc
-paneset 0 1 158 44 1 0
-editor 0 1 158 44 ./src/editor.h
-paneset 0 1 158 44 1 0
-editor 0 1 158 44 ./src/pane.h
-paneset 0 1 158 44 1 0
-editor 0 1 158 44 ./src/generic-theme.h
+paneset 0 0 172 46 1 0
+tabset 0 0 172 46 43 28
+paneset 0 1 172 45 2 1
+editor 0 1 87 45 src/buffer.h 
+editor 87 1 85 45 src/buffer.cc 
+paneset 0 1 172 45 2 1
+editor 0 1 87 45 ./src/config.h 
+editor 87 1 85 45 ./src/config.cc 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./themes/solarized.toml 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/main.cc 
+paneset 0 1 172 45 2 1
+editor 0 1 87 45 ./src/yate.h 
+editor 87 1 85 45 ./src/yate.cc 
+paneset 0 1 172 45 2 0
+editor 0 1 87 45 ./src/prompts/filesystem-prompt.h 
+editor 87 1 85 45 ./src/filesystem.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/prompts/command-prompt.cc 
+paneset 0 1 172 45 2 1
+editor 0 1 87 45 ./src/editor-navigate-provider.h 
+editor 87 1 85 45 ./src/config.cc 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/config.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/pane-set.cc 
+paneset 0 1 172 45 2 0
+editor 0 1 87 45 ./src/editor.h 
+editor 87 1 85 45 ./src/yate.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/pane.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/generic-theme.h 
+paneset 0 1 172 45 3 0
+editor 0 1 87 45 ./src/prompts/find-prompt.h 
+editor 87 1 87 24 ./src/config.h 
+editor 87 1 85 45 ./themes/solarized.toml 
+paneset 0 1 172 45 2 0
+editor 0 1 87 45 ./src/util.h 
+editor 87 1 85 45 ./src/util.cc 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/prompts/find-all-prompt.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 Untitled 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/prompts/prompt-window.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/syntax/generic.cc 
+paneset 0 1 172 45 2 1
+editor 0 1 87 45 src/buffer.h 
+editor 87 1 85 45 ./src/syntax/bash.cc 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/prompts/syntax-prompt.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./Makefile 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./utils/generate-syntax-lookup 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/syntax-lookup.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/syntax-lookup.cc 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/syntax/bash.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/syntax-highlighting.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/syntax/generic.h 
+paneset 0 1 172 45 2 1
+editor 0 1 87 45 ./src/pfxtrie.h 
+editor 87 1 85 45 ./src/pfxtrie.cc 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./utils/bigFile.txt 
+paneset 0 1 172 45 2 1
+editor 0 1 87 45 ./src/logging.cc 
+editor 87 1 85 45 ./src/logging.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/prompts/command-prompt.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/prompts/prompt-window.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/tab-set.cc 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/tab-set.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/prompts/goto-line-prompt.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/syntax-highlighting.cc 
+paneset 0 1 172 45 2 0
+editor 0 1 87 45 ./src/prompts/prompt-window.h 
+editor 87 1 85 45 ./src/prompts/prompt-window.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/prompts/find-all-prompt.h 
+paneset 0 1 172 45 2 0
+editor 0 1 87 45 src/buffer.h 
+editor 87 1 85 45 src/buffer.cc 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/editor.cc 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 ./src/prompts/resize-prompt.h 
+paneset 0 1 172 45 1 0
+editor 0 1 172 45 Untitled 
+
