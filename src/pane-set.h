@@ -13,6 +13,10 @@ enum class SharedEdge {
   NONE, LEFT, RIGHT, TOP, BOTTOM
 };
 
+enum class Direction {
+  LEFT, RIGHT, TOP, BOTTOM
+};
+
 class PaneSet : public Pane {
   friend class MergePromptWindow;
   Yate &yate;
@@ -30,6 +34,7 @@ class PaneSet : public Pane {
   void draw();
   void verticalSplit(Pane *child);
   void horizontalSplit(Pane *child);
+  void movePane(Pane *child, Direction direction, int unit);
   void mergePane(Pane *child, NavigateWindow *navigateWindow);
   void doMerge(Pane *goner, Pane *stayer, SharedEdge edge, size_t goner_index);
 
@@ -44,6 +49,7 @@ class PaneSet : public Pane {
   void onFocusRequested(Pane *focus, Pane *child) override {
     focused_pane = child;
   }
+
   size_t getNavigationItemsSize() override;
   std::string getNavigationItem(size_t index) override;
   bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override;

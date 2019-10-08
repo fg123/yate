@@ -1,8 +1,8 @@
 EXE = yate
 SRC_DIR = src
-SRC = $(shell find . -name "*.cc") src/syntax-lookup.cc
+SRC = $(shell find src/ -name "*.cc") src/syntax-lookup.cc
 OBJ = $(SRC:%.cc=%.o)
-HEADERS = $(shell find . -name "*.h")
+HEADERS = $(shell find src/ -name "*.h")
 CPPFLAGS += -I $(SRC_DIR) -I $(SRC_DIR)/prompts
 CFLAGS += -g -std=c++11 -Wall
 LDLIBS = -L/usr/lib -lncurses -lstdc++fs -ltinfo

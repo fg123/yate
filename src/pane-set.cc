@@ -71,6 +71,10 @@ void PaneSet::doMerge(Pane *goner, Pane *stayer, SharedEdge edge,
   focused_pane = stayer;
 }
 
+void PaneSet::movePane(Pane *child, Direction direction, int unit) {
+
+}
+
 void PaneSet::mergePane(Pane *child, NavigateWindow *navigateWindow) {
   // Show prompt for panes that share an edge with child.
   Logging::breadcrumb("Merge Pane");

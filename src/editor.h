@@ -134,7 +134,8 @@ class Editor : public Pane, public Focusable {
         //   the active navigate window.
         return false;
       case 4:
-        yate.enterPrompt(new ResizePromptWindow(yate, parent));
+        yate.enterPrompt(new ResizePromptWindow(yate, parent, paneset_parent,
+          paneset_parent_child));
         return false;
     }
     return true;

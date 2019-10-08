@@ -13,6 +13,7 @@
 // matching and "auto-complete"
 
 class PromptWindow : public Pane, public Focusable {
+protected:
   std::vector<size_t> get_matching_items() {
     std::vector<size_t> result;
     for (unsigned int i = 0; i < getListSize(); i++) {
@@ -22,7 +23,6 @@ class PromptWindow : public Pane, public Focusable {
   }
   int highlighted_index = 0;
 
- protected:
   Yate& yate;
   bool input_enabled = true;
   std::string prompt_buffer;
