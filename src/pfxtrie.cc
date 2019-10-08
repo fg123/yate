@@ -75,7 +75,8 @@ void PrefixTrie::remove(const std::string& word) {
   TrieNode* node = getNode(word);
   if (node) {
     if (node->children[0] == 0) {
-      throw "Tried to remove word that had 0 count in pfxtrie: " + word;
+      // throw "Tried to remove word that had 0 count in pfxtrie: " + word;
+      return;
     }
     node->children[0] = (TrieNode*)((size_t)node->children[0] - 1);
   }
