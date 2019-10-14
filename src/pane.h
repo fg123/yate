@@ -13,6 +13,20 @@
 
 using uint = unsigned int;
 
+enum class Direction {
+  LEFT, RIGHT, TOP, BOTTOM
+};
+
+inline Direction getOpposite (Direction direction) {
+  switch (direction) {
+    case Direction::LEFT: return Direction::RIGHT;
+    case Direction::RIGHT: return Direction::LEFT;
+    case Direction::TOP: return Direction::BOTTOM;
+    case Direction::BOTTOM: return Direction::TOP;
+  }
+  throw "Unknown direction!";
+}
+
 struct Pane : public NavigateWindowProvider {
   uint x;
   uint y;
@@ -33,6 +47,25 @@ struct Pane : public NavigateWindowProvider {
     wresize(internal_window, height, width);
     mvwin(internal_window, y, x);
   }
+
+  void resize(Direction dir, int unit) {
+    switch (dir) {
+      case Direction::LEFT:
+        resize(x + unit, y, width - unit, height);
+        break;
+      case Direction::RIGHT:
+        resize(x, y, width + unit, height);
+        break;
+      case Direction::TOP:
+        resize(x, y + unit, width, height - unit);
+        break;
+      case Direction::BOTTOM:
+        resize(x, y, width, height + unit);
+        break;
+    }
+    draw();
+  }
+
   // onResize should be called before updated, so we can do comparison
   virtual void onResize(uint nx, uint ny, uint nwidth, uint nheight) {}
   virtual const std::string &getTitle() = 0;
@@ -60,6 +93,32 @@ struct Pane : public NavigateWindowProvider {
     }
     wtimeout(internal_window, 100);
     keypad(internal_window, true);
+  }
+
+  int getBorder(Direction direction) {
+    switch (direction) {
+      case Direction::LEFT:
+        return x;
+      case Direction::RIGHT:
+        return x + width;
+      case Direction::TOP:
+        return y;
+      case Direction::BOTTOM:
+        return y + height;
+    }
+    return 0;
+  }
+
+  int getSizeForDirection(Direction direction) {
+    switch (direction) {
+      case Direction::LEFT:
+      case Direction::RIGHT:
+        return width;
+      case Direction::TOP:
+      case Direction::BOTTOM:
+        return height;
+    }
+    return 0;
   }
 
   void titleUpdated() {

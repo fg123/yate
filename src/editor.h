@@ -11,7 +11,6 @@
 #include "pane-set.h"
 #include "pane.h"
 #include "yate.h"
-#include "resize-prompt.h"
 
 const LineCol NO_SELECTION = std::make_tuple(-1, -1);
 
@@ -115,32 +114,7 @@ class Editor : public Pane, public Focusable {
     }
     return "";
   }
-  bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override {
-    switch (index) {
-      case 0:
-        focusRequested(this);
-        break;
-      case 1:
-        paneset_parent->verticalSplit(paneset_parent_child);
-        break;
-      case 2:
-        paneset_parent->horizontalSplit(paneset_parent_child);
-        break;
-      case 3:
-        paneset_parent->mergePane(paneset_parent_child, parent);
-        // MergePane could spawn another prompt window, so we return
-        //   false here so the navigate window tree stays intact.
-        // It is the responsibility of mergePane to call finish on
-        //   the active navigate window.
-        return false;
-      case 4:
-        yate.enterPrompt(new ResizePromptWindow(yate, parent, paneset_parent,
-          paneset_parent_child));
-        return false;
-    }
-    return true;
-  }
-
+  bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override;
   void paste(std::string& str);
   void insertTab(LineNumber& line, ColNumber& col);
   void deleteSelection();

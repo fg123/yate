@@ -13,14 +13,12 @@ enum class SharedEdge {
   NONE, LEFT, RIGHT, TOP, BOTTOM
 };
 
-enum class Direction {
-  LEFT, RIGHT, TOP, BOTTOM
-};
-
 class PaneSet : public Pane {
   friend class MergePromptWindow;
   Yate &yate;
   std::vector<Pane *> panes;
+
+  bool canChildBeResized(Pane *child, Direction direction, int unit);
 
  public:
   // Store Focused Pane
@@ -34,7 +32,8 @@ class PaneSet : public Pane {
   void draw();
   void verticalSplit(Pane *child);
   void horizontalSplit(Pane *child);
-  void movePane(Pane *child, Direction direction, int unit);
+
+  void resizePane(Pane *child, Direction direction, int unit);
   void mergePane(Pane *child, NavigateWindow *navigateWindow);
   void doMerge(Pane *goner, Pane *stayer, SharedEdge edge, size_t goner_index);
 

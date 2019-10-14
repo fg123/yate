@@ -5,6 +5,8 @@
 #include "merge-prompt.h"
 
 #include <cmath>
+#include <queue>
+#include <unordered_set>
 
 PaneSet::PaneSet(Yate &yate, Pane *parent, std::istream &saved_state)
     : Pane(parent, saved_state), yate(yate) {
@@ -71,8 +73,76 @@ void PaneSet::doMerge(Pane *goner, Pane *stayer, SharedEdge edge,
   focused_pane = stayer;
 }
 
-void PaneSet::movePane(Pane *child, Direction direction, int unit) {
+bool PaneSet::canChildBeResized(Pane *child, Direction direction, int unit) {
+  int x = child->x;
+  int y = child->y;
+  int width = child->width;
+  int height = child->height;
+  switch (direction) {
+    case Direction::LEFT:
+      return width - unit > 0 && x + unit > (int)this->x && x != (int)this->x;
+    case Direction::RIGHT:
+      return width + unit > 0 && x + width + unit < (int) this->width && x + width != (int)(this->x + this->width);
+    case Direction::TOP:
+      return height - unit > 0 && y + unit > (int) this->y && y != (int)this->y;
+    case Direction::BOTTOM:
+      return height + unit > 0 && y + height + unit < (int) this->height && y + height != (int)(this->y + this->height);
+  }
+  return false;
+}
 
+void PaneSet::resizePane(Pane *child, Direction direction, int unit) {
+  // Determine Affected Panels
+  Logging::breadcrumb("Resize pane");
+  std::queue<std::pair<Pane*, Direction>> lookupQueue;
+  std::unordered_set<Pane*> visited;
+
+  lookupQueue.emplace(child, direction);
+  visited.insert(child);
+
+  int metric = child->getBorder(direction);
+
+  std::vector<Pane*> sameSide, otherSide;
+  Logging::breadcrumb("Metric: " + std::to_string(metric));
+  while (lookupQueue.size()) {
+    std::pair<Pane*, Direction> curr_entry = lookupQueue.front();
+    lookupQueue.pop();
+    Pane* curr = std::get<0>(curr_entry);
+    Direction curr_d = std::get<1>(curr_entry);
+    if (direction == curr_d) {
+      sameSide.push_back(curr);
+    }
+    else {
+      otherSide.push_back(curr);
+    }
+    for (auto pane : panes) {
+      Logging::breadcrumb("Pane border " + std::to_string(pane->getBorder(getOpposite(curr_d))));
+      if (pane->getBorder(getOpposite(curr_d)) == metric) {
+        if (visited.find(pane) == visited.end()) {
+          visited.insert(pane);
+          lookupQueue.emplace(pane, getOpposite(curr_d));
+        }
+      }
+    }
+  }
+  Logging::breadcrumb("Found " + std::to_string(sameSide.size()) + " same side");
+  Logging::breadcrumb("Found " + std::to_string(otherSide.size()) + " other side");
+  for (auto pane : sameSide) {
+    if (!canChildBeResized(pane, direction, unit)) {
+      return;
+    }
+  }
+  for (auto pane : otherSide) {
+    if (!canChildBeResized(pane, getOpposite(direction), unit)) {
+      return;
+    }
+  }
+  for (auto pane : sameSide) {
+    pane->resize(direction, unit);
+  }
+  for (auto pane : otherSide) {
+    pane->resize(getOpposite(direction), unit);
+  }
 }
 
 void PaneSet::mergePane(Pane *child, NavigateWindow *navigateWindow) {

@@ -28,13 +28,15 @@ protected:
   std::string prompt_buffer;
 
  public:
-  PromptWindow(Yate& yate)
-      : Pane((Pane*)(yate.root), COLS / 4, LINES / 4, COLS / 2, LINES / 2),
+  PromptWindow(Yate& yate, int x, int y, int width, int height)
+      : Pane((Pane*)(yate.root), x, y, width, height),
         yate(yate) {}
+
+  PromptWindow(Yate& yate) : PromptWindow(yate, COLS / 4, LINES / 4, COLS / 2, LINES / 2) {}
 
   ~PromptWindow() { curs_set(1); }
 
-  void onResize() {
+  virtual void onResize() {
     // PromptWindows have their own resize
     Pane::resize(COLS / 4, LINES / 4, COLS / 2, LINES / 2);
   }
@@ -82,7 +84,6 @@ protected:
   }
 
   void draw() override {
-    Logging::breadcrumb("PromptWindow Draw");
     wmove(internal_window, 1, 1);
     wclrtoeol(internal_window);
     mvwprintw(internal_window, 1, 1, prompt_buffer.c_str());
@@ -130,8 +131,6 @@ protected:
     wattron(internal_window, A_DIM);
     mvwprintw(internal_window, 0, 1, getTitle().c_str());
     wattroff(internal_window, A_DIM);
-
-    Logging::breadcrumb("PromptWindow Done");
     wrefresh(internal_window);
   }
 

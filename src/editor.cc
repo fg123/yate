@@ -11,6 +11,7 @@
 #include "tab-set.h"
 #include "tags-prompt.h"
 #include "util.h"
+#include "resize-prompt.h"
 
 /* TODO(felixguo): find cross terminal for this */
 /* https://gist.github.com/rkumar/1237091 */
@@ -67,6 +68,33 @@ std::string Editor::generateStatusBar() {
          << yate.config.getTabSize() << " (" << buffer->getFileName() << ":"
          << current_word << (is_at_end_of_word ? ">" : "") << ")";
   return output.str();
+}
+
+bool Editor::onNavigationItemSelected(size_t index, NavigateWindow *parent) {
+  switch (index) {
+    case 0:
+      focusRequested(this);
+      break;
+    case 1:
+      paneset_parent->verticalSplit(paneset_parent_child);
+      break;
+    case 2:
+      paneset_parent->horizontalSplit(paneset_parent_child);
+      break;
+    case 3:
+      paneset_parent->mergePane(paneset_parent_child, parent);
+      // MergePane could spawn another prompt window, so we return
+      //   false here so the navigate window tree stays intact.
+      // It is the responsibility of mergePane to call finish on
+      //   the active navigate window.
+      return false;
+    case 4:
+      ResizePromptWindow* prompt = new ResizePromptWindow(yate, paneset_parent, paneset_parent_child);
+      parent->finish();
+      yate.enterPrompt(prompt);
+      return false;
+  }
+  return true;
 }
 
 bool Editor::inSelection(LineNumber line, ColNumber col) {

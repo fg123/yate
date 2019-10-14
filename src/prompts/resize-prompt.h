@@ -4,8 +4,14 @@
 #include "prompt-window.h"
 #include "util.h"
 #include "pane-set.h"
+#include "navigate-prompt.h"
+
+#include <ncurses.h>
 
 class ResizePromptWindow : public PromptWindow {
+  static const int _width = 50;
+  static const int _height = 9;
+
   const std::string title = "Resize Pane:";
   size_t total_size;
   std::vector<size_t> index_map;
@@ -16,13 +22,31 @@ class ResizePromptWindow : public PromptWindow {
   const Direction directions[4];
 
  public:
-  ResizePromptWindow(Yate &yate, NavigateWindow* parent, PaneSet* paneset_parent, Pane* child) : PromptWindow(yate),
-      parent(paneset_parent), child(child), directions{ Direction::LEFT, Direction::TOP, Direction::RIGHT, Direction::BOTTOM } {
-    instructions.push_back("Done");
-    instructions.push_back("Left Border");
-    instructions.push_back("Top Border");
-    instructions.push_back("Right Border");
-    instructions.push_back("Bottom Border");
+  ResizePromptWindow(Yate &yate, PaneSet* paneset_parent, Pane* child)
+    : PromptWindow(yate, (COLS - _width) / 2, (LINES - _height) / 2, _width, _height),
+      parent(paneset_parent), child(child), directions{ Direction::LEFT, Direction::TOP, Direction::RIGHT, Direction::BOTTOM }
+  {
+    rebuildInstructions();
+  }
+
+  void onResize() override {
+    // ResizePromptWindows have their own resize
+    Pane::resize((COLS - _width) / 2, (LINES - _height) / 2, _width, _height);
+  }
+
+  std::string makeLong(std::string left, int value) {
+    std::string right = "< " + std::to_string(value) + " >";
+    left.resize(_width - 2 - right.size(), ' ');
+    left.append(right);
+    return left;
+  }
+
+  void rebuildInstructions() {
+    instructions.clear();
+    instructions.push_back(makeLong("Left Border", child->getBorder(Direction::LEFT)));
+    instructions.push_back(makeLong("Top Border", child->getBorder(Direction::TOP)));
+    instructions.push_back(makeLong("Right Border", child->getBorder(Direction::RIGHT)));
+    instructions.push_back(makeLong("Bottom Border", child->getBorder(Direction::BOTTOM)));
   }
 
   const std::string &getTitle() override { return title; }
@@ -33,7 +57,8 @@ class ResizePromptWindow : public PromptWindow {
     switch (key) {
       case KEY_LEFT:
       case KEY_RIGHT:
-        parent->movePane(child, directions[index - 1], key == KEY_LEFT ? 1 : -1);
+        parent->resizePane(child, directions[index], key == KEY_RIGHT ? 1 : -1);
+        rebuildInstructions();
         break;
     }
     PromptWindow::onKeyPress(key);
