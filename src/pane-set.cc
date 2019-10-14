@@ -125,8 +125,6 @@ void PaneSet::resizePane(Pane *child, Direction direction, int unit) {
       }
     }
   }
-  Logging::breadcrumb("Found " + std::to_string(sameSide.size()) + " same side");
-  Logging::breadcrumb("Found " + std::to_string(otherSide.size()) + " other side");
   for (auto pane : sameSide) {
     if (!canChildBeResized(pane, direction, unit)) {
       return;
