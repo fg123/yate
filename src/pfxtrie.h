@@ -16,8 +16,6 @@ struct TrieNode {
   TrieNode* children[UCHAR_MAX];
   TrieNode(char val, TrieNode* parent);
   ~TrieNode();
-  std::vector<std::string> cached_suffixes;
-
   std::vector<std::string> getSuffixes();
 };
 

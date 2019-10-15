@@ -22,9 +22,6 @@ TrieNode::~TrieNode() {
 }
 
 std::vector<std::string> TrieNode::getSuffixes() {
-  // if (cached_suffixes.size() > 0) {
-  //    return cached_suffixes;
-  //}
   std::vector<std::string> results;
   if (children[0] > 0) {
     results.emplace_back(1, val);
@@ -39,7 +36,6 @@ std::vector<std::string> TrieNode::getSuffixes() {
       }
     }
   }
-  cached_suffixes = results;
   return results;
 }
 
@@ -52,7 +48,6 @@ void PrefixTrie::insert(const std::string& word) { insertWordsFromLine(word); }
 void PrefixTrie::insertWordsFromLine(const std::string& line) {
   TrieNode* curr = root;
   for (size_t i = 0; i <= line.size(); i++) {
-    curr->cached_suffixes.clear();
     if (!isIdentifierChar(line[i]) || i == line.size()) {
       // End of word
       // Use pointer storage to store the count

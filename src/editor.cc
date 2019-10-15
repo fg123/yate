@@ -28,7 +28,8 @@ static std::string tab_replace(std::string& line, std::string& reference,
   for (ColNumber i = 0; i < line.size(); i++) {
     char c = reference[i];
     if (c == '\t') {
-      for (int i = 0; i < tab_size; i++) {
+      int spaces_to_add = tab_size * ((result.size() / tab_size) + 1) - result.size();
+      for (int j = 0; j < spaces_to_add; j++) {
         result += replace_with;
       }
     } else {
@@ -119,15 +120,15 @@ bool Editor::inSelection(LineNumber line, ColNumber col) {
 }
 
 ColNumber Editor::getActualColPosition() {
-  ColNumber col = current_col;
   std::string& line = buffer->getLine(current_line);
-  for (uint i = 0; i < current_col; i++) {
+  int tab_size = yate.config.getTabSize();
+  uint m = 0;
+  for (uint i = 0; i < current_col; i++, m++) {
     if (line.at(i) == '\t') {
-      // Minus one because the tab character itself counts too
-      col += yate.config.getTabSize() - 1;
+      m += (tab_size * ((m / tab_size) + 1) - m) - 1;
     }
   }
-  return col;
+  return m;
 }
 
 // TODO(felixguo): Handle line wrapping?
