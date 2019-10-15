@@ -357,6 +357,7 @@ void Editor::onKeyPress(int key) {
     }
     case KEY_BACKSPACE:
     case 127:
+    case '\b':
       if (selection_start == NO_SELECTION) {
         buffer->backspace(current_line, current_col);
       } else {
