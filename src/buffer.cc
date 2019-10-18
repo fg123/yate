@@ -333,7 +333,7 @@ void Buffer::backspace(LineNumber& line, ColNumber& col) {
                   col);
   update_unsaved_marker();
 
-  highlight(deleted_char == '\n' ? line - 1 : line, line + 1);
+  highlight(line, line + 1);
 }
 
 std::string Buffer::getTextInRange(LineCol from, LineCol to) {
