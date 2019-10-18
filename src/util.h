@@ -50,7 +50,7 @@ inline int indexOf(std::vector<T> vector, T item) {
   }
 }
 
-inline bool startsWith(std::string needle, std::string haystack) {
+inline bool startsWith(const std::string& needle, const std::string& haystack) {
   if (haystack.size() < needle.size()) return false;
   for (std::string::size_type i = 0; i < needle.size(); i++) {
     if (haystack[i] != needle[i]) return false;
@@ -58,7 +58,7 @@ inline bool startsWith(std::string needle, std::string haystack) {
   return true;
 }
 
-inline bool startsWithWordBoundary(std::string needle, std::string haystack) {
+inline bool startsWithWordBoundary(const std::string& needle, const std::string& haystack) {
   if (haystack.size() < needle.size()) return false;
   std::string::size_type i = 0;
   for (; i < needle.size(); i++) {
