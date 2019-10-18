@@ -15,6 +15,7 @@
 const LineCol NO_SELECTION = std::make_tuple(-1, -1);
 
 class Editor : public Pane, public Focusable {
+protected:
   Yate &yate;
   Buffer *buffer;
   LineNumber current_line = 0;
@@ -32,7 +33,7 @@ class Editor : public Pane, public Focusable {
 
   bool inSelection(LineNumber line, ColNumber col);
   void switchBuffer(std::string newPath);
-  std::string generateStatusBar();
+  virtual std::string generateStatusBar();
 
   /* Set to the closest pane_set parent */
   PaneSet *paneset_parent = nullptr;

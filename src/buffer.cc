@@ -411,9 +411,11 @@ void Buffer::highlight(LineNumber from, LineNumber to) {
     // Determine Syntax
     syntax_name = SyntaxHighlighting::determineSyntax(this);
   }
-  Syntax* syntax = SyntaxHighlighting::lookup(syntax_name);
-  SyntaxHighlighting::highlight(syntax, internal_buffer, syntax_components,
-                                syntax_has_multiline, from, to);
+  if (syntax_name != "none") {
+    Syntax* syntax = SyntaxHighlighting::lookup(syntax_name);
+    SyntaxHighlighting::highlight(syntax, internal_buffer, syntax_components,
+                                  syntax_has_multiline, from, to);
+  }
 }
 
 void Buffer::_delete(LineNumber& line, ColNumber& col) {

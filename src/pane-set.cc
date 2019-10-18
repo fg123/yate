@@ -1,5 +1,6 @@
 #include "pane-set.h"
 #include "editor.h"
+#include "csv_editor.h"
 #include "navigate-prompt.h"
 #include "tab-set.h"
 #include "merge-prompt.h"
@@ -20,6 +21,8 @@ PaneSet::PaneSet(Yate &yate, Pane *parent, std::istream &saved_state)
       addPane(new TabSet(yate, this, saved_state));
     } else if (type == "editor") {
       addPane(new Editor(yate, this, saved_state));
+    } else if (type == "csv_editor") {
+      addPane(new CsvEditor(yate, this, saved_state));
     } else if (type == "paneset") {
       addPane(new PaneSet(yate, this, saved_state));
     } else {
@@ -41,6 +44,16 @@ void PaneSet::draw() {
   Logging::breadcrumb("Paneset Draw");
   for (auto pane : panes) {
     pane->draw();
+  }
+}
+
+void PaneSet::switchMeOut(Pane *child, Pane *new_pane) {
+  for (size_t i = 0; i < panes.size(); i++) {
+    if (panes[i] == child) {
+      panes[i] = new_pane;
+      delete child;
+      return;
+    }
   }
 }
 

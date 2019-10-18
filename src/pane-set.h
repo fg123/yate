@@ -37,6 +37,8 @@ class PaneSet : public Pane {
   void mergePane(Pane *child, NavigateWindow *navigateWindow);
   void doMerge(Pane *goner, Pane *stayer, SharedEdge edge, size_t goner_index);
 
+  void switchMeOut(Pane *child, Pane *new_pane);
+
   const std::vector<Pane *> &getPanes() { return panes; }
   const std::string &getTitle() { return focused_pane->getTitle(); }
   Focusable *getCurrentFocus() override {

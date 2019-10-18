@@ -14,6 +14,7 @@ class SyntaxPromptWindow : public PromptWindow {
  public:
   SyntaxPromptWindow(Yate &yate, Editor *editor) : PromptWindow(yate),
       editor(editor), buffer(editor->getBuffer()), title("Choose Syntax (" + buffer->getSyntax() + ")") {
+    syntaxes.push_back("none");
     for (auto syntax : SyntaxHighlighting::lookupMap) {
       syntaxes.push_back(syntax.first);
     }

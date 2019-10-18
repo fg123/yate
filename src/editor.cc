@@ -4,6 +4,7 @@
 
 #include "command-prompt.h"
 #include "editor.h"
+#include "csv_editor.h"
 #include "filesystem-prompt.h"
 #include "find-all-prompt.h"
 #include "find-prompt.h"
@@ -21,23 +22,6 @@
 #define KEY_CLEFT 553
 #define KEY_CRIGHT 568
 #define KEY_ESC 27
-
-static std::string tab_replace(std::string& line, std::string& reference,
-                               int tab_size, char replace_with = ' ') {
-  std::string result;
-  for (ColNumber i = 0; i < line.size(); i++) {
-    char c = reference[i];
-    if (c == '\t') {
-      int spaces_to_add = tab_size * ((result.size() / tab_size) + 1) - result.size();
-      for (int j = 0; j < spaces_to_add; j++) {
-        result += replace_with;
-      }
-    } else {
-      result += line[i];
-    }
-  }
-  return result;
-}
 
 void Editor::init() {
   current_node = nullptr;

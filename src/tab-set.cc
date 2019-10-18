@@ -4,15 +4,23 @@
 #include "pane.h"
 #include "util.h"
 #include "yate.h"
+#include "csv_editor.h"
 
 TabSet::TabSet(Yate &yate, Pane *parent, int x, int y, int width, int height,
                std::vector<std::string> &paths)
     : Pane(parent, x, y, width, height), yate(yate) {
   for (auto path : paths) {
     PaneSet *pane_s = new PaneSet(yate, this, x, y + 1, width, height - 1);
-    Editor *editor = new Editor(yate, pane_s, yate.getBuffer(path), x, y + 1,
-                                width, height - 1);
-    pane_s->addPane(editor);
+    if (endsWith(".csv", path)) {
+      CsvEditor* editor = new CsvEditor(yate, parent, yate.getBuffer(path), x, y + 1,
+        width, height - 1);
+      pane_s->addPane(editor);
+    }
+    else {
+      Editor *editor = new Editor(yate, pane_s, yate.getBuffer(path), x, y + 1,
+                                  width, height - 1);
+      pane_s->addPane(editor);
+    }
     tabs.emplace_back(pane_s);
   }
 }

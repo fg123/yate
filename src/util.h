@@ -32,6 +32,15 @@
 
 bool fuzzy_match(const std::string& needle, const std::string& haystack);
 bool fuzzy_match(const std::string& needle, const std::string& haystack, ColNumber &found_position);
+std::string tab_replace(std::string& line, std::string& reference, int tab_size, char replace_with = ' ');
+
+inline bool endsWith(const std::string& suffix, const std::string& str) {
+    return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix);
+}
+
+inline bool startsWith(const std::string& prefix, const std::string& str) {
+    return str.size() >= prefix.size() && 0 == str.compare(0, prefix.size(), prefix);
+}
 
 template <typename T>
 inline T read(std::istream& input) {
@@ -48,14 +57,6 @@ inline int indexOf(std::vector<T> vector, T item) {
   } else {
     return std::distance(vector.begin(), it);
   }
-}
-
-inline bool startsWith(std::string needle, std::string haystack) {
-  if (haystack.size() < needle.size()) return false;
-  for (std::string::size_type i = 0; i < needle.size(); i++) {
-    if (haystack[i] != needle[i]) return false;
-  }
-  return true;
 }
 
 inline bool startsWithWordBoundary(std::string needle, std::string haystack) {
