@@ -104,14 +104,9 @@ bool Editor::inSelection(LineNumber line, ColNumber col) {
   }
   // Selection Start is based on buffer position, count how many tabs before
   //   to get screen location
-  std::string& line_content = buffer->getLine(std::get<0>(selection_start));
-  size_t tab_count = 0;
-  for (size_t i = 0; i < std::get<1>(selection_start); i++) {
-    if (line_content[i] == '\t') tab_count += 1;
-  }
   LineCol modified_selection_start = selection_start;
-  std::get<1>(modified_selection_start) +=
-      tab_count * (yate.config.getTabSize() - 1);
+  COL(modified_selection_start) =
+    getActualColPosition(LINE(selection_start), COL(selection_start));
   LineCol location = std::make_tuple(line, col);
   LineCol cursor = std::make_tuple(current_line, getActualColPosition());
   LineCol from = std::min(cursor, modified_selection_start);
@@ -119,16 +114,20 @@ bool Editor::inSelection(LineNumber line, ColNumber col) {
   return location >= from && location <= to;
 }
 
-ColNumber Editor::getActualColPosition() {
-  std::string& line = buffer->getLine(current_line);
+ColNumber Editor::getActualColPosition(const LineNumber& line, const ColNumber& col) {
+  std::string& _line = buffer->getLine(line);
   int tab_size = yate.config.getTabSize();
   uint m = 0;
-  for (uint i = 0; i < current_col; i++, m++) {
-    if (line.at(i) == '\t') {
+  for (uint i = 0; i < col; i++, m++) {
+    if (_line.at(i) == '\t') {
       m += (tab_size * ((m / tab_size) + 1) - m) - 1;
     }
   }
   return m;
+}
+
+ColNumber Editor::getActualColPosition() {
+  return getActualColPosition(current_line, current_col);
 }
 
 // TODO(felixguo): Handle line wrapping?
@@ -209,14 +208,15 @@ void Editor::draw() {
     ColNumber j = 0;
     std::string line = (i == suggested_complete_index ? "> " : "  ") +
                        suggested_complete[i] + " ";
+    ColNumber actual_current_col = getActualColPosition();
     for (; j < line.size(); j++) {
       mvwaddch(internal_window, current_line + 1 + i - window_start_line,
-               field_width + 1 + current_col + 1 + j - window_start_col,
+               field_width + 1 + actual_current_col + 1 + j - window_start_col,
                line[j] | A_REVERSE);
     }
     for (; j < maxlen; j++) {
       mvwaddch(internal_window, current_line + 1 + i - window_start_line,
-               field_width + 1 + current_col + 1 + j - window_start_col,
+               field_width + 1 + actual_current_col + 1 + j - window_start_col,
                ' ' | A_REVERSE);
     }
   }

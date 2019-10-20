@@ -28,6 +28,8 @@ class Editor : public Pane, public Focusable {
   void updateColWithPhantom();
   void limitLineCol();
   void init();
+
+  ColNumber getActualColPosition(const LineNumber& line, const ColNumber& col);
   ColNumber getActualColPosition();
 
   bool inSelection(LineNumber line, ColNumber col);
