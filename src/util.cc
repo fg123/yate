@@ -53,3 +53,20 @@ bool fuzzy_match(const std::string& needle, const std::string& haystack, ColNumb
   position = 0;
   return false;
 }
+
+std::string tab_replace(std::string& line, std::string& reference,
+                        int tab_size, char replace_with) {
+  std::string result;
+  for (ColNumber i = 0; i < line.size(); i++) {
+    char c = reference[i];
+    if (c == '\t') {
+      int spaces_to_add = tab_size * ((result.size() / tab_size) + 1) - result.size();
+      for (int j = 0; j < spaces_to_add; j++) {
+        result += replace_with;
+      }
+    } else {
+      result += line[i];
+    }
+  }
+  return result;
+}
