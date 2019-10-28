@@ -4,11 +4,17 @@
 #include "buffer.h"
 
 class CsvBuffer {
-  Buffer* buffer;
+  char delim = ',';
+
 public:
+  Buffer* buffer;
+
   CsvBuffer(Buffer* buffer) : buffer(buffer) {
-    // We don't own buffer so we
+    repopulateTable();
   }
+
+  void repopulateTable();
+  void repopulateTable(LineNumber from, LineNumber to);
 };
 
 #endif

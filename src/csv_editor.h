@@ -6,6 +6,7 @@
 //   class does is a new UI to display the data
 
 #include "editor.h"
+#include "csv_buffer.h"
 
 class CsvEditor : public Editor {
   std::string generateStatusBar() override;
@@ -16,9 +17,9 @@ class CsvEditor : public Editor {
   void populate_widths(BufferWindow window);
 
 public:
-  CsvEditor(Yate &yate, Pane *parent, Buffer *buffer,
+  CsvEditor(Yate &yate, Pane *parent, CsvBuffer *buffer,
     int x, int y, int width, int height) : Editor(
-      yate, parent, buffer, x, y, width, height) {
+      yate, parent, buffer->buffer, x, y, width, height) {
   }
 
   CsvEditor(Yate &yate, Pane *parent, std::istream &saved_state) :
