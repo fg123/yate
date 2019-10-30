@@ -425,7 +425,7 @@ void Buffer::_delete(LineNumber& line, ColNumber& col) {
   if (deleted_char) {
     create_edit_for(EditNode::Type::DELETE_DEL, std::string(1, deleted_char),
                     orig_l, orig_c);
-    highlight(deleted_char == '\n' ? line - 1 : line, line + 1);
+    highlight(line, line + 1);
     update_unsaved_marker();
   }
 }
