@@ -265,6 +265,8 @@ char Buffer::delete_no_history(LineNumber& line, ColNumber& col) {
     std::string right = getWordAt(line + 1, 0);
 
     internal_buffer[line] += internal_buffer[line + 1];
+    syntax_components[line] += syntax_components[line + 1];
+
     internal_buffer.erase(internal_buffer.begin() + line + 1,
                           internal_buffer.begin() + line + 2);
     syntax_components.erase(syntax_components.begin() + line + 1,
