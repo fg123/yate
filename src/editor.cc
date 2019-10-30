@@ -576,7 +576,7 @@ void Editor::onKeyPress(int key) {
 }
 
 bool Editor::shouldShowAutoComplete() {
-  return is_at_end_of_word && current_node && suggested_complete.size() > 0;
+  return is_at_end_of_word && current_node && suggested_complete.size() > 0 && !buffer->isInPasteMode;
 }
 
 void Editor::updateColWithPhantom() {
