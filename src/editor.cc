@@ -298,6 +298,7 @@ void Editor::onKeyPress(int key) {
       key = KEY_SHOME;
     }
   }
+  ActionManager::get().runAction(key, yate, this);
   switch (key) {
     case KEY_ENTER:
     case '\n':
@@ -357,100 +358,8 @@ void Editor::onKeyPress(int key) {
     case KEY_ESC:
       suggested_complete.clear();
       break;
-    case ctrl('d'): {
-      // find-all
-      FindAllPromptWindow* f = new FindAllPromptWindow(yate);
-      yate.enterPrompt(f);
-      break;
-    }
-    case ctrl('f'): {
-      FindPromptWindow* f = new FindPromptWindow(yate, this);
-      yate.enterPrompt(f);
-      break;
-    }
-    case ctrl('s'):
-      buffer->writeToFile();
-      break;
-    case ctrl('p'): {
-      yate.enterPrompt(new NavigateWindow(
-          yate, (NavigateWindowProvider*)yate.getEditorNavigateProvider(),
-          nullptr));
-      break;
-    }
-    case ctrl('k'): {
-      CommandPromptWindow* p = new CommandPromptWindow(yate, this);
-      yate.enterPrompt(p);
-      break;
-    }
-    case ctrl('t'): {
-      TagsPromptWindow* p = new TagsPromptWindow(yate, this);
-      yate.enterPrompt(p);
-      break;
-    }
-    case ctrl('g'): {
-      GoToLinePromptWindow* p = new GoToLinePromptWindow(yate, this);
-      yate.enterPrompt(p);
-      break;
-    }
-    case ctrl('z'):
-      buffer->undo(current_line, current_col);
-      selection_start = NO_SELECTION;
-      break;
-    case ctrl('a'):
-      selection_start = std::make_tuple(0, 0);
-      current_line = buffer->size() - 1;
-      current_col = buffer->getLineLength(current_line);
-      break;
-    case ctrl('y'):
-      buffer->redo(current_line, current_col);
-      selection_start = NO_SELECTION;
-      break;
-    case ctrl('n'): {
-      TabSet* first = findFirstParent<TabSet>();
-      if (first) {
-        first->makeNewTab();
-      }
-      break;
-    }
     case ctrl('w'): {
-      TabSet* first = findFirstParent<TabSet>();
-      if (first) {
-        first->closeTab();
-        /* Closing tab will kill this instance, so we
-         * don't want to do anything else */
-        return;
-      }
-      break;
-    }
-    case ctrl('o'):
-      yate.enterPrompt(new FileSystemWindow(
-          yate, this, buffer->cwd, nullptr,
-          std::bind(
-              static_cast<void (Editor::*)(std::string)>(&Editor::switchBuffer),
-              this, std::placeholders::_1)));
-      break;
-    case ctrl('x'):
-    case ctrl('c'): {
-      if (selection_start == NO_SELECTION) {
-        break;
-      }
-      LineCol current = std::make_tuple(current_line, current_col);
-      yate.clipboard_buffers.push_front(
-          buffer->getTextInRange(current, selection_start));
-      // TODO(felixguo): Make this configurable?
-      while (yate.clipboard_buffers.size() > 10) {
-        yate.clipboard_buffers.pop_back();
-      }
-      if (key == ctrl('x')) {
-        deleteSelection();
-      }
-      break;
-    }
-    case ctrl('v'): {
-      if (yate.clipboard_buffers.size() > 0) {
-        paste(yate.clipboard_buffers.front());
-      }
-      break;
+      return;
     }
     case KEY_CLEFT: {
       TabSet* first = findFirstParent<TabSet>();

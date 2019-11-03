@@ -218,9 +218,6 @@ void Yate::onCapture(int result) {
   } else {
     getCurrentFocus()->onKeyPress(result);
   }
-  if (result == ctrl('q')) {
-    enterPrompt(new QuitPromptWindow(*this));
-  }
 }
 
 void Yate::registerEditor(Editor* editor) {

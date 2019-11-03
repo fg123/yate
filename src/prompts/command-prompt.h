@@ -8,27 +8,35 @@
 #include "prompt-window.h"
 #include "util.h"
 
-using CommandPromptEntry = std::pair<std::string, std::function<void()>>;
 class CommandPromptWindow : public PromptWindow {
   const std::string title = "Enter Command:";
-  std::vector<CommandPromptEntry> items;
+  std::vector<std::string> items;
   Editor *editor = nullptr;
-
+  std::vector<std::function<void()>> special_commands;
  public:
   CommandPromptWindow(Yate &yate, Editor *editor);
 
   const std::string &getTitle() override { return title; }
 
   bool match(std::string buffer, size_t index) override {
-    return fuzzy_match(buffer, items.at(index).first);
+    return fuzzy_match(buffer, items.at(index));
   }
 
   const std::string getItemString(size_t index) override {
-    return items.at(index).first;
+    return items.at(index);
   }
 
   void onExecute(size_t index) override {
-    yate.exitPromptThenRun(items.at(index).second);
+    index += 1; // for how we remove the first one
+    if (index >= ActionManager::get().actions.size()) {
+      yate.exitPromptThenRun(special_commands[index - ActionManager::get().actions.size()]);
+      return;
+    }
+    Yate& s_yate = yate;
+    Editor* s_editor = editor;
+    yate.exitPromptThenRun([&s_yate, s_editor, index] () mutable {
+      ActionManager::get().actions[index].fn(s_yate, s_editor);
+    });
   }
 
   const size_t getListSize() { return items.size(); }

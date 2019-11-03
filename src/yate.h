@@ -10,6 +10,7 @@
 #include "focusable.h"
 #include "logging.h"
 #include "theme.h"
+#include "actions.h"
 
 class PaneSet;
 class Buffer;
@@ -31,11 +32,12 @@ class Yate {
  public:
   YateConfig config;
   PaneSet *root;
+  bool should_highlight;
+
   std::vector<Buffer *> opened_buffers;
   std::vector<Editor *> editors;
   std::deque<std::string> clipboard_buffers;
 
-  bool should_highlight;
   Yate(YateConfig config, bool should_highlight, std::istream &saved_state);
   Yate(YateConfig config, bool should_highlight, bool should_save_to_state,
        std::vector<std::string> &paths_to_open);

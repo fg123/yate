@@ -11,10 +11,14 @@
 #include "pane-set.h"
 #include "pane.h"
 #include "yate.h"
+#include "actions.h"
 
 const LineCol NO_SELECTION = std::make_tuple(-1, -1);
 
 class Editor : public Pane, public Focusable {
+
+  friend class ActionManager;
+
   Yate &yate;
   Buffer *buffer;
   LineNumber current_line = 0;

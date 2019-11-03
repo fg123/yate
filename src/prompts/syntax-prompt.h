@@ -1,5 +1,5 @@
-#ifndef FIND_PROMPT_H
-#define FIND_PROMPT_H
+#ifndef SYNTAX_PROMPT_H
+#define SYNTAX_PROMPT_H
 
 #include "prompt-window.h"
 #include "util.h"
