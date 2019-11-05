@@ -34,11 +34,13 @@ bool fuzzy_match(const std::string& needle, const std::string& haystack);
 bool fuzzy_match(const std::string& needle, const std::string& haystack, ColNumber &found_position);
 std::string tab_replace(std::string& line, std::string& reference, int tab_size, char replace_with = ' ');
 
-inline bool endsWith(const std::string& suffix, const std::string& str) {
-    return str.size() >= suffix.size() && 0 == str.compare(str.size()-suffix.size(), suffix.size(), suffix);
+template <typename R>
+inline bool endsWith(const std::string& suffix, const R& str) {
+    return str.size() >= suffix.size() && 0 == str.compare(str.size() - suffix.size(), suffix.size(), suffix);
 }
 
-inline bool startsWith(const std::string& prefix, const std::string& str) {
+template <typename R>
+inline bool startsWith(const std::string& prefix, const R& str) {
     return str.size() >= prefix.size() && 0 == str.compare(0, prefix.size(), prefix);
 }
 
@@ -59,7 +61,8 @@ inline int indexOf(std::vector<T> vector, T item) {
   }
 }
 
-inline bool startsWithWordBoundary(std::string needle, std::string haystack) {
+template<typename R>
+inline bool startsWithWordBoundary(const std::string& needle, const R& haystack) {
   if (haystack.size() < needle.size()) return false;
   std::string::size_type i = 0;
   for (; i < needle.size(); i++) {

@@ -2,6 +2,7 @@
 
 #include "logging.h"
 #include "util.h"
+#include "string-view.h"
 
 using Component = SyntaxHighlighting::Component;
 // clang-format off
@@ -31,8 +32,8 @@ bool GenericSyntax::matchFile(Buffer* buffer) {
 LineCol GenericSyntax::match(Component component,
                              std::vector<std::string> &document,
                              LineCol start) {
-  std::string input = document.at(LINE(start));
-  std::string actual = input.substr(COL(start));
+  std::string& input = document.at(LINE(start));
+  StringView actual(input, COL(start));
   switch (component) {
     case Component::COMMENT: {
       if (startsWith("//", actual)) {
