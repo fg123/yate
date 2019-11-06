@@ -123,6 +123,7 @@ class Editor : public Pane, public Focusable {
   bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override;
   void paste(std::string& str);
   void insertTab(LineNumber& line, ColNumber& col);
+  void removeTab(LineNumber& line, ColNumber& col);
   void deleteSelection();
   void addTag(std::string label);
   void fastTravel(EditNode *to);

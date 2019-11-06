@@ -261,6 +261,23 @@ void Editor::insertTab(LineNumber& line, ColNumber& col) {
   }
 }
 
+void Editor::removeTab(LineNumber& line, ColNumber& col) {
+  std::string& _line = buffer->getLine(line);
+  ColNumber zero = 0;
+  if (yate.config.getIndentationStyle() == YateConfig::IndentationStyle::TAB) {
+    if (_line.size() > 0 && _line[0] == '\t') {
+      buffer->_delete(line, zero);
+    }
+  } else {
+    if (startsWith(std::string(yate.config.getTabSize(), ' '), _line)) {
+      for (int i = 0; i < yate.config.getTabSize(); i++) {
+        buffer->_delete(line, zero);
+        zero = 0;
+      }
+    }
+  }
+}
+
 void Editor::addTag(std::string label) {
   buffer->addTag(label, current_line, current_col);
 }
@@ -320,21 +337,6 @@ void Editor::onKeyPress(int key) {
         ColNumber end = prev_line.find_first_not_of(" \t");
         for (ColNumber i = 0; i < std::min(end, prev_line.size()); i++) {
           buffer->insertCharacter(prev_line[i], current_line, current_col);
-        }
-      }
-      break;
-    }
-    case '\t': {
-      if (selection_start == NO_SELECTION) {
-        insertTab(current_line, current_col);
-      } else {
-        LineNumber start = std::min(std::get<0>(selection_start), current_line);
-        LineNumber end = std::max(std::get<0>(selection_start), current_line);
-        ColNumber zero = 0;
-        for (LineNumber i = start; i <= end; i++) {
-          insertTab(i, zero);
-          // Since insertTab takes reference and modifies it
-          zero = 0;
         }
       }
       break;

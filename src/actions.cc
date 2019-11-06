@@ -106,6 +106,34 @@ ActionManager::ActionManager() {
   DECLARE_ACTION(108, "Choose Syntax", NO_KEY, ACTION_FN {
     yate.enterPrompt(new SyntaxPromptWindow(yate, editor));
   });
+  DECLARE_ACTION(109, "Indent", '\t', ACTION_FN {
+    if (editor->selection_start == NO_SELECTION) {
+      editor->insertTab(editor->current_line, editor->current_col);
+    } else {
+      LineNumber start = std::min(std::get<0>(editor->selection_start), editor->current_line);
+      LineNumber end = std::max(std::get<0>(editor->selection_start), editor->current_line);
+      ColNumber zero = 0;
+      for (LineNumber i = start; i <= end; i++) {
+        editor->insertTab(i, zero);
+        // Since insertTab takes reference and modifies it
+        zero = 0;
+      }
+    }
+  });
+  DECLARE_ACTION(110, "Unindent", NO_KEY, ACTION_FN {
+    if (editor->selection_start == NO_SELECTION) {
+      editor->removeTab(editor->current_line, editor->current_col);
+    } else {
+      LineNumber start = std::min(std::get<0>(editor->selection_start), editor->current_line);
+      LineNumber end = std::max(std::get<0>(editor->selection_start), editor->current_line);
+      ColNumber zero = 0;
+      for (LineNumber i = start; i <= end; i++) {
+        editor->removeTab(i, zero);
+        // Since insertTab takes reference and modifies it
+        zero = 0;
+      }
+    }
+  });
 
   DECLARE_ACTION(200, "Choose Editor", ctrl('p'), ACTION_FN {
     yate.enterPrompt(new NavigateWindow(
