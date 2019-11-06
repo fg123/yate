@@ -29,6 +29,8 @@
   } while (0)
 
 #include <algorithm>
+#include <cstring>
+#include "string-view.h"
 
 bool fuzzy_match(const std::string& needle, const std::string& haystack);
 bool fuzzy_match(const std::string& needle, const std::string& haystack, ColNumber &found_position);
@@ -42,6 +44,28 @@ inline bool endsWith(const std::string& suffix, const R& str) {
 template <typename R>
 inline bool startsWith(const std::string& prefix, const R& str) {
     return str.size() >= prefix.size() && 0 == str.compare(0, prefix.size(), prefix);
+}
+
+inline bool fastStartsWith(const char * pfx, const StringView& str) {
+  size_t l = strlen(pfx);
+  if (str.size() < l) return false;
+  for (size_t i = 0; i < l; i++) {
+    if (str[i] != pfx[i]) {
+      return false;
+    }
+  }
+  return true;
+}
+
+inline bool fastStartsWithWordBoundary(const char * pfx, const StringView& str) {
+  size_t l = strlen(pfx), i = 0;
+  if (str.size() < l) return false;
+  for (; i < l; i++) {
+    if (str[i] != pfx[i]) {
+      return false;
+    }
+  }
+  return (i == str.size() || !std::isalnum(str[i]));
 }
 
 template <typename T>

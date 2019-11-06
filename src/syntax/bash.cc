@@ -6,7 +6,7 @@
 
 using Component = SyntaxHighlighting::Component;
 // clang-format off
-std::vector<std::string> bash_keywords = { "break", "case", "continue",
+const std::vector<std::string> bash_keywords = { "break", "case", "continue",
 "do", "done", "echo", "else", "esac", "eval", "exec", "exit", "export", "fi",
 "for", "if", "read", "readonly", "return", "set", "shift", "trap", "ulimit",
 "umask", "unset", "until", "wait", "while" };
@@ -33,9 +33,9 @@ LineCol BashSyntax::match(Component component,
   StringView actual(input, COL(start));
   switch (component) {
     case Component::COMMENT: {
-      if (startsWith("//", actual)) {
+      if (fastStartsWith("//", actual)) {
         COL(start) = input.size();
-      } else if (startsWith("#", actual)) {
+      } else if (fastStartsWith("#", actual)) {
         if (actual.length() < 2 || std::isspace(actual[1])) {
           COL(start) = input.size();
         }
@@ -60,8 +60,8 @@ LineCol BashSyntax::match(Component component,
       break;
     }
     case Component::KEYWORD: {
-      for (auto keyword : bash_keywords) {
-        if (startsWithWordBoundary(keyword, actual)) {
+      for (const auto & keyword : bash_keywords) {
+        if (fastStartsWithWordBoundary(keyword.c_str(), actual)) {
           COL(start) += keyword.size();
           return start;
         }
@@ -69,7 +69,7 @@ LineCol BashSyntax::match(Component component,
       break;
     }
     case Component::PREPROCESSOR:
-      if (startsWith("#", actual)) {
+      if (fastStartsWith("#", actual)) {
         while (COL(start) < input.size() && !std::isspace(input[COL(start)])) {
           COL(start)++;
         }

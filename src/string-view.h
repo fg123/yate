@@ -12,10 +12,12 @@ class StringView {
 public:
   StringView(std::string& source, size_t start);
 
-  size_t length() const;
-  size_t size() const;
+  inline size_t length() const { return _length;  }
+  inline size_t size() const { return _length;  }
 
-  const char &operator[] (size_t) const;
+  inline const char &operator[] (size_t pos) const {
+    return source[start + pos];
+  }
 
   int compare(size_t pos, size_t len, const std::string& str) const;
 };

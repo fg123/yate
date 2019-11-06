@@ -6,7 +6,7 @@
 
 using Component = SyntaxHighlighting::Component;
 // clang-format off
-std::vector<std::string> generic_keywords = { "alignas", "alignof", "and", "and_eq",
+const std::vector<std::string> generic_keywords = { "alignas", "alignof", "and", "and_eq",
 "asm", "atomic_cancel", "atomic_commit", "atomic_noexcept", "auto", "bitand", "bitor",
 "bool", "break", "case", "catch", "char", "char16_t", "char32_t", "class", "compl",
 "concept", "const", "constexpr", "const_cast", "continue", "co_await", "co_return",
@@ -36,13 +36,13 @@ LineCol GenericSyntax::match(Component component,
   StringView actual(input, COL(start));
   switch (component) {
     case Component::COMMENT: {
-      if (startsWith("//", actual)) {
+      if (fastStartsWith("//", actual)) {
         COL(start) = input.size();
-      } else if (startsWith("#", actual)) {
+      } else if (fastStartsWith("#", actual)) {
         if (actual.length() < 2 || std::isspace(actual[1])) {
           COL(start) = input.size();
         }
-      } else if (startsWith("/*", actual)) {
+      } else if (fastStartsWith("/*", actual)) {
         while (LINE(start) < document.size()) {
           while (COL(start) < document.at(LINE(start)).size()) {
             if (document.at(LINE(start)).at(COL(start)) == '*') {
@@ -79,8 +79,8 @@ LineCol GenericSyntax::match(Component component,
       break;
     }
     case Component::KEYWORD: {
-      for (auto keyword : generic_keywords) {
-        if (startsWithWordBoundary(keyword, actual)) {
+      for (const auto & keyword : generic_keywords) {
+        if (fastStartsWithWordBoundary(keyword.c_str(), actual)) {
           COL(start) += keyword.size();
           return start;
         }
@@ -88,7 +88,7 @@ LineCol GenericSyntax::match(Component component,
       break;
     }
     case Component::PREPROCESSOR:
-      if (startsWith("#", actual)) {
+      if (fastStartsWith("#", actual)) {
         while (COL(start) < input.size() && !std::isspace(input[COL(start)])) {
           COL(start)++;
         }

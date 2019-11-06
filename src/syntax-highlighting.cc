@@ -59,7 +59,7 @@ void SyntaxHighlighting::highlight(Syntax *syntax,
     /* Try each parse, find longest one */
     Component longest_component = Component::NO_HIGHLIGHT;
     LineCol result = start;
-    for (auto component : COMPONENT_MATCH_ORDER) {
+    for (auto & component : COMPONENT_MATCH_ORDER) {
       LineCol match_result = syntax->match(component, input, start);
       if (match_result > result) {
         result = match_result;
