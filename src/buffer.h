@@ -98,6 +98,8 @@ class Buffer {
   void update_unsaved_marker();
 
  public:
+
+  Buffer(Yate &yate);
   Buffer(Yate &yate, std::string path);
   ~Buffer();
 
@@ -134,6 +136,9 @@ class Buffer {
   ColNumber getLineLength(LineNumber line);
   bool writeToFile(LineNumber line = 0, ColNumber col = 0);
   void revert(LineNumber &line, ColNumber &col);
+
+  void delete_line_no_history(LineNumber line);
+  void append_no_history(std::string &str);
 
   std::string getTextInRange(LineCol from, LineCol to);
 

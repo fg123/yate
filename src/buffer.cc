@@ -50,6 +50,11 @@ std::string EditNode::getDescription() const {
          getSerializedContent();
 }
 
+Buffer::Buffer(Yate& yate)
+    : Buffer(yate, "") {
+}
+
+
 Buffer::Buffer(Yate& yate, std::string path)
     : yate(yate),
       path(path),
@@ -141,17 +146,19 @@ BufferWindow Buffer::getBufferWindow(LineNumber start, LineNumber end) {
 }
 
 bool Buffer::writeToFile(LineNumber line, ColNumber col) {
-  std::ofstream test_file(path, std::ios::app);
-  if (!test_file.good()) return false;
-  test_file.close();
-  std::ofstream file(path, std::ios::trunc);
   bool should_trim = yate.config.shouldTrimTrailingWhitespace();
-  for (auto line : internal_buffer) {
-    if (should_trim) {
-      ColNumber end = line.find_last_not_of(" \t");
-      line.erase(end + 1);
+  if (!path.empty()) {
+    std::ofstream test_file(path, std::ios::app);
+    if (!test_file.good()) return false;
+    test_file.close();
+    std::ofstream file(path, std::ios::trunc);
+    for (auto line : internal_buffer) {
+      if (should_trim) {
+        ColNumber end = line.find_last_not_of(" \t");
+        line.erase(end + 1);
+      }
+      file << line << std::endl;
     }
-    file << line << std::endl;
   }
   last_save = current_edit;
   update_unsaved_marker();
@@ -291,6 +298,19 @@ void Buffer::insertCharacter(char character, LineNumber& line, ColNumber& col) {
     update_unsaved_marker();
 
     highlight(character == '\n' ? line - 1 : line, line + 1);
+  }
+}
+
+void Buffer::delete_line_no_history(LineNumber line) {
+  if (line >= size()) return;
+  internal_buffer.erase(internal_buffer.begin() + line);
+}
+
+void Buffer::append_no_history(std::string& str) {
+  LineNumber l = size() - 1;
+  ColNumber c = getLine(l).size();
+  for (auto s : str) {
+    insert_no_history(s, l, c);
   }
 }
 

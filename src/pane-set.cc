@@ -3,6 +3,7 @@
 #include "navigate-prompt.h"
 #include "tab-set.h"
 #include "merge-prompt.h"
+#include "log-pane.h"
 
 #include <cmath>
 #include <queue>
@@ -20,6 +21,8 @@ PaneSet::PaneSet(Yate &yate, Pane *parent, std::istream &saved_state)
       addPane(new TabSet(yate, this, saved_state));
     } else if (type == "editor") {
       addPane(new Editor(yate, this, saved_state));
+    } else if (type == "logpane") {
+      addPane(new LogPane(yate, this, saved_state));
     } else if (type == "paneset") {
       addPane(new PaneSet(yate, this, saved_state));
     } else {
@@ -41,6 +44,18 @@ void PaneSet::draw() {
   Logging::breadcrumb("Paneset Draw");
   for (auto pane : panes) {
     pane->draw();
+  }
+}
+
+void PaneSet::replaceChildWithLog(Pane *child) {
+  for (size_t i = 0; i < panes.size(); i++) {
+    if (panes[i] == child) {
+      Pane* c = panes[i];
+      panes[i] = new LogPane(yate, this, c->x, c->y, c->width, c->height);
+      delete c;
+      focused_pane = panes[i];
+      return;
+    }
   }
 }
 

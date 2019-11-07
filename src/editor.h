@@ -60,6 +60,9 @@ class Editor : public Pane, public Focusable {
 
   void invalidate_current_word();
 
+ protected:
+  bool isReadonly = false;
+
  public:
   Editor(Yate &yate, Pane *parent, Buffer *buffer, int x, int y, int width,
          int height)
@@ -67,11 +70,15 @@ class Editor : public Pane, public Focusable {
     init();
   }
 
-  Editor(Yate &yate, Pane *parent, std::istream &saved_state)
-      : Pane(parent, saved_state),
-        yate(yate),
-        buffer(yate.getBuffer(read<std::string>(saved_state))) {
+  Editor(Yate &yate, Pane *parent, Buffer *buffer, std::istream &saved_state)
+    : Pane(parent, saved_state), yate(yate), buffer(buffer) {
     Logging::breadcrumb("Deserializing Editor");
+    init();
+  }
+
+  Editor(Yate &yate, Pane *parent, std::istream &saved_state)
+      : Pane(parent, saved_state), yate(yate),
+        buffer(yate.getBuffer(read<std::string>(saved_state))) {
     init();
   }
 

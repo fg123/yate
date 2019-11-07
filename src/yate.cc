@@ -22,6 +22,7 @@ void Yate::refreshAndStartCapture() {
   refresh();
   root->resize(0, 0, COLS, LINES - 1);
   draw();
+  Logging::flush();
 
   while (true) {
     if (should_quit) break;
@@ -29,6 +30,7 @@ void Yate::refreshAndStartCapture() {
     if (result != ERR) {
       /* Some ncurses capture error */
       onCapture(result);
+      Logging::flush();
     }
   }
 }
@@ -233,7 +235,6 @@ void Yate::unregisterEditor(Editor* editor) {
 }
 
 void Yate::quit() {
-  Logging::breadcrumb("Quit");
   should_quit = true;
 }
 

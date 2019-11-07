@@ -157,6 +157,10 @@ struct Pane : public NavigateWindowProvider {
   virtual void onFocusRequested(Pane *paneRequestingFocus, Pane *child) {}
   virtual Focusable *getCurrentFocus() = 0;
 
+  virtual bool isChildVisible(Pane *child) { return isVisible(); }
+
+  bool isVisible() { return !parent || parent->isChildVisible(this); }
+
   virtual void onMouseEvent(MEVENT *event) {}
   virtual void onTitleUpdated() {}
   virtual ~Pane() { delwin(internal_window); }

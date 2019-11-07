@@ -35,6 +35,9 @@ class PaneSet : public Pane {
 
   void resizePane(Pane *child, Direction direction, int unit);
   void mergePane(Pane *child, NavigateWindow *navigateWindow);
+
+  void replaceChildWithLog(Pane *child);
+
   void doMerge(Pane *goner, Pane *stayer, SharedEdge edge, size_t goner_index);
 
   const std::vector<Pane *> &getPanes() { return panes; }

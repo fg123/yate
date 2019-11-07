@@ -47,6 +47,10 @@ class TabSet : public Pane {
   size_t getNavigationItemsSize() override { return tabs.size() + 1; }
   std::string getNavigationItem(size_t index) override;
   bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override;
+
+  bool isChildVisible(Pane* child) {
+    return isVisible() && (Pane *)tabs[selected_tab] == child;
+  }
 };
 
 #endif

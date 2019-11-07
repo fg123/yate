@@ -24,7 +24,6 @@
 
 void Editor::init() {
   current_node = nullptr;
-
   buffer->registerEditor(this);
   yate.registerEditor(this);
   std::vector<Pane*> parents;

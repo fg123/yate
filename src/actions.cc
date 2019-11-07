@@ -50,7 +50,10 @@ ActionManager::ActionManager() {
   DECLARE_ACTION(4, "Revert File", NO_KEY, ACTION_FN {
     editor->revertBuffer();
   });
-  DECLARE_ACTION(5, "Quit", ctrl('q'), ACTION_FN {
+  DECLARE_ACTION(5, "View Log", NO_KEY, ACTION_FN {
+    editor->paneset_parent->replaceChildWithLog(editor->paneset_parent_child);
+  });
+  DECLARE_ACTION(6, "Quit", ctrl('q'), ACTION_FN {
     yate.enterPrompt(new QuitPromptWindow(yate));
   });
 

@@ -45,7 +45,7 @@ class Yate {
 
   void serialize(std::ostream &output);
   void onCapture(int result);
-  Buffer *getBuffer(std::string path);
+  Buffer *getBuffer(std::string path = "Untitled");
   bool isCurrentFocus(Focusable *focus) { return getCurrentFocus() == focus; }
   void enterPrompt(PromptWindow *window) { prompt_stack.push_back(window); }
   void determineConfigFromBuffer(Buffer *buffer);
