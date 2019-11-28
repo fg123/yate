@@ -80,6 +80,16 @@ bool Editor::onNavigationItemSelected(size_t index, NavigateWindow *parent) {
   return true;
 }
 
+bool Editor::isBrace(LineNumber line, ColNumber col) {
+  if (LINE(opening_brace) == line && COL(opening_brace) == col) {
+    return true;
+  }
+  if (LINE(closing_brace) == line && COL(closing_brace) == col) {
+    return true;
+  }
+  return false;
+}
+
 bool Editor::inSelection(LineNumber line, ColNumber col) {
   if (selection_start == NO_SELECTION) {
     return false;
@@ -166,6 +176,9 @@ void Editor::draw() {
       auto flag = inSelection(window_start_line + i, window_start_col + j)
                       ? A_REVERSE
                       : A_NORMAL;
+      if (isBrace(window_start_line + i, window_start_col + j)) {
+        flag |= A_UNDERLINE;
+      }
       auto syntax_color = yate.config.getTheme()->map(
           (SyntaxHighlighting::Component)syntax.at(j));
       if (yate.should_highlight) wattron(internal_window, syntax_color);
@@ -491,6 +504,52 @@ void Editor::invalidate_current_word() {
   current_node = buffer->prefix_trie.getNode(current_word);
 }
 
+void Editor::calculateBracePosition() {
+  const static std::map<char, std::string> braceMap = {
+    {'(', ")"},
+    {'[', "]"},
+    {'{', "}"},
+    {')', "("},
+    {']', "["},
+    {'}', "{"},
+  };
+  const static std::string left = "([{";
+  const static std::string right = ")]}";
+  std::string lookForward = right, lookBackward = left;
+
+  char curr = buffer->getLineCol(current_line, current_col);
+  if (curr == '(' || curr == '[' || curr == '{') {
+    lookForward = braceMap.at(curr);
+    lookBackward = "";
+  }
+  else if (curr == ')' || curr == ']' || curr == '}') {
+    lookBackward = braceMap.at(curr);
+    lookForward = "";
+  }
+
+  opening_brace = std::make_pair(current_line, current_col);
+  closing_brace = opening_brace;
+
+  if (!lookBackward.empty()) {
+    while (lookBackward.find(curr) != std::string::npos) {
+      if (!buffer->decrementLineCol(opening_brace)) {
+        opening_brace = NO_BRACES;
+        break;
+      }
+      curr = buffer->getLineCol(opening_brace);
+    }
+  }
+  if (!lookForward.empty()) {
+    while (lookForward.find(curr) != std::string::npos) {
+      if (!buffer->incrementLineCol(closing_brace)) {
+        closing_brace = NO_BRACES;
+        break;
+      }
+      curr = buffer->getLineCol(closing_brace);
+    }
+  }
+}
+
 // This should be called whenever anything happens to the current
 //   line or col
 void Editor::limitLineCol() {
@@ -514,6 +573,8 @@ void Editor::limitLineCol() {
   }
   current_word_line = current_line;
   current_word_col = current_col;
+
+  calculateBracePosition();
 }
 
 void Editor::switchBuffer(std::string newPath) {

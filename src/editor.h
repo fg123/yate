@@ -14,6 +14,7 @@
 #include "actions.h"
 
 const LineCol NO_SELECTION = std::make_tuple(-1, -1);
+const LineCol NO_BRACES = NO_SELECTION;
 
 class Editor : public Pane, public Focusable {
 
@@ -27,16 +28,22 @@ class Editor : public Pane, public Focusable {
   uint window_start_line = 0;
   uint window_start_col = 0;
 
+  LineCol opening_brace;
+  LineCol closing_brace;
+
   // For when you move cursor past an empty line
   ColNumber phantom_col_pos = 0;
   void updateColWithPhantom();
   void limitLineCol();
+  void calculateBracePosition();
   void init();
 
   ColNumber getActualColPosition(const LineNumber& line, const ColNumber& col);
   ColNumber getActualColPosition();
 
   bool inSelection(LineNumber line, ColNumber col);
+  bool isBrace(LineNumber line, ColNumber col);
+
   void switchBuffer(std::string newPath);
   std::string generateStatusBar();
 

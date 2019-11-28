@@ -147,6 +147,12 @@ class Buffer {
 
   std::string getWordAt(const LineNumber& line, const ColNumber &col,
     bool* is_at_end_of_word = nullptr);
+
+  bool decrementLineCol(LineCol& lineCol);
+  bool incrementLineCol(LineCol& lineCol);
+
+  char getLineCol(const LineCol& lineCol);
+  char getLineCol(const LineNumber& line, const ColNumber& col);
 };
 
 #endif

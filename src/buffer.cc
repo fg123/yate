@@ -235,6 +235,43 @@ bool Buffer::insert_no_history(int character, LineNumber& line,
   return true;
 }
 
+bool Buffer::decrementLineCol(LineCol& lineCol) {
+  if (COL(lineCol) == 0) {
+    if (LINE(lineCol) == 0) {
+      return false;
+    }
+    LINE(lineCol)--;
+    COL(lineCol) = internal_buffer.at(LINE(lineCol)).size();
+    return true;
+  }
+  COL(lineCol)--;
+  return true;
+}
+
+bool Buffer::incrementLineCol(LineCol& lineCol) {
+  if (COL(lineCol) == internal_buffer.at(LINE(lineCol)).size()) {
+    if (LINE(lineCol) == internal_buffer.size() - 1) {
+      return false;
+    }
+    LINE(lineCol)++;
+    COL(lineCol) = 0;
+    return true;
+  }
+  COL(lineCol)++;
+  return true;
+}
+
+char Buffer::getLineCol(const LineCol& lineCol) {
+  return getLineCol(LINE(lineCol), COL(lineCol));
+}
+
+char Buffer::getLineCol(const LineNumber& line, const ColNumber& col) {
+  if (getLine(line).size() == col) {
+    return '\n';
+  }
+  return getLine(line).at(col);
+}
+
 std::string Buffer::getWordAt(const LineNumber& line, const ColNumber& col,
                               bool* is_at_end_of_word) {
   if (line >= internal_buffer.size()) {
