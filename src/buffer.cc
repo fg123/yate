@@ -50,10 +50,7 @@ std::string EditNode::getDescription() const {
          getSerializedContent();
 }
 
-Buffer::Buffer(Yate& yate)
-    : Buffer(yate, "") {
-}
-
+Buffer::Buffer(Yate& yate) : Buffer(yate, "") {}
 
 Buffer::Buffer(Yate& yate, std::string path)
     : yate(yate),
@@ -83,13 +80,20 @@ Buffer::Buffer(Yate& yate, std::string path)
     std::string line;
     while (std::getline(file, line)) {
       internal_buffer.push_back(line);
+      syntax_components.emplace_back(
+          line.size(), SyntaxHighlighting::Component::NO_HIGHLIGHT);
+      syntax_has_multiline.push_back(false);
       prefix_trie.insertWordsFromLine(line);
     }
     if (internal_buffer.empty()) {
-      internal_buffer.push_back("");
+      internal_buffer.emplace_back();
+      syntax_components.emplace_back();
+      syntax_has_multiline.push_back(false);
     }
   } else {
-    internal_buffer.push_back("");
+    internal_buffer.emplace_back();
+    syntax_components.emplace_back();
+    syntax_has_multiline.push_back(false);
   }
   head_edit->type = EditNode::Type::BASE_REVISION;
   head_edit->content = "This is the base revision.";
@@ -117,14 +121,21 @@ void Buffer::revert(LineNumber& line, ColNumber& col) {
 void Buffer::do_revert() {
   Logging::breadcrumb("Doing revert!");
   internal_buffer.clear();
+  syntax_components.clear();
+  syntax_has_multiline.clear();
   std::ifstream file(path);
   if (file.good()) {
     std::string line;
     while (std::getline(file, line)) {
       internal_buffer.push_back(line);
+      syntax_components.emplace_back(
+          line.size(), SyntaxHighlighting::Component::NO_HIGHLIGHT);
+      syntax_has_multiline.push_back(false);
     }
   } else {
-    internal_buffer.push_back("");
+    internal_buffer.emplace_back();
+    syntax_components.emplace_back();
+    syntax_has_multiline.push_back(false);
   }
   last_save = current_edit;
   update_unsaved_marker();
@@ -212,12 +223,20 @@ bool Buffer::insert_no_history(int character, LineNumber& line,
   if (character == '\n') {
     if (col == internal_buffer[line].length()) {
       internal_buffer.insert(internal_buffer.begin() + (line + 1), "");
+      syntax_components.insert(syntax_components.begin() + (line + 1), "");
+      syntax_has_multiline.insert(syntax_has_multiline.begin() + (line + 1),
+                                  false);
     } else {
       internal_buffer.insert(internal_buffer.begin() + line + 1,
                              internal_buffer[line].substr(col));
       internal_buffer[line].erase(col);
+
+      syntax_components.insert(syntax_components.begin() + (line + 1),
+                               syntax_components[line].substr(col));
+      syntax_components[line].erase(col);
+      syntax_has_multiline.insert(syntax_has_multiline.begin() + (line + 1),
+                                  false);
     }
-    syntax_components.insert(syntax_components.begin() + (line + 1), "");
     line++;
     col = 0;
   } else {
@@ -225,6 +244,8 @@ bool Buffer::insert_no_history(int character, LineNumber& line,
     prefix_trie.remove(getWordAt(line, col));
     internal_buffer[line].insert(internal_buffer[line].begin() + col, 1,
                                  (char)character);
+    syntax_components[line].insert(syntax_components[line].begin() + col, 1,
+                                   SyntaxHighlighting::Component::NO_HIGHLIGHT);
     col++;
 
     prefix_trie.insert(getWordAt(line, col));
@@ -272,10 +293,13 @@ char Buffer::delete_no_history(LineNumber& line, ColNumber& col) {
     std::string right = getWordAt(line + 1, 0);
 
     internal_buffer[line] += internal_buffer[line + 1];
+    syntax_components[line] += syntax_components[line + 1];
+
     internal_buffer.erase(internal_buffer.begin() + line + 1,
                           internal_buffer.begin() + line + 2);
     syntax_components.erase(syntax_components.begin() + line + 1,
                             syntax_components.begin() + line + 2);
+
     deleted_char = '\n';
 
     prefix_trie.remove(left);
@@ -284,6 +308,7 @@ char Buffer::delete_no_history(LineNumber& line, ColNumber& col) {
     deleted_char = internal_buffer.at(line).at(col);
     prefix_trie.remove(getWordAt(line, col));
     internal_buffer.at(line).erase(col, 1);
+    syntax_components.at(line).erase(col, 1);
   }
   prefix_trie.insert(getWordAt(line, col));
   return deleted_char;
@@ -304,6 +329,8 @@ void Buffer::insertCharacter(char character, LineNumber& line, ColNumber& col) {
 void Buffer::delete_line_no_history(LineNumber line) {
   if (line >= size()) return;
   internal_buffer.erase(internal_buffer.begin() + line);
+  syntax_components.erase(syntax_components.begin() + line);
+  syntax_has_multiline.erase(syntax_has_multiline.begin() + line);
 }
 
 void Buffer::append_no_history(std::string& str) {
@@ -338,6 +365,7 @@ void Buffer::backspace(LineNumber& line, ColNumber& col) {
     // Join two lines
     col = internal_buffer[line - 1].length();
     internal_buffer[line - 1] += internal_buffer[line];
+    syntax_components[line - 1] += syntax_components[line];
     internal_buffer.erase(internal_buffer.begin() + line,
                           internal_buffer.begin() + line + 1);
     syntax_components.erase(syntax_components.begin() + line,
@@ -347,6 +375,7 @@ void Buffer::backspace(LineNumber& line, ColNumber& col) {
   } else {
     deleted_char = internal_buffer.at(line).at(col - 1);
     internal_buffer[line].erase(col - 1, 1);
+    syntax_components[line].erase(col - 1, 1);
     col -= 1;
   }
   create_edit_for(EditNode::Type::DELETE_BS, std::string(1, deleted_char), line,
@@ -401,19 +430,31 @@ void Buffer::deleteRange(LineCol from, LineCol to) {
   if (from_line == to_line) {
     /* Simple same-line delete */
     internal_buffer.at(from_line).erase(from_col, to_col - from_col + 1);
+    syntax_components.at(from_line).erase(from_col, to_col - from_col + 1);
     goto finish;
   }
 
   /* Delete lines, but we leave the first and the last line */
   internal_buffer.erase(internal_buffer.begin() + from_line + 1,
                         internal_buffer.begin() + to_line);
+  syntax_components.erase(syntax_components.begin() + from_line + 1,
+                          syntax_components.begin() + to_line);
+  syntax_has_multiline.erase(syntax_has_multiline.begin() + from_line + 1,
+                             syntax_has_multiline.begin() + to_line);
   to_line = from_line + 1;
 
   /* Now we handle deletions on the first and last line */
   internal_buffer.at(from_line).erase(from_col);
   internal_buffer.at(to_line).erase(0, to_col);
   internal_buffer.at(from_line) += internal_buffer.at(to_line);
+
+  syntax_components.at(from_line).erase(from_col);
+  syntax_components.at(to_line).erase(0, to_col);
+  syntax_components.at(from_line) += syntax_components.at(to_line);
+
   internal_buffer.erase(internal_buffer.begin() + to_line);
+  syntax_components.erase(syntax_components.begin() + to_line);
+  syntax_has_multiline.erase(syntax_has_multiline.begin() + to_line);
 
 finish:
   highlight(from_line, internal_buffer.size());
@@ -623,10 +664,15 @@ void Buffer::undo_highlight(LineNumber& line, ColNumber& col) {
     // Apply opposite of current_edit
     if (current_edit->type == EditNode::Type::REVERT) {
       internal_buffer.clear();
+      syntax_components.clear();
+      syntax_has_multiline.clear();
       std::istringstream pre_revert(current_edit->content);
       std::string line;
       while (std::getline(pre_revert, line)) {
         internal_buffer.push_back(line);
+        syntax_components.emplace_back(
+            line.size(), SyntaxHighlighting::Component::NO_HIGHLIGHT);
+        syntax_has_multiline.push_back(false);
       }
     } else {
       EditNode opposite = *current_edit;

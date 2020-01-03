@@ -8,10 +8,10 @@
 #include "find-all-prompt.h"
 #include "find-prompt.h"
 #include "goto-line-prompt.h"
+#include "resize-prompt.h"
 #include "tab-set.h"
 #include "tags-prompt.h"
 #include "util.h"
-#include "resize-prompt.h"
 
 /* TODO(felixguo): find cross terminal for this */
 /* https://gist.github.com/rkumar/1237091 */
@@ -31,6 +31,7 @@ void Editor::init() {
   if (!parents.empty()) {
     paneset_parent_child = parents.back();
   }
+  limitLineCol();
 }
 
 Editor::~Editor() {
@@ -53,7 +54,7 @@ std::string Editor::generateStatusBar() {
   return output.str();
 }
 
-bool Editor::onNavigationItemSelected(size_t index, NavigateWindow *parent) {
+bool Editor::onNavigationItemSelected(size_t index, NavigateWindow* parent) {
   switch (index) {
     case 0:
       focusRequested(this);
@@ -72,7 +73,8 @@ bool Editor::onNavigationItemSelected(size_t index, NavigateWindow *parent) {
       //   the active navigate window.
       return false;
     case 4:
-      ResizePromptWindow* prompt = new ResizePromptWindow(yate, paneset_parent, paneset_parent_child);
+      ResizePromptWindow* prompt =
+          new ResizePromptWindow(yate, paneset_parent, paneset_parent_child);
       parent->finish();
       yate.enterPrompt(prompt);
       return false;
@@ -207,6 +209,7 @@ void Editor::draw() {
 
 int Editor::capture() {
   // capture at correct location
+  curs_set(0);
   draw();
   curs_set(1);
   int line_number_width = buffer->getLineNumberFieldWidth() + 2;
@@ -217,9 +220,7 @@ int Editor::capture() {
   return capture;
 }
 
-const std::string& Editor::getTitle() {
-  return buffer->getFileName();
-}
+const std::string& Editor::getTitle() { return buffer->getFileName(); }
 
 void Editor::goToLineOffset(int offset, bool shouldMoveLineToCenter) {
   LineNumber go = current_line + offset;
@@ -471,7 +472,8 @@ void Editor::onKeyPress(int key) {
 }
 
 bool Editor::shouldShowAutoComplete() {
-  return is_at_end_of_word && current_node && suggested_complete.size() > 0 && !buffer->isInPasteMode;
+  return is_at_end_of_word && current_node && suggested_complete.size() > 0 &&
+         !buffer->isInPasteMode;
 }
 
 void Editor::updateColWithPhantom() {
@@ -487,7 +489,8 @@ void Editor::updateColWithPhantom() {
 }
 
 void Editor::invalidate_current_word() {
-  current_word = buffer->getWordAt(current_line, current_col, &is_at_end_of_word);
+  current_word =
+      buffer->getWordAt(current_line, current_col, &is_at_end_of_word);
   current_node = buffer->prefix_trie.getNode(current_word);
 }
 

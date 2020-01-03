@@ -5,12 +5,12 @@
 // can be opened by two buffers. A buffer can be bound to no file, but must
 // have a path.
 
+#include <chrono>
 #include <cmath>
 #include <map>
 #include <string>
 #include <tuple>
 #include <vector>
-#include <chrono>
 
 #include "pfxtrie.h"
 
@@ -65,10 +65,11 @@ class Buffer {
   std::string path;
   std::string unsaved_path;
 
-  /* The next two buffers should always be kept in sync */
+  /* The next three buffers should always be kept in sync */
   std::vector<std::string> internal_buffer;
   std::vector<std::string> syntax_components;
   std::vector<bool> syntax_has_multiline;
+
   std::string syntax_name = "";
 
   bool has_unsaved_changes = false;
@@ -92,13 +93,12 @@ class Buffer {
 
   void undo_highlight(LineNumber &line, ColNumber &col);
   void redo_highlight(LineNumber &line, ColNumber &col,
-                         std::vector<EditNode *>::size_type index);
+                      std::vector<EditNode *>::size_type index);
 
   void do_revert();
   void update_unsaved_marker();
 
  public:
-
   Buffer(Yate &yate);
   Buffer(Yate &yate, std::string path);
   ~Buffer();
@@ -145,8 +145,8 @@ class Buffer {
   void undo(LineNumber &line, ColNumber &col);
   void redo(LineNumber &line, ColNumber &col);
 
-  std::string getWordAt(const LineNumber& line, const ColNumber &col,
-    bool* is_at_end_of_word = nullptr);
+  std::string getWordAt(const LineNumber &line, const ColNumber &col,
+                        bool *is_at_end_of_word = nullptr);
 };
 
 #endif

@@ -25,14 +25,7 @@ void SyntaxHighlighting::highlight(Syntax *syntax,
     /* nothing to highlight */
     return;
   }
-  while (multiline_flags.size() < input.size()) {
-    multiline_flags.push_back(false);
-  }
-  while (output.size() < input.size()) {
-    std::string empty = std::string(input.at(output.size()).size(),
-                                    (char)Component::NO_HIGHLIGHT);
-    output.push_back(empty);
-  }
+
   for (LineNumber line = from; line < to; line++) {
     std::string empty =
         std::string(input.at(line).size(), (char)Component::NO_HIGHLIGHT);
@@ -59,7 +52,7 @@ void SyntaxHighlighting::highlight(Syntax *syntax,
     /* Try each parse, find longest one */
     Component longest_component = Component::NO_HIGHLIGHT;
     LineCol result = start;
-    for (auto & component : COMPONENT_MATCH_ORDER) {
+    for (auto &component : COMPONENT_MATCH_ORDER) {
       LineCol match_result = syntax->match(component, input, start);
       if (match_result > result) {
         result = match_result;

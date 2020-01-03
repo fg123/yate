@@ -4,8 +4,8 @@
 #include <algorithm>
 #include <cctype>
 #include <iostream>
-#include <sstream>
 #include <map>
+#include <sstream>
 
 #include "editor-navigate-provider.h"
 #include "editor.h"
@@ -94,11 +94,11 @@ Yate::~Yate() {
 void Yate::draw() {
   curs_set(0);
   root->draw();
-  static std::string bottom_bar = "yate v1.0 (Felix Guo) ";
+  const static std::string bottom_bar = "yate v1.0 (Felix Guo) ";
   move(LINES - 1, 0);
   clrtoeol();
   mvaddstr(LINES - 1, std::max(0, (int)(COLS - bottom_bar.size())),
-    bottom_bar.c_str());
+           bottom_bar.c_str());
   refresh();
   curs_set(1);
 }
@@ -112,7 +112,7 @@ void Yate::determineConfigFromBuffer(Buffer *buffer) {
 
   // 100 lines of source code is probably enough to determine
   //   indentation.
-  size_t limit = std::min((size_t) 100, buffer->size());
+  size_t limit = std::min((size_t)100, buffer->size());
   for (LineNumber l = 0; l < limit; l++) {
     std::string &line = buffer->getLine(l);
     int key = 0;
@@ -224,19 +224,14 @@ void Yate::onCapture(int result) {
   }
 }
 
-void Yate::registerEditor(Editor* editor) {
-  editors.push_back(editor);
+void Yate::registerEditor(Editor *editor) { editors.push_back(editor); }
+
+void Yate::unregisterEditor(Editor *editor) {
+  editors.erase(std::remove(editors.begin(), editors.end(), editor),
+                editors.end());
 }
 
-void Yate::unregisterEditor(Editor* editor) {
-  editors.erase(
-      std::remove(editors.begin(), editors.end(), editor),
-      editors.end());
-}
-
-void Yate::quit() {
-  should_quit = true;
-}
+void Yate::quit() { should_quit = true; }
 
 void Yate::exitPromptThenRun(std::function<void()> function) {
   exitPrompt();

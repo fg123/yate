@@ -5,18 +5,17 @@
 #include <fstream>
 #include <string>
 #include <vector>
+#include "actions.h"
 #include "buffer.h"
 #include "focusable.h"
 #include "logging.h"
 #include "pane-set.h"
 #include "pane.h"
 #include "yate.h"
-#include "actions.h"
 
 const LineCol NO_SELECTION = std::make_tuple(-1, -1);
 
 class Editor : public Pane, public Focusable {
-
   friend class ActionManager;
 
   Yate &yate;
@@ -33,7 +32,7 @@ class Editor : public Pane, public Focusable {
   void limitLineCol();
   void init();
 
-  ColNumber getActualColPosition(const LineNumber& line, const ColNumber& col);
+  ColNumber getActualColPosition(const LineNumber &line, const ColNumber &col);
   ColNumber getActualColPosition();
 
   bool inSelection(LineNumber line, ColNumber col);
@@ -52,7 +51,7 @@ class Editor : public Pane, public Focusable {
   LineNumber current_word_line;
   ColNumber current_word_col;
   std::string current_word;
-  TrieNode* current_node;
+  TrieNode *current_node;
   bool is_at_end_of_word;
 
   std::vector<std::string> suggested_complete;
@@ -71,14 +70,17 @@ class Editor : public Pane, public Focusable {
   }
 
   Editor(Yate &yate, Pane *parent, Buffer *buffer, std::istream &saved_state)
-    : Pane(parent, saved_state), yate(yate), buffer(buffer) {
+      : Pane(parent, saved_state), yate(yate), buffer(buffer) {
     Logging::breadcrumb("Deserializing Editor");
     init();
   }
 
   Editor(Yate &yate, Pane *parent, std::istream &saved_state)
-      : Pane(parent, saved_state), yate(yate),
-        buffer(yate.getBuffer(read<std::string>(saved_state))) {
+      : Pane(parent, saved_state),
+        yate(yate),
+        buffer(yate.getBuffer(read<std::string>(saved_state))),
+        current_line(read<int>(saved_state)),
+        current_col(read<int>(saved_state)) {
     init();
   }
 
@@ -95,7 +97,8 @@ class Editor : public Pane, public Focusable {
   void goToLineOffset(int offset, bool shouldMoveLineToCenter = true);
 
   void goToLine(LineNumber n, bool shouldMoveLineToCenter = true);
-  void goToLineCol(LineNumber l, ColNumber c, bool shouldMoveLineToCenter = true);
+  void goToLineCol(LineNumber l, ColNumber c,
+                   bool shouldMoveLineToCenter = true);
   bool shouldShowAutoComplete();
 
   int capture() override;
@@ -103,7 +106,7 @@ class Editor : public Pane, public Focusable {
   void onMouseEvent(MEVENT *event) override;
   void serialize(std::ostream &stream) override {
     stream << "editor " << x << " " << y << " " << width << " " << height << " "
-           << buffer->getPath() << " ";
+           << buffer->getPath() << " " << current_line << " " << current_col;
     stream << std::endl;
   }
   size_t getNavigationItemsSize() override {
@@ -128,9 +131,9 @@ class Editor : public Pane, public Focusable {
     return "";
   }
   bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override;
-  void paste(std::string& str);
-  void insertTab(LineNumber& line, ColNumber& col);
-  void removeTab(LineNumber& line, ColNumber& col);
+  void paste(std::string &str);
+  void insertTab(LineNumber &line, ColNumber &col);
+  void removeTab(LineNumber &line, ColNumber &col);
   void deleteSelection();
   void addTag(std::string label);
   void fastTravel(EditNode *to);
