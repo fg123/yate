@@ -211,11 +211,12 @@ int Editor::capture() {
   // capture at correct location
   curs_set(0);
   draw();
-  curs_set(1);
   int line_number_width = buffer->getLineNumberFieldWidth() + 2;
   int col = getActualColPosition();
+  curs_set(1);
   int capture = mvwgetch(internal_window, current_line - window_start_line,
                          col + line_number_width - window_start_col);
+  curs_set(0);
   yate.moveEditorToFront(this);
   return capture;
 }

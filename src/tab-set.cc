@@ -41,7 +41,6 @@ TabSet::~TabSet() {
 
 void TabSet::drawTabs() {
   // Draw Tab Bar
-  curs_set(0);
   wmove(internal_window, 0, 0);
   std::string all_tabs = "";
   std::vector<int> flags;
@@ -86,7 +85,6 @@ void TabSet::drawTabs() {
     mvwaddch(internal_window, 0, i, all_tabs[start + i] | flags[start + i]);
   }
   wrefresh(internal_window);
-  curs_set(1);
 }
 
 void TabSet::draw() {
@@ -189,8 +187,7 @@ void TabSet::nextTab() {
 void TabSet::prevTab() {
   if (selected_tab == 0) {
     selected_tab = tabs.size() - 1;
-  }
-  else {
+  } else {
     selected_tab -= 1;
   }
   draw();

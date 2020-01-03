@@ -13,7 +13,7 @@
 // matching and "auto-complete"
 
 class PromptWindow : public Pane, public Focusable {
-protected:
+ protected:
   std::vector<size_t> get_matching_items() {
     std::vector<size_t> result;
     for (unsigned int i = 0; i < getListSize(); i++) {
@@ -29,10 +29,10 @@ protected:
 
  public:
   PromptWindow(Yate& yate, int x, int y, int width, int height)
-      : Pane((Pane*)(yate.root), x, y, width, height),
-        yate(yate) {}
+      : Pane((Pane*)(yate.root), x, y, width, height), yate(yate) {}
 
-  PromptWindow(Yate& yate) : PromptWindow(yate, COLS / 4, LINES / 4, COLS / 2, LINES / 2) {}
+  PromptWindow(Yate& yate)
+      : PromptWindow(yate, COLS / 4, LINES / 4, COLS / 2, LINES / 2) {}
 
   ~PromptWindow() { curs_set(1); }
 
@@ -44,7 +44,9 @@ protected:
   int capture() override {
     draw();
     curs_set(input_enabled);
-    return mvwgetch(internal_window, 1, 1 + prompt_buffer.size());
+    int val = mvwgetch(internal_window, 1, 1 + prompt_buffer.size());
+    curs_set(0);
+    return val;
   }
 
   void onKeyPress(int key) override {
