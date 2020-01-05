@@ -110,6 +110,7 @@ ActionManager::ActionManager() {
     yate.enterPrompt(new SyntaxPromptWindow(yate, editor));
   });
   DECLARE_ACTION(109, "Indent", '\t', ACTION_FN {
+    editor->getBuffer()->setRevisionLock();
     if (editor->selection_start == NO_SELECTION) {
       editor->insertTab(editor->current_line, editor->current_col);
     } else {
@@ -122,8 +123,10 @@ ActionManager::ActionManager() {
         zero = 0;
       }
     }
+    editor->getBuffer()->clearRevisionLock();
   });
   DECLARE_ACTION(110, "Unindent", NO_KEY, ACTION_FN {
+    editor->getBuffer()->setRevisionLock();
     if (editor->selection_start == NO_SELECTION) {
       editor->removeTab(editor->current_line, editor->current_col);
     } else {
@@ -136,6 +139,7 @@ ActionManager::ActionManager() {
         zero = 0;
       }
     }
+    editor->getBuffer()->clearRevisionLock();
   });
 
   DECLARE_ACTION(200, "Choose Editor", ctrl('p'), ACTION_FN {

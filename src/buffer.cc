@@ -98,6 +98,7 @@ Buffer::Buffer(Yate& yate, std::string path)
   head_edit->type = EditNode::Type::BASE_REVISION;
   head_edit->content = "This is the base revision.";
   head_edit->prev = nullptr;
+  head_edit->revision = 0;
 
   /* Highlight buffer */
   highlight();
@@ -563,11 +564,25 @@ void Buffer::update_unsaved_marker() {
       duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 }
 
+void Buffer::setRevisionLock() {
+  revision_lock = current_edit->revision + 1;
+}
+
+void Buffer::clearRevisionLock() {
+  revision_lock = 0;
+}
+
 void Buffer::create_edit_boundary(const LineNumber& line,
                                   const ColNumber& col) {
   EditNode* n = new EditNode();
   n->start = std::make_tuple(line, col);
   n->prev = current_edit;
+  if (revision_lock) {
+    n->revision = revision_lock;
+  }
+  else {
+    n->revision = current_edit->revision + 1;
+  }
   current_edit->next.push_back(n);
   current_edit = n;
 }
@@ -660,8 +675,9 @@ void Buffer::fastTravel(EditNode* location, LineNumber& line, ColNumber& col) {
 }
 
 void Buffer::undo_highlight(LineNumber& line, ColNumber& col) {
-  if (current_edit->prev) {
-    // Apply opposite of current_edit
+  // Apply opposite of current_edit
+  int revision = current_edit->revision;
+  while (current_edit->revision == revision && current_edit->prev) {
     if (current_edit->type == EditNode::Type::REVERT) {
       internal_buffer.clear();
       syntax_components.clear();
@@ -697,12 +713,21 @@ void Buffer::apply_redo_step(LineNumber& line, ColNumber& col,
 }
 
 void Buffer::redo_from_node(LineNumber& line, ColNumber& col, EditNode* node) {
-  current_edit = node;
-  if (current_edit->type == EditNode::Type::REVERT) {
-    do_revert();
-  } else {
-    apply_edit_node(current_edit, line, col);
-  }
+  int revision = node->revision;
+  do {
+    current_edit = node;
+    if (current_edit->type == EditNode::Type::REVERT) {
+      do_revert();
+    } else {
+      apply_edit_node(current_edit, line, col);
+    }
+    if (current_edit->next.size() != 1) {
+      node = nullptr;
+    }
+    else {
+      node = current_edit->next[0];
+    }
+  } while (node && node->revision == revision);
 }
 
 void Buffer::redo_highlight(LineNumber& line, ColNumber& col,

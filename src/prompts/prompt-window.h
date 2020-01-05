@@ -42,6 +42,7 @@ class PromptWindow : public Pane, public Focusable {
   }
 
   int capture() override {
+    curs_set(0);
     draw();
     curs_set(input_enabled);
     int val = mvwgetch(internal_window, 1, 1 + prompt_buffer.size());

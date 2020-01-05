@@ -38,6 +38,10 @@ struct EditNode {
   Type type;
   LineCol start;
   std::string content;
+
+  // Multiple edits can be coalesced if they have the same revision number
+  int revision = 0;
+
   EditNode *prev;
   std::vector<EditNode *> next;
 
@@ -98,6 +102,8 @@ class Buffer {
   void do_revert();
   void update_unsaved_marker();
 
+  int revision_lock = 0;
+
  public:
   Buffer(Yate &yate);
   Buffer(Yate &yate, std::string path);
@@ -114,6 +120,9 @@ class Buffer {
   std::map<std::string, EditNode *> &getTags() { return tags; }
   void addTag(std::string label, LineNumber &line, ColNumber &col);
   void fastTravel(EditNode *location, LineNumber &line, ColNumber &col);
+
+  void setRevisionLock();
+  void clearRevisionLock();
 
   void highlight(LineNumber from = 0, LineNumber to = 0);
   std::string getSyntax() const;
