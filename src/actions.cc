@@ -10,6 +10,7 @@
 #include "tags-prompt.h"
 #include "resize-prompt.h"
 #include "buffer-select-prompt.h"
+#include "history-prompt.h"
 #include "quit-prompt.h"
 #include "syntax-prompt.h"
 
@@ -18,10 +19,10 @@
 #define DECLARE_GROUP(name, from, to) if (from <= id && id < to) return name;
 
 const std::string Action::getGroup() const {
-  DECLARE_GROUP("File", 0, 100);
-  DECLARE_GROUP("Edit", 100, 200);
-  DECLARE_GROUP("Navigate", 200, 300);
-  DECLARE_GROUP("Tab", 300, 400);
+  DECLARE_GROUP("File", 0, 1000);
+  DECLARE_GROUP("Edit", 1000, 2000);
+  DECLARE_GROUP("Navigate", 2000, 3000);
+  DECLARE_GROUP("Tab", 3000, 4000);
   return "Unknown group: " + std::to_string(id);
 }
 
@@ -30,42 +31,45 @@ ActionManager::ActionManager() {
     CommandPromptWindow* p = new CommandPromptWindow(yate, editor);
     yate.enterPrompt(p);
   });
-  DECLARE_ACTION(1, "Open File", ctrl('o'), ACTION_FN {
+  DECLARE_ACTION(10, "Open File", ctrl('o'), ACTION_FN {
     yate.enterPrompt(new FileSystemWindow(
        yate, editor, editor->getBuffer()->cwd, nullptr,
        std::bind(
          static_cast<void (Editor::*)(std::string)>(&Editor::switchBuffer),
          editor, std::placeholders::_1)));
   });
-  DECLARE_ACTION(2, "Open Buffer", NO_KEY, ACTION_FN {
+  DECLARE_ACTION(20, "Open Buffer", NO_KEY, ACTION_FN {
     yate.enterPrompt(new BufferSelectPromptWindow(
       yate, std::function<void(int)>([&yate, editor](int bufferIndex) {
         editor->switchBuffer(yate.opened_buffers.at(bufferIndex));
       })
     ));
   });
-  DECLARE_ACTION(3, "Save File", ctrl('s'), ACTION_FN {
+  DECLARE_ACTION(30, "Save File", ctrl('s'), ACTION_FN {
     editor->getBuffer()->writeToFile();
   });
-  DECLARE_ACTION(4, "Revert File", NO_KEY, ACTION_FN {
+  DECLARE_ACTION(40, "Revert File", NO_KEY, ACTION_FN {
     editor->revertBuffer();
   });
-  DECLARE_ACTION(5, "View Log", NO_KEY, ACTION_FN {
+  DECLARE_ACTION(50, "View Log", NO_KEY, ACTION_FN {
     editor->paneset_parent->replaceChildWithLog(editor->paneset_parent_child);
   });
-  DECLARE_ACTION(6, "Quit", ctrl('q'), ACTION_FN {
+  DECLARE_ACTION(60, "Quit", ctrl('q'), ACTION_FN {
     yate.enterPrompt(new QuitPromptWindow(yate));
   });
 
-  DECLARE_ACTION(100, "Undo", ctrl('z'), ACTION_FN {
+  DECLARE_ACTION(1000, "Undo", ctrl('z'), ACTION_FN {
     editor->getBuffer()->undo(editor->current_line, editor->current_col);
     editor->selection_start = NO_SELECTION;
   });
-  DECLARE_ACTION(101, "Redo", ctrl('y'), ACTION_FN {
+  DECLARE_ACTION(1010, "Redo", ctrl('y'), ACTION_FN {
     editor->getBuffer()->redo(editor->current_line, editor->current_col);
     editor->selection_start = NO_SELECTION;
   });
-  DECLARE_ACTION(102, "Copy", ctrl('c'), ACTION_FN {
+  DECLARE_ACTION(1020, "View History", ctrl('h'), ACTION_FN {
+    yate.enterPrompt(new HistoryPromptWindow(yate, editor));
+  });
+  DECLARE_ACTION(1030, "Copy", ctrl('c'), ACTION_FN {
     if (editor->selection_start == NO_SELECTION) {
       return;
     }
@@ -77,7 +81,7 @@ ActionManager::ActionManager() {
       yate.clipboard_buffers.pop_back();
     }
   });
-  DECLARE_ACTION(103, "Cut", ctrl('x'), ACTION_FN {
+  DECLARE_ACTION(1040, "Cut", ctrl('x'), ACTION_FN {
     if (editor->selection_start == NO_SELECTION) {
       return;
     }
@@ -90,26 +94,26 @@ ActionManager::ActionManager() {
     }
     editor->deleteSelection();
   });
-  DECLARE_ACTION(104, "Paste", ctrl('v'), ACTION_FN {
+  DECLARE_ACTION(1050, "Paste", ctrl('v'), ACTION_FN {
     if (yate.clipboard_buffers.size() > 0) {
       editor->paste(yate.clipboard_buffers.front());
     }
   });
-  DECLARE_ACTION(105, "Select All", ctrl('a'), ACTION_FN {
+  DECLARE_ACTION(1060, "Select All", ctrl('a'), ACTION_FN {
     editor->selection_start = std::make_tuple(0, 0);
     editor->current_line = editor->buffer->size() - 1;
     editor->current_col = editor->buffer->getLineLength(editor->current_line);
   });
-  DECLARE_ACTION(106, "Find", ctrl('f'), ACTION_FN {
+  DECLARE_ACTION(1070, "Find", ctrl('f'), ACTION_FN {
     yate.enterPrompt(new FindPromptWindow(yate, editor));
   });
-  DECLARE_ACTION(107, "Find All", ctrl('d'), ACTION_FN {
+  DECLARE_ACTION(1080, "Find All", ctrl('d'), ACTION_FN {
     yate.enterPrompt(new FindAllPromptWindow(yate));
   });
-  DECLARE_ACTION(108, "Choose Syntax", NO_KEY, ACTION_FN {
+  DECLARE_ACTION(1090, "Choose Syntax", NO_KEY, ACTION_FN {
     yate.enterPrompt(new SyntaxPromptWindow(yate, editor));
   });
-  DECLARE_ACTION(109, "Indent", '\t', ACTION_FN {
+  DECLARE_ACTION(1100, "Indent", '\t', ACTION_FN {
     editor->getBuffer()->setRevisionLock();
     if (editor->selection_start == NO_SELECTION) {
       editor->insertTab(editor->current_line, editor->current_col);
@@ -125,7 +129,7 @@ ActionManager::ActionManager() {
     }
     editor->getBuffer()->clearRevisionLock();
   });
-  DECLARE_ACTION(110, "Unindent", NO_KEY, ACTION_FN {
+  DECLARE_ACTION(1110, "Unindent", NO_KEY, ACTION_FN {
     editor->getBuffer()->setRevisionLock();
     if (editor->selection_start == NO_SELECTION) {
       editor->removeTab(editor->current_line, editor->current_col);
@@ -142,21 +146,21 @@ ActionManager::ActionManager() {
     editor->getBuffer()->clearRevisionLock();
   });
 
-  DECLARE_ACTION(200, "Choose Editor", ctrl('p'), ACTION_FN {
+  DECLARE_ACTION(2000, "Choose Editor", ctrl('p'), ACTION_FN {
     yate.enterPrompt(new NavigateWindow(
       yate, (NavigateWindowProvider*)yate.getEditorNavigateProvider(),
       nullptr));
   });
-  DECLARE_ACTION(201, "Navigate by Tag", ctrl('t'), ACTION_FN {
+  DECLARE_ACTION(2010, "Navigate by Tag", ctrl('t'), ACTION_FN {
     yate.enterPrompt(new TagsPromptWindow(yate, editor));
   });
-  DECLARE_ACTION(202, "Go to Line", ctrl('g'), ACTION_FN {
+  DECLARE_ACTION(2020, "Go to Line", ctrl('g'), ACTION_FN {
     yate.enterPrompt(new GoToLinePromptWindow(yate, editor));
   });
-  DECLARE_ACTION(203, "Select Root", NO_KEY, ACTION_FN {
+  DECLARE_ACTION(2030, "Select Root", NO_KEY, ACTION_FN {
     yate.enterPrompt(new NavigateWindow(yate, yate.root, nullptr));
   });
-  DECLARE_ACTION(204, "Select Current Editor", NO_KEY, ACTION_FN {
+  DECLARE_ACTION(2040, "Select Current Editor", NO_KEY, ACTION_FN {
     std::vector<Pane *> parents;
     editor->findAllParents(parents);
     /* We want the root to be at the front */
@@ -164,13 +168,13 @@ ActionManager::ActionManager() {
     yate.enterPrompt(new NavigateWindow(yate, parents));
   });
 
-  DECLARE_ACTION(300, "New Tab", ctrl('n'), ACTION_FN {
+  DECLARE_ACTION(3000, "New Tab", ctrl('n'), ACTION_FN {
     TabSet* first = editor->findFirstParent<TabSet>();
     if (first) {
       first->makeNewTab();
     }
   });
-  DECLARE_ACTION(301, "Close Tab", ctrl('w'), ACTION_FN {
+  DECLARE_ACTION(3010, "Close Tab", ctrl('w'), ACTION_FN {
     TabSet* first = editor->findFirstParent<TabSet>();
     if (first) {
       first->closeTab();

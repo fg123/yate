@@ -2,6 +2,7 @@
 #include <algorithm>
 #include <deque>
 #include <fstream>
+#include <sstream>
 #include <iterator>
 #include <string>
 #include <tuple>
@@ -22,6 +23,8 @@ std::string EditNode::getTypeString() const {
       return "DELETION";
     case Type::REVERT:
       return "REVERT FILE";
+    case Type::BASE_REVISION:
+      return "BASE REVISION";
     default:
       return "UNKNOWN TYPE";
   }
@@ -46,8 +49,9 @@ std::string EditNode::getPositionPair() const {
 }
 
 std::string EditNode::getDescription() const {
-  return getTypeString() + " " + getPositionPair() + " " +
-         getSerializedContent();
+  std::ostringstream out;
+  out << "(" << revision << ") " << getTypeString() << " " << getPositionPair() << " " << getSerializedContent();
+  return out.str();
 }
 
 Buffer::Buffer(Yate& yate) : Buffer(yate, "") {}

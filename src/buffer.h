@@ -132,6 +132,8 @@ class Buffer {
   size_t size();
   std::string &getPath() { return path; }
   std::vector<Editor *> &getRegisteredEditors() { return registered_editors; }
+  EditNode * getCurrentEditNode() { return current_edit; }
+
   size_t getLineNumberFieldWidth();
   void registerEditor(Editor *editor);
   void unregisterEditor(Editor *editor);
