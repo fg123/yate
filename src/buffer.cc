@@ -36,6 +36,8 @@ std::string EditNode::getSerializedContent() const {
   for (auto c : content) {
     if (c == '\n')
       result += "\\n";
+    else if (c == '\t')
+      result += "\\t";
     else
       result += c;
   }
