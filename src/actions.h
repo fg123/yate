@@ -5,6 +5,7 @@
 #include <vector>
 #include <unordered_map>
 #include <functional>
+#include <sstream>
 
 #define NO_KEY -1
 
@@ -16,16 +17,24 @@ class Editor;
 
 typedef std::function<void(ACTION_FN_ARGS)> ActionFunction;
 
+std::string keyToString(int key);
+
 struct Action {
   int id;
   std::string name;
   int key;
   ActionFunction fn;
 
+  std::string displayString;
+
   Action(int id, std::string name, int key) :
     Action(id, name, key, ActionFunction()) {}
   Action(int id, std::string name, int key, ActionFunction fn) :
-    id(id), name(name), key(key), fn(fn) {}
+    id(id), name(name), key(key), fn(fn) {
+    std::ostringstream out;
+    out << getGroup() << ": " << name << " [" << keyToString(key) << "]";
+    displayString = out.str();
+  }
 
   const std::string getGroup() const;
 };

@@ -13,7 +13,11 @@
 // Some utility functions / macros
 
 // Mask for ncurses getch keys
-#define ctrl(x) ((x)&0x1f)
+#define ctrl(x) ((x) & 0b00011111)
+
+// ncurses defines their own unctrl but it's different
+//   behaviour than what we want
+#define _unctrl(x) ((x) | 0b01100000)
 
 #define safe_exit(code, message)            \
   do {                                      \

@@ -13,11 +13,21 @@
 #include "history-prompt.h"
 #include "quit-prompt.h"
 #include "syntax-prompt.h"
+#include "actions-prompt.h"
 
 #define DECLARE_ACTION(...) addAction(Action(__VA_ARGS__))
 
 #define DECLARE_GROUP(name, from, to) if (from <= id && id < to) return name;
 
+std::string keyToString(int key) {
+  if (key == NO_KEY) {
+    return "None";
+  }
+  if (ctrl(key) == key) {
+    return "C-" + std::string(1, (char)_unctrl(key));
+  }
+  return std::string(1, (char)key);
+}
 const std::string Action::getGroup() const {
   DECLARE_GROUP("File", 0, 1000);
   DECLARE_GROUP("Edit", 1000, 2000);
@@ -54,7 +64,10 @@ ActionManager::ActionManager() {
   DECLARE_ACTION(50, "View Log", NO_KEY, ACTION_FN {
     editor->paneset_parent->replaceChildWithLog(editor->paneset_parent_child);
   });
-  DECLARE_ACTION(60, "Quit", ctrl('q'), ACTION_FN {
+  DECLARE_ACTION(60, "Actions / Keyboard Shortcuts", NO_KEY, ACTION_FN {
+    yate.enterPrompt(new ActionsPromptWindow(yate));
+  });
+  DECLARE_ACTION(70, "Quit", ctrl('q'), ACTION_FN {
     yate.enterPrompt(new QuitPromptWindow(yate));
   });
 
