@@ -509,21 +509,9 @@ void Buffer::create_edit_for(EditNode::Type type, std::string content,
   milliseconds current_time =
       duration_cast<milliseconds>(system_clock::now().time_since_epoch());
   if (!current_edit->content.empty()) {
+    // Different action OR not in the correct spot
     if (current_edit->type != type) {
       // Different action
-      goto new_boundary;
-    }
-    if (current_time.count() - last_modified_time.count() < 50) {
-      // Pasting
-      isInPasteMode = true;
-      goto perform_edit;
-    }
-    if (current_edit->content.length() >= 20) {
-      // Over the length for a boundary
-      goto new_boundary;
-    }
-    if (content.size() != 1) {
-      // Inserting a string, always make new boundary
       goto new_boundary;
     }
 
@@ -544,6 +532,22 @@ void Buffer::create_edit_for(EditNode::Type type, std::string content,
         goto new_boundary;
       }
     }
+
+    if (current_time.count() - last_modified_time.count() < 50) {
+      // Pasting mode
+      isInPasteMode = true;
+      goto perform_edit;
+    }
+
+    if (current_edit->content.length() >= 20) {
+      // Over the length for a boundary
+      goto new_boundary;
+    }
+    if (content.size() != 1) {
+      // Inserting a string, always make new boundary
+      goto new_boundary;
+    }
+
   } else {
     current_edit->start = std::make_tuple(line, col);
   }
