@@ -2,8 +2,8 @@
 #include <algorithm>
 #include <deque>
 #include <fstream>
-#include <sstream>
 #include <iterator>
+#include <sstream>
 #include <string>
 #include <tuple>
 #include "editor.h"
@@ -52,7 +52,8 @@ std::string EditNode::getPositionPair() const {
 
 std::string EditNode::getDescription() const {
   std::ostringstream out;
-  out << "(" << revision << ") " << getTypeString() << " " << getPositionPair() << " " << getSerializedContent();
+  out << "(" << revision << ") " << getTypeString() << " " << getPositionPair()
+      << " " << getSerializedContent();
   return out.str();
 }
 
@@ -219,8 +220,10 @@ void Buffer::unregisterEditor(Editor* editor) {
 }
 
 void Buffer::setHasUnsavedChanges(bool hasUnsavedChanges) {
-  has_unsaved_changes = hasUnsavedChanges;
-  updateTitle();
+  if (has_unsaved_changes != hasUnsavedChanges) {
+    has_unsaved_changes = hasUnsavedChanges;
+    updateTitle();
+  }
 }
 
 bool Buffer::insert_no_history(int character, LineNumber& line,
@@ -574,13 +577,9 @@ void Buffer::update_unsaved_marker() {
       duration_cast<milliseconds>(system_clock::now().time_since_epoch());
 }
 
-void Buffer::setRevisionLock() {
-  revision_lock = current_edit->revision + 1;
-}
+void Buffer::setRevisionLock() { revision_lock = current_edit->revision + 1; }
 
-void Buffer::clearRevisionLock() {
-  revision_lock = 0;
-}
+void Buffer::clearRevisionLock() { revision_lock = 0; }
 
 void Buffer::create_edit_boundary(const LineNumber& line,
                                   const ColNumber& col) {
@@ -589,8 +588,7 @@ void Buffer::create_edit_boundary(const LineNumber& line,
   n->prev = current_edit;
   if (revision_lock) {
     n->revision = revision_lock;
-  }
-  else {
+  } else {
     n->revision = current_edit->revision + 1;
   }
   current_edit->next.push_back(n);
@@ -733,8 +731,7 @@ void Buffer::redo_from_node(LineNumber& line, ColNumber& col, EditNode* node) {
     }
     if (current_edit->next.size() != 1) {
       node = nullptr;
-    }
-    else {
+    } else {
       node = current_edit->next[0];
     }
   } while (node && node->revision == revision);
