@@ -120,6 +120,9 @@ ActionManager::ActionManager() {
   DECLARE_ACTION(1070, "Find", ctrl('f'), ACTION_FN {
     yate.enterPrompt(new FindPromptWindow(yate, editor));
   });
+  DECLARE_ACTION(1070, "Find Word", ctrl('j'), ACTION_FN {
+    yate.enterPrompt(new FindPromptWindow(yate, editor, editor->getCurrentWord()));
+  });
   DECLARE_ACTION(1080, "Find All", ctrl('d'), ACTION_FN {
     yate.enterPrompt(new FindAllPromptWindow(yate));
   });

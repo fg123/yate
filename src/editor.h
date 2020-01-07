@@ -137,6 +137,7 @@ class Editor : public Pane, public Focusable {
   void deleteSelection();
   void addTag(std::string label);
   void fastTravel(EditNode *to);
+  const std::string & getCurrentWord() const { return current_word; }
 };
 
 #endif

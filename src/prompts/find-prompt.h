@@ -12,6 +12,8 @@ class FindPromptWindow : public PromptWindow {
 
  public:
   FindPromptWindow(Yate &yate, Editor *editor) : PromptWindow(yate), editor(editor), buffer(editor->getBuffer()) { }
+  FindPromptWindow(Yate &yate, Editor *editor, const std::string& initial)
+    : FindPromptWindow(yate, editor) { prompt_buffer = initial; }
 
   const std::string &getTitle() override { return title; }
   bool match(std::string prompt_buf, size_t index) {
