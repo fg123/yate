@@ -192,7 +192,7 @@ Buffer *Yate::getBuffer(std::string path) {
       std::find_if(opened_buffers.begin(), opened_buffers.end(),
                    [path](Buffer *item) {
                      return path == item->getPath() ||
-                      (isFileExist(path) && isFileEquivalent(item->getPath(), path));
+                      (isFileEquivalent(item->getPath(), path));
                   });
   if (result != opened_buffers.end()) {
     return *result;
