@@ -38,7 +38,7 @@
 
 bool fuzzy_match(const std::string& needle, const std::string& haystack);
 bool fuzzy_match(const std::string& needle, const std::string& haystack, ColNumber &found_position);
-std::string tab_replace(std::string& line, std::string& reference, int tab_size, char replace_with = ' ');
+std::string tab_replace(const std::string& line, const std::string& reference, int tab_size, char replace_with = ' ');
 
 template <typename R>
 inline bool endsWith(const std::string& suffix, const R& str) {

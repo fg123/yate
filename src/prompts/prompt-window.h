@@ -119,23 +119,30 @@ class PromptWindow : public Pane, public Focusable {
         wattron(internal_window, A_REVERSE);
       }
       std::string str = getItemString(matched_items.at(i));
-      std::string syntax = getSyntaxHighlight(matched_items.at(i));
+      std::string raw_syntax = getSyntaxHighlight(matched_items.at(i));
 
-      if (str.length() < width - 2) {
-        str.insert(str.end(), width - 2 - str.length(), ' ');
+      std::string line =
+        tab_replace(str, str, yate.config.getTabSize());
+
+      std::string syntax =
+          tab_replace(raw_syntax, str, yate.config.getTabSize(),
+                      (char)SyntaxHighlighting::Component::WHITESPACE);
+
+      if (line.length() < width - 2) {
+        line.insert(line.end(), width - 2 - line.length(), ' ');
         syntax.insert(syntax.end(), width - 2 - syntax.length(), SyntaxHighlighting::Component::NO_HIGHLIGHT);
       }
       if (!syntax.empty() && (int)i != highlighted_index) {
-        for (ColNumber j = 0; j < str.size(); j++) {
+        for (ColNumber j = 0; j < line.size(); j++) {
           auto syntax_color = yate.config.getTheme()->map(
             (SyntaxHighlighting::Component)syntax.at(j));
           if (yate.should_highlight) wattron(internal_window, syntax_color);
-          mvwaddch(internal_window, print_row, 1 + j, str.at(j));
+          mvwaddch(internal_window, print_row, 1 + j, line.at(j));
           if (yate.should_highlight) wattroff(internal_window, syntax_color);
         }
       }
       else {
-        mvwinsstr(internal_window, print_row, 1, str.c_str());
+        mvwinsstr(internal_window, print_row, 1, line.c_str());
       }
       wattroff(internal_window, A_REVERSE);
       print_row++;

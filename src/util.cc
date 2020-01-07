@@ -54,7 +54,7 @@ bool fuzzy_match(const std::string& needle, const std::string& haystack, ColNumb
   return false;
 }
 
-std::string tab_replace(std::string& line, std::string& reference,
+std::string tab_replace(const std::string& line, const std::string& reference,
                         int tab_size, char replace_with) {
   std::string result;
   for (ColNumber i = 0; i < line.size(); i++) {
