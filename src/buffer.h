@@ -117,6 +117,7 @@ class Buffer {
   BufferWindow getSyntaxBufferWindow(LineNumber start, LineNumber end);
 
   std::string &getLine(LineNumber line) { return internal_buffer.at(line); }
+  std::string &getSyntax(LineNumber line) { return syntax_components.at(line); }
   std::map<std::string, EditNode *> &getTags() { return tags; }
   void addTag(std::string label, LineNumber &line, ColNumber &col);
   void fastTravel(EditNode *location, LineNumber &line, ColNumber &col);

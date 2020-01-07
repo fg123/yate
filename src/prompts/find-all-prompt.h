@@ -41,6 +41,15 @@ class FindAllPromptWindow : public PromptWindow {
       yate.opened_buffers[index_map[index]]->getLine(line);
   }
 
+  const std::string getSyntaxHighlight(size_t index) {
+    size_t i = index_map[index];
+    size_t line = index - limits_map[i];
+    std::string pfx = yate.opened_buffers[index_map[index]]->getFileName() + ": ";
+
+    return std::string(pfx.size(), SyntaxHighlighting::Component::NO_HIGHLIGHT) +
+      yate.opened_buffers[index_map[index]]->getSyntax(line);
+  }
+
   const size_t getListSize() {
     if (prompt_buffer.empty()) return 0;
     return total_size;

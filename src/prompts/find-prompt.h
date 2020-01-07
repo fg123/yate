@@ -21,6 +21,10 @@ class FindPromptWindow : public PromptWindow {
     if (prompt_buffer.empty()) return "";
     return buffer->getLine(index);
   }
+  const std::string getSyntaxHighlight(size_t index) {
+    if (prompt_buffer.empty()) return "";
+    return buffer->getSyntax(index);
+  }
   const size_t getListSize() {
     if (prompt_buffer.empty()) return 0;
     return buffer->size();

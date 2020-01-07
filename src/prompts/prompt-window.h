@@ -119,10 +119,24 @@ class PromptWindow : public Pane, public Focusable {
         wattron(internal_window, A_REVERSE);
       }
       std::string str = getItemString(matched_items.at(i));
+      std::string syntax = getSyntaxHighlight(matched_items.at(i));
+
       if (str.length() < width - 2) {
         str.insert(str.end(), width - 2 - str.length(), ' ');
+        syntax.insert(syntax.end(), width - 2 - syntax.length(), SyntaxHighlighting::Component::NO_HIGHLIGHT);
       }
-      mvwinsstr(internal_window, print_row, 1, str.c_str());
+      if (!syntax.empty() && (int)i != highlighted_index) {
+        for (ColNumber j = 0; j < str.size(); j++) {
+          auto syntax_color = yate.config.getTheme()->map(
+            (SyntaxHighlighting::Component)syntax.at(j));
+          if (yate.should_highlight) wattron(internal_window, syntax_color);
+          mvwaddch(internal_window, print_row, 1 + j, str.at(j));
+          if (yate.should_highlight) wattroff(internal_window, syntax_color);
+        }
+      }
+      else {
+        mvwinsstr(internal_window, print_row, 1, str.c_str());
+      }
       wattroff(internal_window, A_REVERSE);
       print_row++;
     }
@@ -140,6 +154,7 @@ class PromptWindow : public Pane, public Focusable {
   virtual const std::string& getTitle() override = 0;
   virtual bool match(std::string buffer, size_t index) = 0;
   virtual const std::string getItemString(size_t index) = 0;
+  virtual const std::string getSyntaxHighlight(size_t index) { return ""; }
   virtual const size_t getListSize() = 0;
 
   // Overridable handler to for if we do our own processing
