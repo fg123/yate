@@ -15,6 +15,7 @@
 #include "tab-set.h"
 #include "util.h"
 #include "yate.h"
+#include "filesystem.h"
 
 #define DEFAULT_INDENTATION_SIZE 8
 
@@ -189,7 +190,10 @@ Buffer *Yate::getBuffer(std::string path) {
   Logging::breadcrumb("GetBuffer: " + path);
   auto result =
       std::find_if(opened_buffers.begin(), opened_buffers.end(),
-                   [path](Buffer *item) { return item->getPath() == path; });
+                   [path](Buffer *item) {
+                     return path == item->getPath() ||
+                      (isFileExist(path) && isFileEquivalent(item->getPath(), path));
+                  });
   if (result != opened_buffers.end()) {
     return *result;
   }

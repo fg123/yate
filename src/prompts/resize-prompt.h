@@ -24,7 +24,7 @@ class ResizePromptWindow : public PromptWindow {
  public:
   ResizePromptWindow(Yate &yate, PaneSet* paneset_parent, Pane* child)
     : PromptWindow(yate, (COLS - _width) / 2, (LINES - _height) / 2, _width, _height),
-      parent(paneset_parent), child(child), directions{ Direction::LEFT, Direction::TOP, Direction::RIGHT, Direction::BOTTOM }
+      parent(paneset_parent), child(child), directions { Direction::LEFT, Direction::TOP, Direction::RIGHT, Direction::BOTTOM }
   {
     rebuildInstructions();
   }

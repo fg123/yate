@@ -34,4 +34,11 @@ class Directory {
   std::string getPathWithBase(std::string additional) { return fs::path(path + "/" + additional).string(); }
 };
 
+inline bool isFileEquivalent(std::string path1, std::string path2) {
+  std::error_code code;
+  return fs::equivalent(path1, path2, code);
+}
+
+inline bool isFileExist(std::string path) { return fs::exists(path); }
+
 #endif  // FILESYSTEM_H
