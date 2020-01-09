@@ -57,6 +57,10 @@ class LogPane : public Editor, public LogListener {
       draw();
     }
   }
+
+  virtual void switchBuffer(Buffer *newBuffer) {
+    paneset_parent->replaceChildWith<Editor>(paneset_parent_child, newBuffer);
+  }
 };
 
 #endif

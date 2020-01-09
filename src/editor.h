@@ -18,6 +18,7 @@ const LineCol NO_SELECTION = std::make_tuple(-1, -1);
 class Editor : public Pane, public Focusable {
   friend class ActionManager;
 
+protected:
   Yate &yate;
   Buffer *buffer;
   LineNumber current_line = 0;
@@ -59,10 +60,14 @@ class Editor : public Pane, public Focusable {
 
   void invalidate_current_word();
 
- protected:
   bool isReadonly = false;
 
  public:
+   Editor(Yate &yate, Pane *parent, int x, int y, int width,
+         int height)
+      : Pane(parent, x, y, width, height), yate(yate), buffer(yate.getBuffer("Untitled")) {
+    init();
+  }
   Editor(Yate &yate, Pane *parent, Buffer *buffer, int x, int y, int width,
          int height)
       : Pane(parent, x, y, width, height), yate(yate), buffer(buffer) {
@@ -86,7 +91,7 @@ class Editor : public Pane, public Focusable {
 
   ~Editor();
 
-  void switchBuffer(Buffer *newBuffer);
+  virtual void switchBuffer(Buffer *newBuffer);
   void revertBuffer();
 
   void draw() override;

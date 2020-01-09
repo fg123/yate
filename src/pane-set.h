@@ -36,7 +36,22 @@ class PaneSet : public Pane {
   void resizePane(Pane *child, Direction direction, int unit);
   void mergePane(Pane *child, NavigateWindow *navigateWindow);
 
-  void replaceChildWithLog(Pane *child);
+  template <class T>
+  void replaceChildWith(Pane *child, Buffer* toSwitch = nullptr) {
+    for (size_t i = 0; i < panes.size(); i++) {
+      if (panes[i] == child) {
+        Pane* c = panes[i];
+        T* t = new T(yate, this, c->x, c->y, c->width, c->height);
+        panes[i] = t;
+        delete c;
+        focused_pane = panes[i];
+        if (toSwitch) {
+          t->switchBuffer(toSwitch);
+        }
+        return;
+      }
+    }
+  }
 
   void doMerge(Pane *goner, Pane *stayer, SharedEdge edge, size_t goner_index);
 

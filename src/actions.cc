@@ -14,6 +14,7 @@
 #include "quit-prompt.h"
 #include "syntax-prompt.h"
 #include "actions-prompt.h"
+#include "log-pane.h"
 
 #define DECLARE_ACTION(...) addAction(Action(__VA_ARGS__))
 
@@ -62,7 +63,7 @@ ActionManager::ActionManager() {
     editor->revertBuffer();
   });
   DECLARE_ACTION(50, "View Log", NO_KEY, ACTION_FN {
-    editor->paneset_parent->replaceChildWithLog(editor->paneset_parent_child);
+    editor->paneset_parent->replaceChildWith<LogPane>(editor->paneset_parent_child);
   });
   DECLARE_ACTION(60, "Actions / Keyboard Shortcuts", NO_KEY, ACTION_FN {
     yate.enterPrompt(new ActionsPromptWindow(yate));

@@ -47,18 +47,6 @@ void PaneSet::draw() {
   }
 }
 
-void PaneSet::replaceChildWithLog(Pane *child) {
-  for (size_t i = 0; i < panes.size(); i++) {
-    if (panes[i] == child) {
-      Pane* c = panes[i];
-      panes[i] = new LogPane(yate, this, c->x, c->y, c->width, c->height);
-      delete c;
-      focused_pane = panes[i];
-      return;
-    }
-  }
-}
-
 void PaneSet::doMerge(Pane *goner, Pane *stayer, SharedEdge edge,
                       size_t goner_index) {
   switch (edge) {
@@ -201,7 +189,7 @@ void PaneSet::verticalSplit(Pane *child) {
     return;
   }
   child->resize(child->x, child->y, full / 2, child->height);
-  addPane(new Editor(yate, this, yate.getBuffer("Untitled"),
+  addPane(new Editor(yate, this,
                      child->x + child->width, child->y, full - child->width,
                      child->height));
 }
@@ -212,7 +200,7 @@ void PaneSet::horizontalSplit(Pane *child) {
     return;
   }
   child->resize(child->x, child->y, child->width, full / 2);
-  addPane(new Editor(yate, this, yate.getBuffer("Untitled"), child->x,
+  addPane(new Editor(yate, this, child->x,
                      child->y + child->height, child->width,
                      full - child->height));
 }
