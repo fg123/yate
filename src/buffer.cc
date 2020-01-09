@@ -266,6 +266,27 @@ bool Buffer::insert_no_history(int character, LineNumber& line,
   return true;
 }
 
+void Buffer::deleteWord(LineNumber& line, ColNumber& col) {
+  if (line >= internal_buffer.size()) {
+    return;
+  }
+  if (col >= internal_buffer[line].length() + 1) {
+    return;
+  }
+  ColNumber start = col;
+  ColNumber end = col;
+  while (start > 0 && isIdentifierChar(internal_buffer[line][start - 1])) {
+    start -= 1;
+  }
+  while (end < internal_buffer[line].length() &&
+         isIdentifierChar(internal_buffer[line][end])) {
+    end += 1;
+  }
+  deleteRange(std::make_tuple(line, start), std::make_tuple(line, end - 1));
+  col = start;
+  update_unsaved_marker();
+}
+
 std::string Buffer::getWordAt(const LineNumber& line, const ColNumber& col,
                               bool* is_at_end_of_word) {
   if (line >= internal_buffer.size()) {
@@ -341,6 +362,13 @@ void Buffer::delete_line_no_history(LineNumber line) {
   internal_buffer.erase(internal_buffer.begin() + line);
   syntax_components.erase(syntax_components.begin() + line);
   syntax_has_multiline.erase(syntax_has_multiline.begin() + line);
+}
+
+void Buffer::deleteLine(LineNumber& line) {
+  create_edit_for(EditNode::Type::DELETE_DEL, getLine(line) + '\n',
+    line, 0);
+  delete_line_no_history(line);
+  update_unsaved_marker();
 }
 
 void Buffer::append_no_history(std::string& str) {

@@ -140,6 +140,8 @@ protected:
   void insertTab(LineNumber &line, ColNumber &col);
   void removeTab(LineNumber &line, ColNumber &col);
   void deleteSelection();
+  void deleteWord();
+  void deleteLine();
   void addTag(std::string label);
   void fastTravel(EditNode *to);
   const std::string & getCurrentWord() const { return current_word; }

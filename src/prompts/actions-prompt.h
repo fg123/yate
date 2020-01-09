@@ -15,7 +15,6 @@ class ActionsPromptWindow : public PromptWindow {
  public:
   ActionsPromptWindow(Yate& yate)
       : PromptWindow(yate), actions(ActionManager::get().actions) {
-
   }
 
   const std::string& getTitle() override { return title; }

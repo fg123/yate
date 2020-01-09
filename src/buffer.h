@@ -150,6 +150,9 @@ class Buffer {
   void revert(LineNumber &line, ColNumber &col);
 
   void delete_line_no_history(LineNumber line);
+  void deleteLine(LineNumber& line);
+  void deleteWord(LineNumber& line, ColNumber& col);
+
   void append_no_history(std::string &str);
 
   std::string getTextInRange(LineCol from, LineCol to);

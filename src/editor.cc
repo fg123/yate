@@ -287,6 +287,16 @@ void Editor::fastTravel(EditNode* to) {
   buffer->fastTravel(to, current_line, current_col);
 }
 
+void Editor::deleteWord() {
+  buffer->deleteWord(current_line, current_col);
+  limitLineCol();
+}
+
+void Editor::deleteLine() {
+  buffer->deleteLine(current_line);
+  limitLineCol();
+}
+
 void Editor::deleteSelection() {
   if (selection_start == NO_SELECTION) return;
   LineCol current = std::make_tuple(current_line, current_col);
@@ -318,9 +328,9 @@ void Editor::onKeyPress(int key) {
   }
   ActionManager::get().runAction(key, yate, this);
   switch (key) {
-    case KEY_ENTER:
+    case '\r':
     case '\n':
-    case '\r': {
+    case KEY_ENTER: {
       if (shouldShowAutoComplete()) {
         std::string insert =
             suggested_complete[suggested_complete_index].substr(
@@ -343,8 +353,6 @@ void Editor::onKeyPress(int key) {
       break;
     }
     case KEY_BACKSPACE:
-    case 127:
-    case '\b':
       if (selection_start == NO_SELECTION) {
         buffer->backspace(current_line, current_col);
       } else {

@@ -130,6 +130,12 @@ ActionManager::ActionManager() {
   DECLARE_ACTION(1090, "Choose Syntax", NO_KEY, ACTION_FN {
     yate.enterPrompt(new SyntaxPromptWindow(yate, editor));
   });
+  DECLARE_ACTION(1095, "Delete Word", 31, ACTION_FN {
+    editor->deleteWord();
+  });
+  DECLARE_ACTION(1096, "Delete Line", ctrl('l'), ACTION_FN {
+    editor->deleteLine();
+  });
   DECLARE_ACTION(1100, "Indent", '\t', ACTION_FN {
     editor->getBuffer()->setRevisionLock();
     if (editor->selection_start == NO_SELECTION) {
