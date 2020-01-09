@@ -2,6 +2,10 @@
 
 Yet _another_ text editor.
 
+<p align="center" >
+<img src="https://raw.githubusercontent.com/fg123/yate/master/docs/screenshot.png">
+</p>
+
 ## Building and Running
 ```
 sudo apt-get update
