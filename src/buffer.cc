@@ -698,6 +698,8 @@ void Buffer::undo_highlight(LineNumber& line, ColNumber& col) {
             line.size(), SyntaxHighlighting::Component::NO_HIGHLIGHT);
         syntax_has_multiline.push_back(false);
       }
+      // re-highlight entire file
+      highlight();
     } else {
       EditNode opposite = *current_edit;
       opposite.next.clear();  // For when it gets destructed.
