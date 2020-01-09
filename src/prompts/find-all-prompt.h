@@ -9,6 +9,7 @@ class FindAllPromptWindow : public PromptWindow {
   size_t total_size;
   std::vector<size_t> index_map;
   std::vector<size_t> limits_map;
+
  public:
   FindAllPromptWindow(Yate &yate) : PromptWindow(yate), total_size(0) {
     limits_map.push_back(0);
@@ -24,11 +25,12 @@ class FindAllPromptWindow : public PromptWindow {
   }
 
   const std::string &getTitle() override { return title; }
+
   bool match(std::string prompt_buf, size_t index) {
-    return fuzzy_match(prompt_buf, getLine(index));
+    return fuzzy_match(prompt_buf, getItemString(index));
   }
 
-  const std::string& getLine(size_t index) {
+  const std::string &getLine(size_t index) {
     size_t i = index_map[index];
     size_t line = index - limits_map[i];
     return yate.opened_buffers[index_map[index]]->getLine(line);
@@ -38,16 +40,18 @@ class FindAllPromptWindow : public PromptWindow {
     size_t i = index_map[index];
     size_t line = index - limits_map[i];
     return yate.opened_buffers[index_map[index]]->getFileName() + ": " +
-      yate.opened_buffers[index_map[index]]->getLine(line);
+           yate.opened_buffers[index_map[index]]->getLine(line);
   }
 
   const std::string getSyntaxHighlight(size_t index) {
     size_t i = index_map[index];
     size_t line = index - limits_map[i];
-    std::string pfx = yate.opened_buffers[index_map[index]]->getFileName() + ": ";
+    std::string pfx =
+        yate.opened_buffers[index_map[index]]->getFileName() + ": ";
 
-    return std::string(pfx.size(), SyntaxHighlighting::Component::NO_HIGHLIGHT) +
-      yate.opened_buffers[index_map[index]]->getSyntax(line);
+    return std::string(pfx.size(),
+                       SyntaxHighlighting::Component::NO_HIGHLIGHT) +
+           yate.opened_buffers[index_map[index]]->getSyntax(line);
   }
 
   const size_t getListSize() {
@@ -58,7 +62,8 @@ class FindAllPromptWindow : public PromptWindow {
   void onExecute(size_t index) {
     size_t i = index_map[index];
     size_t line = index - limits_map[i];
-    std::vector<Editor*> editors = yate.opened_buffers[i]->getRegisteredEditors();
+    std::vector<Editor *> editors =
+        yate.opened_buffers[i]->getRegisteredEditors();
     Editor *editor = editors[0];
     editor->focusRequested(editor);
     ColNumber col;
