@@ -151,6 +151,7 @@ ActionManager::ActionManager() {
       }
     }
     editor->getBuffer()->clearRevisionLock();
+    editor->limitLineCol();
   });
   DECLARE_ACTION(1110, "Unindent", NO_KEY, ACTION_FN {
     editor->getBuffer()->setRevisionLock();
@@ -167,6 +168,7 @@ ActionManager::ActionManager() {
       }
     }
     editor->getBuffer()->clearRevisionLock();
+    editor->limitLineCol();
   });
 
   DECLARE_ACTION(2000, "Choose Editor", ctrl('p'), ACTION_FN {
