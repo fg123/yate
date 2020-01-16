@@ -107,6 +107,7 @@ LineCol GenericSyntax::match(Component component,
       if (input[COL(start)] == '"') {
         COL(start)++;
         while (COL(start) < input.size() && input[COL(start)] != '"') {
+          if (input[COL(start)] == '\\') COL(start)++;
           COL(start)++;
         }
         /* Consume ending quote */
@@ -114,6 +115,7 @@ LineCol GenericSyntax::match(Component component,
       } else if (input[COL(start)] == '\'') {
         COL(start)++;
         while (COL(start) < input.size() && input[COL(start)] != '\'') {
+          if (input[COL(start)] == '\\') COL(start)++;
           COL(start)++;
         }
         /* Consume ending quote */
