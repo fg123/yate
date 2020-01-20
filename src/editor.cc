@@ -163,16 +163,38 @@ void Editor::draw() {
     mvwprintw(internal_window, i, spacing, line_number.c_str());
     wattroff(internal_window, A_DIM);
 
+    std::unordered_set<int> markers = yate.config.getColumnMarkers();
+
     // Calculate if it's part of a selection
+    auto empty_marker = yate.config.getTheme()->map(SyntaxHighlighting::Component::NO_HIGHLIGHT_MARKER);
     for (ColNumber j = 0; j < line.size(); j++) {
       auto flag = inSelection(window_start_line + i, window_start_col + j)
                       ? A_REVERSE
                       : A_NORMAL;
-      auto syntax_color = yate.config.getTheme()->map(
-          (SyntaxHighlighting::Component)syntax.at(j));
+      int highlight = syntax.at(j);
+      bool is_marker = false;
+      if (markers.find(window_start_col + j) != markers.end()) {
+        is_marker = true;
+        // highlight += 1;
+        markers.erase(window_start_col + j);
+        flag = A_DIM | A_REVERSE;
+      }
+
+      auto syntax_color = yate.config.getTheme()->map((SyntaxHighlighting::Component) highlight);
+
       if (yate.should_highlight) wattron(internal_window, syntax_color);
+      // else if (is_marker) wattron(internal_window, empty_marker);
+
       mvwaddch(internal_window, i, field_width + 1 + j, line.at(j) | flag);
+
       if (yate.should_highlight) wattroff(internal_window, syntax_color);
+      // else if (is_marker) wattroff(internal_window, empty_marker);
+    }
+
+    for (int m : markers) {
+      // wattron(internal_window, empty_marker);
+      mvwaddch(internal_window, i, field_width + 1 + m - window_start_col, ' ' | A_DIM | A_REVERSE);
+       // wattroff(internal_window, empty_marker);
     }
     i += 1;
   }

@@ -2,6 +2,7 @@
 #define CONFIG_H
 
 #include <string>
+#include <unordered_set>
 
 #include "cpptoml.h"
 #include "theme.h"
@@ -24,6 +25,7 @@ class YateConfig {
   bool shouldTrimTrailingWhitespace() const;
   Theme *getTheme() const;
 
+  std::unordered_set<int>& getColumnMarkers() const;
 };
 
 std::ostream &operator<<(std::ostream &output,

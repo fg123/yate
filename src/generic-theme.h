@@ -45,7 +45,8 @@ class GenericTheme : public Theme {
       config = cpptoml::make_table();
     }
     init_pair(0, -1, -1);
-    int next_color = 8;
+    init_color(8, 200, 200, 200);
+    int next_color = 9;
     for (size_t i = 0; i < SyntaxHighlighting::COMPONENT_STRING.size(); i++) {
       /* This can either be an xterm-color int, or a hex color string */
       auto as_int =
@@ -63,12 +64,12 @@ class GenericTheme : public Theme {
           next_color += 1;
         }
       } else {
-        // TODO(felixguo): No background for now; should support?
         foreground = as_int;
       }
-      init_pair((int)SyntaxHighlighting::COMPONENTS[i], foreground,
-                COLOR_BLACK);
+      init_pair((int)SyntaxHighlighting::COMPONENTS[i], foreground, COLOR_BLACK);
+      init_pair((int)(SyntaxHighlighting::COMPONENTS[i] + 1), COLOR_BLACK, COLOR_WHITE);
     }
+    init_pair((int)SyntaxHighlighting::Component::NO_HIGHLIGHT_MARKER, COLOR_BLACK, COLOR_WHITE);
   }
 
   ~GenericTheme() {}

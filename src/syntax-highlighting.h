@@ -8,19 +8,21 @@
 
 class Syntax;
 
+#define COMPONENT(def) def, def##_MARKER
+
 namespace SyntaxHighlighting {
 /* Each syntax defines how each of these are matched, each theme defines
  *   the color mapping of each of these components */
 enum Component : char {
-  NO_HIGHLIGHT = 0,
-  COMMENT,
-  IDENTIFIER,
-  CONSTANT,
-  PREPROCESSOR,
-  KEYWORD,
-  NUM_LITERAL,
-  STR_LITERAL,
-  WHITESPACE
+  COMPONENT(NO_HIGHLIGHT),
+  COMPONENT(COMMENT),
+  COMPONENT(IDENTIFIER),
+  COMPONENT(CONSTANT),
+  COMPONENT(PREPROCESSOR),
+  COMPONENT(KEYWORD),
+  COMPONENT(NUM_LITERAL),
+  COMPONENT(STR_LITERAL),
+  COMPONENT(WHITESPACE)
 };
 
 const std::vector<Component> COMPONENTS = {

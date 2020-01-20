@@ -7,6 +7,7 @@ static int tab_size;
 static YateConfig::IndentationStyle indentation_style;
 static Theme *theme = nullptr;
 static bool trim_trailing_whitespace;
+static std::unordered_set<int> column_markers;
 
 YateConfig::YateConfig(std::string path) {
   try {
@@ -24,6 +25,8 @@ YateConfig::YateConfig(std::string path) {
                           .value_or(0);
   trim_trailing_whitespace = internal_config->get_as<bool>("trim_trailing_whitespace").value_or(true);
   theme = new GenericTheme("themes/atlas.toml");
+  column_markers.insert(80);
+  column_markers.insert(120);
 }
 
 YateConfig::~YateConfig() {
@@ -31,10 +34,21 @@ YateConfig::~YateConfig() {
   theme = nullptr;
 }
 
-int YateConfig::getTabSize() const { return tab_size; }
-void YateConfig::setTabSize(int size) { tab_size = size;  }
+int YateConfig::getTabSize() const {
+  return tab_size;
+}
 
-void YateConfig::setIndentationStyle(YateConfig::IndentationStyle style) { indentation_style = style; }
+std::unordered_set<int>& YateConfig::getColumnMarkers() const {
+  return column_markers;
+}
+
+void YateConfig::setTabSize(int size) {
+  tab_size = size;
+}
+
+void YateConfig::setIndentationStyle(YateConfig::IndentationStyle style) {
+  indentation_style = style;
+}
 
 bool YateConfig::shouldTrimTrailingWhitespace() const {
   return trim_trailing_whitespace;

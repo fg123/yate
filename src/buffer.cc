@@ -543,6 +543,11 @@ void Buffer::create_edit_for(EditNode::Type type, std::string content,
       duration_cast<milliseconds>(system_clock::now().time_since_epoch());
   if (!current_edit->content.empty()) {
     // Different action OR not in the correct spot
+    if (current_time.count() - last_modified_time.count() < 50) {
+      // Pasting mode
+      isInPasteMode = true;
+    }
+
     if (current_edit->type != type) {
       // Different action
       goto new_boundary;
@@ -566,9 +571,7 @@ void Buffer::create_edit_for(EditNode::Type type, std::string content,
       }
     }
 
-    if (current_time.count() - last_modified_time.count() < 50) {
-      // Pasting mode
-      isInPasteMode = true;
+    if (isInPasteMode) {
       goto perform_edit;
     }
 
