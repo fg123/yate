@@ -10,6 +10,7 @@
 #include "tags-prompt.h"
 #include "resize-prompt.h"
 #include "buffer-select-prompt.h"
+#include "config-prompt.h"
 #include "history-prompt.h"
 #include "quit-prompt.h"
 #include "syntax-prompt.h"
@@ -68,7 +69,10 @@ ActionManager::ActionManager() {
   DECLARE_ACTION(60, "Actions / Keyboard Shortcuts", NO_KEY, ACTION_FN {
     yate.enterPrompt(new ActionsPromptWindow(yate));
   });
-  DECLARE_ACTION(70, "Quit", ctrl('q'), ACTION_FN {
+  DECLARE_ACTION(70, "Configuration", NO_KEY, ACTION_FN {
+    yate.enterPrompt(new ConfigPromptWindow(yate));
+  });
+  DECLARE_ACTION(80, "Quit", ctrl('q'), ACTION_FN {
     yate.enterPrompt(new QuitPromptWindow(yate));
   });
 

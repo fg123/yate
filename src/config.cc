@@ -16,6 +16,7 @@ YateConfig::YateConfig(std::string path) {
   }
 
   theme = new GenericTheme("themes/atlas.toml");
+  initializeAll();
 }
 
 YateConfig::~YateConfig() {
@@ -24,6 +25,16 @@ YateConfig::~YateConfig() {
 }
 
 Theme *YateConfig::getTheme() const { return theme; }
+
+void YateConfig::initializeAll() {
+  #define DEFINE_LIST(key, type) get##key();
+  #define DEFINE_ENUM(key, type, default) get##key();
+  #define DEFINE_OPTION(key, type, default) get##key();
+  #include "config_def.h"
+  #undef DEFINE_LIST
+  #undef DEFINE_ENUM
+  #undef DEFINE_OPTION
+}
 
 std::ostream &operator<<(std::ostream &output,
                          YateConfig::IndentationStyle style) {

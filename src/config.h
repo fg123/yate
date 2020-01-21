@@ -70,12 +70,14 @@ class YateConfig {
   explicit YateConfig(std::string path);
   ~YateConfig();
 
-  DEFINE_ENUM(IndentationStyle, IndentationStyle, IndentationStyle::TAB);
-  DEFINE_OPTION(TrimTrailingWhitespace, bool, true);
-  DEFINE_OPTION(TabSize, int, 4);
-  DEFINE_LIST(ColumnMarkers, int64_t);
+  #include "config_def.h"
+  #undef DEFINE_LIST
+  #undef DEFINE_ENUM
+  #undef DEFINE_OPTION
 
   Theme *getTheme() const;
+
+  void initializeAll();
 };
 
 std::ostream &operator<<(std::ostream &output,
