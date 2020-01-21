@@ -140,8 +140,7 @@ void Editor::draw() {
       window_start_line, window_start_line + height - 1);
   BufferWindow syntax_window = buffer->getSyntaxBufferWindow(
       window_start_line, window_start_line + height - 1);
-  std::vector<int64_t> _markers = yate.config.getColumnMarkers();
-  std::unordered_set<int64_t> markers;
+  std::vector<int64_t> markers = yate.config.getColumnMarkers();
 
   for (auto line_it = content_window.begin(), syntax_it = syntax_window.begin();
        line_it != content_window.end() && syntax_it != syntax_window.end();
@@ -166,35 +165,22 @@ void Editor::draw() {
     mvwprintw(internal_window, i, spacing, line_number.c_str());
     wattroff(internal_window, A_DIM);
 
-    markers.insert(_markers.begin(), _markers.end());
-
     // Calculate if it's part of a selection
     for (ColNumber j = 0; j < line.size(); j++) {
       auto flag = inSelection(window_start_line + i, window_start_col + j)
                       ? A_REVERSE
                       : A_NORMAL;
       int highlight = syntax.at(j);
-      if (markers.find(window_start_col + j) != markers.end()) {
-        // highlight += 1;
-        markers.erase(window_start_col + j);
-        flag = A_DIM | A_REVERSE;
-      }
-
       auto syntax_color = yate.config.getTheme()->map((SyntaxHighlighting::Component) highlight);
 
       if (yate.should_highlight) wattron(internal_window, syntax_color);
-      // else if (is_marker) wattron(internal_window, empty_marker);
-
       mvwaddch(internal_window, i, field_width + 1 + j, line.at(j) | flag);
-
       if (yate.should_highlight) wattroff(internal_window, syntax_color);
-      // else if (is_marker) wattroff(internal_window, empty_marker);
     }
 
     for (int m : markers) {
-      // wattron(internal_window, empty_marker);
-      mvwaddch(internal_window, i, field_width + 1 + m - window_start_col, ' ' | A_DIM | A_REVERSE);
-       // wattroff(internal_window, empty_marker);
+      chtype ch = mvwinch(internal_window, i, field_width + 1 + m - window_start_col);
+      mvwaddch(internal_window, i, field_width + 1 + m - window_start_col, ch | A_DIM | A_REVERSE);
     }
     i += 1;
   }
