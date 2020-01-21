@@ -140,6 +140,7 @@ void Editor::draw() {
       window_start_line, window_start_line + height - 1);
   BufferWindow syntax_window = buffer->getSyntaxBufferWindow(
       window_start_line, window_start_line + height - 1);
+  std::vector<int64_t> _markers = yate.config.getColumnMarkers();
   for (auto line_it = content_window.begin(), syntax_it = syntax_window.begin();
        line_it != content_window.end() && syntax_it != syntax_window.end();
        line_it++, syntax_it++) {
@@ -163,18 +164,15 @@ void Editor::draw() {
     mvwprintw(internal_window, i, spacing, line_number.c_str());
     wattroff(internal_window, A_DIM);
 
-    std::unordered_set<int> markers = yate.config.getColumnMarkers();
+    std::unordered_set<int64_t> markers(_markers.begin(), _markers.end());
 
     // Calculate if it's part of a selection
-    auto empty_marker = yate.config.getTheme()->map(SyntaxHighlighting::Component::NO_HIGHLIGHT_MARKER);
     for (ColNumber j = 0; j < line.size(); j++) {
       auto flag = inSelection(window_start_line + i, window_start_col + j)
                       ? A_REVERSE
                       : A_NORMAL;
       int highlight = syntax.at(j);
-      bool is_marker = false;
       if (markers.find(window_start_col + j) != markers.end()) {
-        is_marker = true;
         // highlight += 1;
         markers.erase(window_start_col + j);
         flag = A_DIM | A_REVERSE;

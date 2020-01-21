@@ -165,7 +165,7 @@ BufferWindow Buffer::getBufferWindow(LineNumber start, LineNumber end) {
 }
 
 bool Buffer::writeToFile(LineNumber line, ColNumber col) {
-  bool should_trim = yate.config.shouldTrimTrailingWhitespace();
+  bool should_trim = yate.config.getTrimTrailingWhitespace();
   if (!path.empty()) {
     std::ofstream test_file(path, std::ios::app);
     if (!test_file.good()) return false;

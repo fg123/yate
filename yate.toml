@@ -1,4 +1,5 @@
 # "tabs" (0) or "spaces" (1)
-indentation_style = 1
-trim_trailing_whitespace = true
-tab_size = 2
+IndentationStyle = 1
+TrimTrailingWhitespace = true
+TabSize = 2
+ColumnMarkers = [80, 120]
