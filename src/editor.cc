@@ -88,16 +88,16 @@ bool Editor::inSelection(LineNumber line, ColNumber col) {
   }
   // Selection Start is based on buffer position, count how many tabs before
   //   to get screen location
-  std::string& line_content = buffer->getLine(std::get<0>(selection_start));
+  std::string& line_content = buffer->getLine(LINE(selection_start));
   size_t tab_count = 0;
-  for (size_t i = 0; i < std::get<1>(selection_start); i++) {
+  for (size_t i = 0; i < COL(selection_start); i++) {
     if (line_content[i] == '\t') tab_count += 1;
   }
   LineCol modified_selection_start = selection_start;
-  std::get<1>(modified_selection_start) +=
+  COL(modified_selection_start) +=
       tab_count * (yate.config.getTabSize() - 1);
-  LineCol location = std::make_tuple(line, col);
-  LineCol cursor = std::make_tuple(current_line, getActualColPosition());
+  LineCol location = LINECOL(line, col);
+  LineCol cursor = LINECOL(current_line, getActualColPosition());
   LineCol from = std::min(cursor, modified_selection_start);
   LineCol to = std::max(cursor, modified_selection_start);
   return location >= from && location <= to;
@@ -141,6 +141,8 @@ void Editor::draw() {
   BufferWindow syntax_window = buffer->getSyntaxBufferWindow(
       window_start_line, window_start_line + height - 1);
   std::vector<int64_t> _markers = yate.config.getColumnMarkers();
+  std::unordered_set<int64_t> markers;
+
   for (auto line_it = content_window.begin(), syntax_it = syntax_window.begin();
        line_it != content_window.end() && syntax_it != syntax_window.end();
        line_it++, syntax_it++) {
@@ -164,7 +166,7 @@ void Editor::draw() {
     mvwprintw(internal_window, i, spacing, line_number.c_str());
     wattroff(internal_window, A_DIM);
 
-    std::unordered_set<int64_t> markers(_markers.begin(), _markers.end());
+    markers.insert(_markers.begin(), _markers.end());
 
     // Calculate if it's part of a selection
     for (ColNumber j = 0; j < line.size(); j++) {
@@ -319,11 +321,11 @@ void Editor::deleteLine() {
 
 void Editor::deleteSelection() {
   if (selection_start == NO_SELECTION) return;
-  LineCol current = std::make_tuple(current_line, current_col);
+  LineCol current = LINECOL(current_line, current_col);
   buffer->deleteRange(current, selection_start);
   current = std::min(selection_start, current);
-  current_line = std::get<0>(current);
-  current_col = std::get<1>(current);
+  current_line = LINE(current);
+  current_col = COL(current);
   selection_start = NO_SELECTION;
 }
 
@@ -334,7 +336,7 @@ void Editor::onKeyPress(int key) {
   } else if (key == KEY_SUP || key == KEY_SDOWN || key == KEY_SLEFT ||
              key == KEY_SRIGHT || key == KEY_SHOME || key == KEY_SEND) {
     if (selection_start == NO_SELECTION) {
-      selection_start = std::make_tuple(current_line, current_col);
+      selection_start = LINECOL(current_line, current_col);
     }
     if (key == KEY_SLEFT && current_col == 0) {
       onKeyPress(KEY_SUP);

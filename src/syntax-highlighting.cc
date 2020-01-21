@@ -47,7 +47,7 @@ void SyntaxHighlighting::highlight(Syntax *syntax,
     }
   }
   Logging::info << "Highlighting from " << from << " to " << to << std::endl;
-  LineCol start = std::make_tuple(from, 0);
+  LineCol start = LINECOL(from, 0);
   while (LINE(start) < to) {
     /* Try each parse, find longest one */
     Component longest_component = Component::NO_HIGHLIGHT;

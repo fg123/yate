@@ -3,6 +3,7 @@
 
 #include <ncurses.h>
 #include <string>
+#include <limits>
 #include <vector>
 
 #include "focusable.h"
@@ -61,6 +62,8 @@ class PromptWindow : public Pane, public Focusable {
       case KEY_UP:
         if (highlighted_index > 0) {
           highlighted_index--;
+        } else {
+          highlighted_index = std::numeric_limits<int>::max();
         }
         break;
       case KEY_DOWN:

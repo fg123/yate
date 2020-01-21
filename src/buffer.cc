@@ -45,8 +45,8 @@ std::string EditNode::getSerializedContent() const {
 }
 
 std::string EditNode::getPositionPair() const {
-  LineNumber line = std::get<0>(start);
-  ColNumber col = std::get<1>(start);
+  LineNumber line = LINE(start);
+  ColNumber col = COL(start);
   return "(" + std::to_string(line) + "L, " + std::to_string(col) + "C)";
 }
 
@@ -282,7 +282,7 @@ void Buffer::deleteWord(LineNumber& line, ColNumber& col) {
          isIdentifierChar(internal_buffer[line][end])) {
     end += 1;
   }
-  deleteRange(std::make_tuple(line, start), std::make_tuple(line, end - 1));
+  deleteRange(LINECOL(line, start), LINECOL(line, end - 1));
   col = start;
   update_unsaved_marker();
 }
@@ -429,10 +429,10 @@ std::string Buffer::getTextInRange(LineCol from, LineCol to) {
     from = to;
     to = tmp;
   }
-  LineNumber from_line = std::get<0>(from);
-  ColNumber from_col = std::get<1>(from);
-  LineNumber to_line = std::get<0>(to);
-  ColNumber to_col = std::get<1>(to);
+  LineNumber from_line = LINE(from);
+  ColNumber from_col = COL(from);
+  LineNumber to_line = LINE(to);
+  ColNumber to_col = COL(to);
   if (from_line == to_line) {
     return internal_buffer.at(from_line).substr(from_col,
                                                 to_col - from_col + 1);
@@ -452,10 +452,10 @@ void Buffer::deleteRange(LineCol from, LineCol to) {
     from = to;
     to = tmp;
   }
-  LineNumber from_line = std::get<0>(from);
-  ColNumber from_col = std::get<1>(from);
-  LineNumber to_line = std::get<0>(to);
-  ColNumber to_col = std::get<1>(to);
+  LineNumber from_line = LINE(from);
+  ColNumber from_col = COL(from);
+  LineNumber to_line = LINE(to);
+  ColNumber to_col = COL(to);
 
   /* EditNode for history */
   std::string content = getTextInRange(from, to);
@@ -553,8 +553,8 @@ void Buffer::create_edit_for(EditNode::Type type, std::string content,
       goto new_boundary;
     }
 
-    LineNumber cur_line = std::get<0>(current_edit->start);
-    ColNumber cur_col = std::get<1>(current_edit->start);
+    LineNumber cur_line = LINE(current_edit->start);
+    ColNumber cur_col = COL(current_edit->start);
     if (current_edit->type == EditNode::Type::INSERTION) {
       if (cur_line != line || cur_col + current_edit->content.length() != col) {
         goto new_boundary;
@@ -585,7 +585,7 @@ void Buffer::create_edit_for(EditNode::Type type, std::string content,
     }
 
   } else {
-    current_edit->start = std::make_tuple(line, col);
+    current_edit->start = LINECOL(line, col);
   }
   goto perform_edit;
 new_boundary:
@@ -593,7 +593,7 @@ new_boundary:
 perform_edit:
   current_edit->type = type;
   if (type == EditNode::Type::DELETE_BS) {
-    current_edit->start = std::make_tuple(line, col);
+    current_edit->start = LINECOL(line, col);
     current_edit->content.insert(0, content);
   } else {
     current_edit->content.append(content);
@@ -615,7 +615,7 @@ void Buffer::clearRevisionLock() { revision_lock = 0; }
 void Buffer::create_edit_boundary(const LineNumber& line,
                                   const ColNumber& col) {
   EditNode* n = new EditNode();
-  n->start = std::make_tuple(line, col);
+  n->start = LINECOL(line, col);
   n->prev = current_edit;
   if (revision_lock) {
     n->revision = revision_lock;
@@ -627,8 +627,8 @@ void Buffer::create_edit_boundary(const LineNumber& line,
 }
 
 void Buffer::apply_edit_node(EditNode* node, LineNumber& line, ColNumber& col) {
-  line = std::get<0>(node->start);
-  col = std::get<1>(node->start);
+  line = LINE(node->start);
+  col = COL(node->start);
 
   // These two methods are not very optimized but they will handle newline
   // Otherwise extra algorithm / edge cases will have to be developed.

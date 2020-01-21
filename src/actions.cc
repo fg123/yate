@@ -87,7 +87,7 @@ ActionManager::ActionManager() {
     if (editor->selection_start == NO_SELECTION) {
       return;
     }
-    LineCol current = std::make_tuple(editor->current_line, editor->current_col);
+    LineCol current = LINECOL(editor->current_line, editor->current_col);
     yate.clipboard_buffers.push_front(
         editor->buffer->getTextInRange(current, editor->selection_start));
     // TODO(felixguo): Make this configurable?
@@ -99,7 +99,7 @@ ActionManager::ActionManager() {
     if (editor->selection_start == NO_SELECTION) {
       return;
     }
-    LineCol current = std::make_tuple(editor->current_line, editor->current_col);
+    LineCol current = LINECOL(editor->current_line, editor->current_col);
     yate.clipboard_buffers.push_front(
         editor->buffer->getTextInRange(current, editor->selection_start));
     // TODO(felixguo): Make this configurable?
@@ -114,7 +114,7 @@ ActionManager::ActionManager() {
     }
   });
   DECLARE_ACTION(1060, "Select All", ctrl('a'), ACTION_FN {
-    editor->selection_start = std::make_tuple(0, 0);
+    editor->selection_start = LINECOL(0, 0);
     editor->current_line = editor->buffer->size() - 1;
     editor->current_col = editor->buffer->getLineLength(editor->current_line);
   });
@@ -141,8 +141,8 @@ ActionManager::ActionManager() {
     if (editor->selection_start == NO_SELECTION) {
       editor->insertTab(editor->current_line, editor->current_col);
     } else {
-      LineNumber start = std::min(std::get<0>(editor->selection_start), editor->current_line);
-      LineNumber end = std::max(std::get<0>(editor->selection_start), editor->current_line);
+      LineNumber start = std::min(LINE(editor->selection_start), editor->current_line);
+      LineNumber end = std::max(LINE(editor->selection_start), editor->current_line);
       ColNumber zero = 0;
       for (LineNumber i = start; i <= end; i++) {
         editor->insertTab(i, zero);
@@ -158,8 +158,8 @@ ActionManager::ActionManager() {
     if (editor->selection_start == NO_SELECTION) {
       editor->removeTab(editor->current_line, editor->current_col);
     } else {
-      LineNumber start = std::min(std::get<0>(editor->selection_start), editor->current_line);
-      LineNumber end = std::max(std::get<0>(editor->selection_start), editor->current_line);
+      LineNumber start = std::min(LINE(editor->selection_start), editor->current_line);
+      LineNumber end = std::max(LINE(editor->selection_start), editor->current_line);
       ColNumber zero = 0;
       for (LineNumber i = start; i <= end; i++) {
         editor->removeTab(i, zero);

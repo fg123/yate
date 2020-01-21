@@ -22,10 +22,45 @@ class Yate;
 class Editor;
 using LineNumber = std::vector<std::string>::size_type;
 using ColNumber = std::string::size_type;
-using LineCol = std::tuple<LineNumber, ColNumber>;
 
-#define LINE(linecol) std::get<0>(linecol)
-#define COL(linecol) std::get<1>(linecol)
+struct LineCol {
+  LineNumber line;
+  ColNumber col;
+  LineCol() : LineCol(0, 0) {}
+  LineCol(LineNumber line, ColNumber col)
+    : line(line), col(col) {}
+  inline bool operator ==(const LineCol &b) const {
+    return line == b.line && col == b.col;
+  }
+  inline bool operator !=(const LineCol &b) const {
+    return !(*this == b);
+  }
+  inline bool operator <(const LineCol &b) const {
+    if (line < b.line) return true;
+    else if (line == b.line) return col < b.col;
+    return false;
+  }
+  inline bool operator <=(const LineCol &b) const {
+    if (line < b.line) return true;
+    else if (line == b.line) return col <= b.col;
+    return false;
+  }
+  inline bool operator >(const LineCol &b) const {
+    return !(*this <= b);
+  }
+  inline bool operator >=(const LineCol &b) const {
+    return !(*this < b);
+  }
+};
+// using LineCol = std::tuple<LineNumber, ColNumber>;
+
+// #define LINE(linecol) std::get<0>(linecol)
+// #define COL(linecol) std::get<1>(linecol)
+// #define LINECOL(line, col) std::make_tuple(line, col)
+
+#define LINE(linecol) linecol.line
+#define COL(linecol) linecol.col
+#define LINECOL(line, col) LineCol(line, col)
 
 struct EditNode {
   EditNode() {}
