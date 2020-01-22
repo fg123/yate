@@ -261,7 +261,7 @@ void Editor::goToLineCol(LineNumber l, ColNumber c,
 }
 
 void Editor::insertTab(LineNumber& line, ColNumber& col) {
-  if (yate.config.getIndentationStyle() == YateConfig::IndentationStyle::TAB) {
+  if (yate.config.getIndentationStyle() == IndentationStyle::TAB) {
     buffer->insertCharacter('\t', line, col);
   } else {
     for (int i = 0; i < yate.config.getTabSize(); i++) {
@@ -273,7 +273,7 @@ void Editor::insertTab(LineNumber& line, ColNumber& col) {
 void Editor::removeTab(LineNumber& line, ColNumber& col) {
   std::string& _line = buffer->getLine(line);
   ColNumber zero = 0;
-  if (yate.config.getIndentationStyle() == YateConfig::IndentationStyle::TAB) {
+  if (yate.config.getIndentationStyle() == IndentationStyle::TAB) {
     if (_line.size() > 0 && _line[0] == '\t') {
       buffer->_delete(line, zero);
     }

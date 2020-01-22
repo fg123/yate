@@ -4,7 +4,7 @@ SRC = $(shell find src/ -name "*.cc") src/syntax-lookup.cc
 OBJ = $(SRC:%.cc=%.o)
 HEADERS = $(shell find src/ -name "*.h")
 CPPFLAGS += -I $(SRC_DIR) -I $(SRC_DIR)/prompts
-CFLAGS += -g -std=c++11 -Wall -fmax-errors=5 -O2
+CFLAGS += -g -std=c++11 -Wall -fmax-errors=5
 LDLIBS = -L/usr/lib -lncurses -lstdc++fs -ltinfo
 
 all: main

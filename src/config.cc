@@ -4,6 +4,10 @@
 #include "generic-theme.h"
 
 static Theme *theme = nullptr;
+std::unordered_map<IndentationStyle, std::string> IndentationStyleString = {
+  { IndentationStyle::TAB, "TAB" },
+  { IndentationStyle::SPACE, "SPACE" }
+};
 
 YateConfig::YateConfig(std::string path) {
   try {
@@ -27,17 +31,17 @@ YateConfig::~YateConfig() {
 Theme *YateConfig::getTheme() const { return theme; }
 
 void YateConfig::initializeAll() {
-  #define DEFINE_LIST(key, type) get##key();
-  #define DEFINE_ENUM(key, type, default) get##key();
-  #define DEFINE_OPTION(key, type, default) get##key();
-  #include "config_def.h"
-  #undef DEFINE_LIST
+  #undef DEFINE_TYPE
   #undef DEFINE_ENUM
-  #undef DEFINE_OPTION
+  #undef DEFINE_LIST
+  #define DEFINE_TYPE(key, type, default) get##key();
+  #define DEFINE_ENUM(key, default) get##key();
+  #define DEFINE_LIST(key, type) get##key();
+  #include "config_def.h"
 }
 
 std::ostream &operator<<(std::ostream &output,
-                         YateConfig::IndentationStyle style) {
-  output << ((style == YateConfig::IndentationStyle::TAB) ? "Tabs" : "Spaces");
+                         IndentationStyle style) {
+  output << ((style == IndentationStyle::TAB) ? "Tabs" : "Spaces");
   return output;
 }

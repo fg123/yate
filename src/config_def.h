@@ -1,4 +1,5 @@
-DEFINE_ENUM(IndentationStyle, IndentationStyle, IndentationStyle::TAB)
-DEFINE_OPTION(TrimTrailingWhitespace, bool, true)
-DEFINE_OPTION(TabSize, int, 4)
+DEFINE_ENUM(IndentationStyle, IndentationStyle::TAB)
+DEFINE_BOOL(TrimTrailingWhitespace, true)
+DEFINE_INT(TabSize, 4)
 DEFINE_LIST(ColumnMarkers, int64_t)
+// DEFINE_STRING()

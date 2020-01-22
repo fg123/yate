@@ -143,12 +143,12 @@ void Yate::determineConfigFromBuffer(Buffer *buffer) {
                 << std::get<1>(second_largest_pair) << ")" << std::endl;
   if (std::get<0>(largest_pair) == -1) {
     Logging::info << "Tabs detected as most frequent starter." << std::endl;
-    config.setIndentationStyle(YateConfig::IndentationStyle::TAB);
+    config.setIndentationStyle(IndentationStyle::TAB);
   } else {
     Logging::info
         << "Spaces detected as most frequent. Finding GCD of two largest."
         << std::endl;
-    config.setIndentationStyle(YateConfig::IndentationStyle::SPACE);
+    config.setIndentationStyle(IndentationStyle::SPACE);
     int first = std::get<0>(largest_pair);
     int second = std::get<0>(second_largest_pair);
     if (first > 0 && second > 0) {

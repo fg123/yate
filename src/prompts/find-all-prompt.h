@@ -20,6 +20,9 @@ class FindAllPromptWindow : public PromptWindow {
         total_size += buffer->size();
         limits_map.push_back(total_size);
         index_map.insert(index_map.end(), buffer->size(), i);
+      } else {
+        limits_map.push_back(total_size);
+        index_map.insert(index_map.end(), 0, i);
       }
     }
   }
