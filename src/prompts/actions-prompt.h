@@ -10,7 +10,9 @@
 class ActionsPromptWindow : public PromptWindow {
   const std::string title = "Manage Actions / Keyboard Shortcuts:";
 
-  std::vector<Action>& actions;
+  std::vector<Action*>& actions;
+
+  Action* editing_action = nullptr;
 
  public:
   ActionsPromptWindow(Yate& yate)
@@ -25,12 +27,28 @@ class ActionsPromptWindow : public PromptWindow {
   }
 
   const std::string getItemString(size_t index) override {
-    return actions[index].displayString;
+    if (actions[index] == editing_action)
+      return actions[index]->pendingDisplayString;
+    return actions[index]->displayString;
   }
 
   void onExecute(size_t index) override {
-    // TODO: implement action changer
-    yate.exitPrompt();
+    editing_action = actions[index];
+  }
+
+  void onKeyPress(int key) override {
+    if (editing_action) {
+      switch (key) {
+        case KEY_ESC:
+          break;
+        default:
+          // TODO: check replacement
+          ActionManager::get().changeActionKey(editing_action, key);
+      }
+      editing_action = nullptr;
+      return;
+    }
+    PromptWindow::onKeyPress(key);
   }
 
   const size_t getListSize() { return actions.size(); }

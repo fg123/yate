@@ -4,9 +4,10 @@
 #include "generic-theme.h"
 
 static Theme *theme = nullptr;
-std::unordered_map<IndentationStyle, std::string> IndentationStyleString = {
-  { IndentationStyle::TAB, "TAB" },
-  { IndentationStyle::SPACE, "SPACE" }
+std::unordered_map<IndentationStyle, std::string, EnumClassHash>
+  IndentationStyleString = {
+    { IndentationStyle::TAB, "TAB" },
+    { IndentationStyle::SPACE, "SPACE" }
 };
 
 YateConfig::YateConfig(std::string path) {

@@ -10,11 +10,11 @@
 
 CommandPromptWindow::CommandPromptWindow(Yate &yate, Editor *editor)
     : PromptWindow(yate), editor(editor) {
-  std::vector<Action>& actions = ActionManager::get().actions;
+  auto& actions = ActionManager::get().actions;
 
   for (size_t i = 1; i < actions.size(); i++) {
     auto action = actions[i];
-    items.emplace_back(action.getGroup() + ": " + action.name);
+    items.emplace_back(action->getGroup() + ": " + action->name);
   }
 
   if (DEBUG) {

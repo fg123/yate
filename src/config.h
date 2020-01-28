@@ -7,6 +7,7 @@
 
 #include "cpptoml.h"
 #include "theme.h"
+#include "util.h"
 
 #define DEFINE_TYPE(key, type, default) \
   bool _##key##_initialized = false; \
@@ -64,7 +65,7 @@
   }
 
 enum class IndentationStyle { TAB, SPACE };
-extern std::unordered_map<IndentationStyle, std::string> IndentationStyleString;
+extern std::unordered_map<IndentationStyle, std::string, EnumClassHash> IndentationStyleString;
 
 class YateConfig {
   std::shared_ptr<cpptoml::table> internal_config;

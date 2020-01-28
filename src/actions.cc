@@ -17,7 +17,7 @@
 #include "actions-prompt.h"
 #include "log-pane.h"
 
-#define DECLARE_ACTION(...) addAction(Action(__VA_ARGS__))
+#define DECLARE_ACTION(...) addAction(new Action(__VA_ARGS__))
 
 #define DECLARE_GROUP(name, from, to) if (from <= id && id < to) return name;
 

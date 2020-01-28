@@ -12,6 +12,15 @@
 #include "buffer.h" // for ColNumber
 // Some utility functions / macros
 
+/* TODO(felixguo): find cross terminal for this */
+/* https://gist.github.com/rkumar/1237091 */
+#define KEY_SUP 337
+#define KEY_SDOWN 336
+
+#define KEY_CLEFT 553
+#define KEY_CRIGHT 568
+#define KEY_ESC 27
+
 // Mask for ncurses getch keys
 #define ctrl(x) ((x) & 0b00011111)
 
@@ -102,5 +111,14 @@ inline bool startsWithWordBoundary(const std::string& needle, const R& haystack)
 inline bool isIdentifierChar(char c) {
   return std::isalpha(c) || c == '_';
 }
+
+struct EnumClassHash
+{
+    template <typename T>
+    std::size_t operator()(T t) const
+    {
+        return static_cast<std::size_t>(t);
+    }
+};
 
 #endif

@@ -13,15 +13,6 @@
 #include "tags-prompt.h"
 #include "util.h"
 
-/* TODO(felixguo): find cross terminal for this */
-/* https://gist.github.com/rkumar/1237091 */
-#define KEY_SUP 337
-#define KEY_SDOWN 336
-
-#define KEY_CLEFT 553
-#define KEY_CRIGHT 568
-#define KEY_ESC 27
-
 void Editor::init() {
   current_node = nullptr;
   buffer->registerEditor(this);

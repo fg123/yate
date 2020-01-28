@@ -35,7 +35,7 @@ class CommandPromptWindow : public PromptWindow {
     Yate& s_yate = yate;
     Editor* s_editor = editor;
     yate.exitPromptThenRun([&s_yate, s_editor, index] () mutable {
-      ActionManager::get().actions[index].fn(s_yate, s_editor);
+      ActionManager::get().actions[index]->fn(s_yate, s_editor);
     });
   }
 
