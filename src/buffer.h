@@ -173,6 +173,7 @@ class Buffer {
   size_t getLineNumberFieldWidth();
   void registerEditor(Editor *editor);
   void unregisterEditor(Editor *editor);
+  void drawAllVisible();
   void updateTitle();
   void setHasUnsavedChanges(bool hasUnsavedChanges);
   void insertCharacter(char character, LineNumber &line, ColNumber &col);

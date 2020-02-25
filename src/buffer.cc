@@ -219,6 +219,14 @@ void Buffer::unregisterEditor(Editor* editor) {
       registered_editors.end());
 }
 
+void Buffer::drawAllVisible() {
+  for (auto editor : registered_editors) {
+    if (editor->isVisible()) {
+      editor->draw();
+    }
+  }
+}
+
 void Buffer::setHasUnsavedChanges(bool hasUnsavedChanges) {
   if (has_unsaved_changes != hasUnsavedChanges) {
     has_unsaved_changes = hasUnsavedChanges;

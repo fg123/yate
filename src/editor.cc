@@ -209,7 +209,7 @@ void Editor::draw() {
 int Editor::capture() {
   // capture at correct location
   curs_set(0);
-  draw();
+  buffer->drawAllVisible();
   int line_number_width = buffer->getLineNumberFieldWidth() + 2;
   int col = getActualColPosition();
   curs_set(1);
