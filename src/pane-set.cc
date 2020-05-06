@@ -189,9 +189,11 @@ void PaneSet::verticalSplit(Pane *child) {
     return;
   }
   child->resize(child->x, child->y, full / 2, child->height);
-  addPane(new Editor(yate, this,
+  Editor* pane = new Editor(yate, this,
                      child->x + child->width, child->y, full - child->width,
-                     child->height));
+                     child->height);
+  addPane(pane);
+  pane->focusRequested(pane);
 }
 
 void PaneSet::horizontalSplit(Pane *child) {
@@ -200,9 +202,11 @@ void PaneSet::horizontalSplit(Pane *child) {
     return;
   }
   child->resize(child->x, child->y, child->width, full / 2);
-  addPane(new Editor(yate, this, child->x,
+  Editor* pane = new Editor(yate, this, child->x,
                      child->y + child->height, child->width,
-                     full - child->height));
+                     full - child->height);
+  addPane(pane);
+  pane->focusRequested(pane);
 }
 
 void PaneSet::addPane(Pane *pane) {
