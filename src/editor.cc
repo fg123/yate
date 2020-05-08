@@ -341,12 +341,23 @@ void Editor::onKeyPress(int key) {
         // Delete selection if we type during selection
         deleteSelection();
       }
+      std::string& prev_line = buffer->getLine(current_line);
+      ColNumber last_char = prev_line.find_last_not_of(" \t");
+      bool extra_tab = false;
+      if (last_char != std::string::npos && (
+            prev_line[last_char] == '[' ||
+            prev_line[last_char] == '(' ||
+            prev_line[last_char] == '{')) {
+        extra_tab = true;
+      }
       buffer->insertCharacter('\n', current_line, current_col);
       if (!buffer->isInPasteMode) {
-        std::string& prev_line = buffer->getLine(current_line - 1);
         ColNumber end = prev_line.find_first_not_of(" \t");
         for (ColNumber i = 0; i < std::min(end, prev_line.size()); i++) {
           buffer->insertCharacter(prev_line[i], current_line, current_col);
+        }
+        if (extra_tab) {
+          insertTab(current_line, current_col);
         }
       }
       break;
