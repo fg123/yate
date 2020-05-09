@@ -5,6 +5,7 @@
 #include <functional>
 #include <string>
 #include <vector>
+#include <deque>
 
 #include "config.h"
 #include "focusable.h"
@@ -28,6 +29,8 @@ class Yate {
 
   void refreshAndStartCapture();
   void draw();
+
+  std::deque<std::function<void()>> queuedCalls;
 
  public:
   YateConfig config;
@@ -57,6 +60,8 @@ class Yate {
   void quit();
   void exitPrompt();
   void exitPromptThenRun(std::function<void()> function);
+
+  void queueNextTick(std::function<void()> function);
 
   void moveEditorToFront(Editor *editor);
 };

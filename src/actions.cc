@@ -131,6 +131,15 @@ ActionManager::ActionManager() {
   DECLARE_ACTION(1080, "Find All", ctrl('d'), ACTION_FN {
     yate.enterPrompt(new FindAllPromptWindow(yate));
   });
+  DECLARE_ACTION(1081, "Previous Find", ctrl('['), ACTION_FN {
+    yate.enterPrompt(new FindPromptWindow(yate, editor,
+      FindPromptWindow::Direction::Previous));
+  });
+  DECLARE_ACTION(1082, "Next Find", ctrl(']'), ACTION_FN {
+    yate.enterPrompt(new FindPromptWindow(yate, editor,
+      FindPromptWindow::Direction::Next));
+  });
+
   DECLARE_ACTION(1090, "Choose Syntax", NO_KEY, ACTION_FN {
     yate.enterPrompt(new SyntaxPromptWindow(yate, editor));
   });

@@ -22,6 +22,7 @@ class PromptWindow : public Pane, public Focusable {
     }
     return result;
   }
+
   int highlighted_index = 0;
 
   Yate& yate;
@@ -89,12 +90,7 @@ class PromptWindow : public Pane, public Focusable {
     }
   }
 
-  void draw() override {
-    wmove(internal_window, 1, 1);
-    wclrtoeol(internal_window);
-    mvwprintw(internal_window, 1, 1, prompt_buffer.c_str());
-
-    std::vector<size_t> matched_items = get_matching_items();
+  void limitHighlightedIndex(std::vector<size_t>& matched_items) {
     if (highlighted_index >= 0 &&
         (unsigned int)highlighted_index >= matched_items.size()) {
       highlighted_index = matched_items.size() - 1;
@@ -103,6 +99,15 @@ class PromptWindow : public Pane, public Focusable {
     if (highlighted_index < 0 && !matched_items.empty()) {
       highlighted_index = 0;
     }
+  }
+
+  void draw() override {
+    wmove(internal_window, 1, 1);
+    wclrtoeol(internal_window);
+    mvwprintw(internal_window, 1, 1, prompt_buffer.c_str());
+
+    std::vector<size_t> matched_items = get_matching_items();
+    limitHighlightedIndex(matched_items);
 
     auto sub_height = height - 4;
     int start = highlighted_index - sub_height / 2;

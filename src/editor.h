@@ -63,7 +63,10 @@ protected:
   bool isReadonly = false;
 
  public:
-   Editor(Yate &yate, Pane *parent, int x, int y, int width,
+  std::string lastSearch = "";
+  size_t lastSearchIndex = 0;
+
+  Editor(Yate &yate, Pane *parent, int x, int y, int width,
          int height)
       : Pane(parent, x, y, width, height), yate(yate), buffer(yate.getBuffer("Untitled")) {
     init();

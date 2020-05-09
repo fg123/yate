@@ -41,7 +41,9 @@ std::string Editor::generateStatusBar() {
          << "C " << window_start_line << "SL " << window_start_col << "SC "
          << yate.config.getIndentationStyle() << ": "
          << yate.config.getTabSize() << " (" << buffer->getFileName() << ":"
-         << current_word << (is_at_end_of_word ? ">" : "") << ")";
+         << current_word << (is_at_end_of_word ? ">" : "") << ")"
+         << " Search: [" << lastSearch << "]";
+
   return output.str();
 }
 

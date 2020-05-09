@@ -27,6 +27,10 @@ void Yate::refreshAndStartCapture() {
 
   while (true) {
     if (should_quit) break;
+    while (!queuedCalls.empty()) {
+      queuedCalls.front()();
+      queuedCalls.pop_front();
+    }
     int result = getCurrentFocus()->capture();
     if (result != ERR) {
       /* Some ncurses capture error */
@@ -245,4 +249,8 @@ void Yate::exitPrompt() {
   delete p;
   prompt_stack.pop_back();
   draw();
+}
+
+void Yate::queueNextTick(std::function<void()> function) {
+  queuedCalls.push_back(function);
 }
