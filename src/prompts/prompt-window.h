@@ -53,6 +53,7 @@ class PromptWindow : public Pane, public Focusable {
   }
 
   void onKeyPress(int key) override {
+    std::vector<size_t> matched_items = get_matching_items();
     switch (key) {
       case KEY_BACKSPACE:
       case 127:
@@ -68,7 +69,11 @@ class PromptWindow : public Pane, public Focusable {
         }
         break;
       case KEY_DOWN:
-        highlighted_index++;
+        if ((size_t) highlighted_index < matched_items.size() - 1) {
+          highlighted_index++;
+        } else {
+          highlighted_index = 0;
+        }
         break;
       case 27:  // Escape
         yate.exitPrompt();
@@ -78,7 +83,6 @@ class PromptWindow : public Pane, public Focusable {
       case 13:
         if (highlighted_index >= 0) {
           /* Calculate actual hovered item */
-          std::vector<size_t> matched_items = get_matching_items();
           onExecute(matched_items.at(highlighted_index));
         } else if (!this->onEmptyExecute()) {
           yate.exitPrompt();
