@@ -10,6 +10,7 @@
 #include "tags-prompt.h"
 #include "resize-prompt.h"
 #include "buffer-select-prompt.h"
+#include "prefix-trie-prompt.h"
 #include "config-prompt.h"
 #include "history-prompt.h"
 #include "quit-prompt.h"
@@ -182,6 +183,10 @@ ActionManager::ActionManager() {
     }
     editor->getBuffer()->clearRevisionLock();
     editor->limitLineCol();
+  });
+
+  DECLARE_ACTION(1999, "View Prefix Trie", ctrl('b'), ACTION_FN {
+    yate.enterPrompt(new PrefixTrieWindow(yate, editor));
   });
 
   DECLARE_ACTION(2000, "Choose Editor", ctrl('p'), ACTION_FN {

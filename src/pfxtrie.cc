@@ -4,7 +4,7 @@
 
 #include <queue>
 
-TrieNode::TrieNode(char val, TrieNode* parent) : val(val) {
+TrieNode::TrieNode(char val, TrieNode* parent) : val(val), parent(parent) {
   for (size_t i = 0; i < UCHAR_MAX; i++) {
     children[i] = nullptr;
   }
@@ -45,7 +45,40 @@ PrefixTrie::~PrefixTrie() { delete root; }
 
 void PrefixTrie::insert(const std::string& word) { insertWordsFromLine(word); }
 
+void PrefixTrie::removeNode(TrieNode* node) {
+  if (node->parent) {
+    node->parent->children[(size_t) node->val] = nullptr;
+    delete node;
+  }
+}
+
+void PrefixTrie::removeWordsFromLine(const std::string& line) {
+  if (!enabled) return;
+  TrieNode* curr = root;
+  for (size_t i = 0; i <= line.size(); i++) {
+    if (!isIdentifierChar(line[i]) || i == line.size()) {
+      // End of word
+      if (curr != root) {
+        Logging::breadcrumb("PFX Remove: " + line);
+        curr->children[0] = (TrieNode*)((size_t)curr->children[0] - 1);
+        if (curr->children[0] == 0) {
+          removeNode(curr);
+        }
+      }
+      curr = root;
+      continue;
+    }
+    if (!curr->children[(size_t)line[i]]) {
+      // Invalid State
+      // curr->children[(size_t)line[i]] = new TrieNode(line[i], curr);
+      return;
+    }
+    curr = curr->children[(size_t)line[i]];
+  }
+}
+
 void PrefixTrie::insertWordsFromLine(const std::string& line) {
+  if (!enabled) return;
   TrieNode* curr = root;
   for (size_t i = 0; i <= line.size(); i++) {
     if (!isIdentifierChar(line[i]) || i == line.size()) {
@@ -54,6 +87,7 @@ void PrefixTrie::insertWordsFromLine(const std::string& line) {
       if (curr != root) {
         // Don't increment for now since we never delete
         //   anything from the prefix trie
+        Logging::breadcrumb("PFX Insert: " + line);
         curr->children[0] = (TrieNode*)((size_t)curr->children[0] + 1);
       }
       curr = root;
@@ -67,14 +101,7 @@ void PrefixTrie::insertWordsFromLine(const std::string& line) {
 }
 
 void PrefixTrie::remove(const std::string& word) {
-  TrieNode* node = getNode(word);
-  if (node) {
-    if (node->children[0] == 0) {
-      // throw "Tried to remove word that had 0 count in pfxtrie: " + word;
-      return;
-    }
-    node->children[0] = (TrieNode*)((size_t)node->children[0] - 1);
-  }
+  removeWordsFromLine(word);
 }
 
 void PrefixTrie::reset() {
@@ -84,7 +111,7 @@ void PrefixTrie::reset() {
 
 size_t PrefixTrie::count(const std::string& word) {
   TrieNode* node = getNode(word);
-  if (node) return (size_t)node->children[0];
+  if (node) return (size_t) node->children[0];
   return 0;
 }
 
@@ -99,6 +126,13 @@ TrieNode* PrefixTrie::getNode(const std::string& word) {
     i++;
   }
   return curr == root ? nullptr : curr;
+}
+
+std::vector<std::string> PrefixTrie::getAllEntries() {
+  if (root) {
+    return root->getSuffixes();
+  }
+  return std::vector<std::string>();
 }
 
 std::vector<std::string> PrefixTrie::getMatchingPrefixes(

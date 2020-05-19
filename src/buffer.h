@@ -160,6 +160,10 @@ class Buffer {
   void setRevisionLock();
   void clearRevisionLock();
 
+  void setPfxTrieEnabled(bool enabled) {
+    prefix_trie.setEnabled(enabled);
+  }
+
   void highlight(LineNumber from = 0, LineNumber to = 0);
   std::string getSyntax() const;
   void setSyntax(std::string syntax);

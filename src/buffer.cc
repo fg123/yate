@@ -131,6 +131,7 @@ void Buffer::do_revert() {
   internal_buffer.clear();
   syntax_components.clear();
   syntax_has_multiline.clear();
+  prefix_trie.reset();
   std::ifstream file(path);
   if (file.good()) {
     std::string line;
@@ -139,6 +140,7 @@ void Buffer::do_revert() {
       syntax_components.emplace_back(
           line.size(), SyntaxHighlighting::Component::NO_HIGHLIGHT);
       syntax_has_multiline.push_back(false);
+      prefix_trie.insertWordsFromLine(line);
     }
   } else {
     internal_buffer.emplace_back();
@@ -244,10 +246,17 @@ bool Buffer::insert_no_history(int character, LineNumber& line,
       syntax_components.insert(syntax_components.begin() + (line + 1), "");
       syntax_has_multiline.insert(syntax_has_multiline.begin() + (line + 1),
                                   false);
-    } else {
+    }
+    else {
+      // Splitting a word:
+      prefix_trie.remove(getWordAt(line, col));
+
       internal_buffer.insert(internal_buffer.begin() + line + 1,
                              internal_buffer[line].substr(col));
       internal_buffer[line].erase(col);
+
+      prefix_trie.insert(getWordAt(line, internal_buffer[line].length()));
+      prefix_trie.insert(getWordAt(line + 1, 0));
 
       syntax_components.insert(syntax_components.begin() + (line + 1),
                                syntax_components[line].substr(col));
@@ -323,8 +332,9 @@ char Buffer::delete_no_history(LineNumber& line, ColNumber& col) {
   if (line < 0 || line >= size()) return 0;
   if (col < 0) return 0;
   if (col == internal_buffer[line].length() &&
-      line == internal_buffer.size() - 1)
+      line == internal_buffer.size() - 1) {
     return 0;
+  }
   char deleted_char;
   if (col == internal_buffer[line].length()) {
     // Join two lines
@@ -407,23 +417,33 @@ void Buffer::backspace(LineNumber& line, ColNumber& col) {
   if (col < 0) return;
   if (!col && !line) return;
   char deleted_char;
+
   if (col == 0) {
     // Join two lines
+    std::string left = getWordAt(line - 1, col);
+    std::string right = getWordAt(line, 0);
+
     col = internal_buffer[line - 1].length();
     internal_buffer[line - 1] += internal_buffer[line];
     syntax_components[line - 1] += syntax_components[line];
+
     internal_buffer.erase(internal_buffer.begin() + line,
                           internal_buffer.begin() + line + 1);
     syntax_components.erase(syntax_components.begin() + line,
                             syntax_components.begin() + line + 1);
     deleted_char = '\n';
     line -= 1;
+    prefix_trie.remove(left);
+    prefix_trie.remove(right);
   } else {
     deleted_char = internal_buffer.at(line).at(col - 1);
+    prefix_trie.remove(getWordAt(line, col - 1));
     internal_buffer[line].erase(col - 1, 1);
     syntax_components[line].erase(col - 1, 1);
     col -= 1;
+
   }
+  prefix_trie.insert(getWordAt(line, col));
   create_edit_for(EditNode::Type::DELETE_BS, std::string(1, deleted_char), line,
                   col);
   update_unsaved_marker();
@@ -475,12 +495,19 @@ void Buffer::deleteRange(LineCol from, LineCol to) {
 
   if (from_line == to_line) {
     /* Simple same-line delete */
+    prefix_trie.removeWordsFromLine(internal_buffer.at(from_line));
     internal_buffer.at(from_line).erase(from_col, to_col - from_col + 1);
+    prefix_trie.insertWordsFromLine(internal_buffer.at(from_line));
     syntax_components.at(from_line).erase(from_col, to_col - from_col + 1);
+
     goto finish;
   }
 
   /* Delete lines, but we leave the first and the last line */
+  for (LineNumber i = from_line + 1; i < to_line; i++) {
+    prefix_trie.removeWordsFromLine(internal_buffer.at(i));
+  }
+
   internal_buffer.erase(internal_buffer.begin() + from_line + 1,
                         internal_buffer.begin() + to_line);
   syntax_components.erase(syntax_components.begin() + from_line + 1,
@@ -490,9 +517,13 @@ void Buffer::deleteRange(LineCol from, LineCol to) {
   to_line = from_line + 1;
 
   /* Now we handle deletions on the first and last line */
+  prefix_trie.removeWordsFromLine(internal_buffer.at(from_line));
+  prefix_trie.removeWordsFromLine(internal_buffer.at(to_line));
   internal_buffer.at(from_line).erase(from_col);
   internal_buffer.at(to_line).erase(0, to_col);
   internal_buffer.at(from_line) += internal_buffer.at(to_line);
+
+  prefix_trie.insertWordsFromLine(internal_buffer.at(from_line));
 
   syntax_components.at(from_line).erase(from_col);
   syntax_components.at(to_line).erase(0, to_col);

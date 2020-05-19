@@ -352,9 +352,9 @@ void Editor::onKeyPress(int key) {
             prev_line[last_char] == '{')) {
         extra_tab = true;
       }
+      ColNumber end = prev_line.find_first_not_of(" \t");
       buffer->insertCharacter('\n', current_line, current_col);
       if (!buffer->isInPasteMode) {
-        ColNumber end = prev_line.find_first_not_of(" \t");
         for (ColNumber i = 0; i < std::min(end, prev_line.size()); i++) {
           buffer->insertCharacter(prev_line[i], current_line, current_col);
         }

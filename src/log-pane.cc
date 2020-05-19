@@ -4,6 +4,7 @@
 void LogPane::init() {
   Logging::addListener(this);
   getBuffer()->setSyntax("none");
+  getBuffer()->setPfxTrieEnabled(false);
 }
 
 LogPane::~LogPane() {
