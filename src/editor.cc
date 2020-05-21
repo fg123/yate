@@ -1,9 +1,11 @@
+#include "editor.h"
+
 #include <ncurses.h>
+
 #include <algorithm>
 #include <iterator>
 
 #include "command-prompt.h"
-#include "editor.h"
 #include "filesystem-prompt.h"
 #include "find-all-prompt.h"
 #include "find-prompt.h"
@@ -87,8 +89,7 @@ bool Editor::inSelection(LineNumber line, ColNumber col) {
     if (line_content[i] == '\t') tab_count += 1;
   }
   LineCol modified_selection_start = selection_start;
-  COL(modified_selection_start) +=
-      tab_count * (yate.config.getTabSize() - 1);
+  COL(modified_selection_start) += tab_count * (yate.config.getTabSize() - 1);
   LineCol location = LINECOL(line, col);
   LineCol cursor = LINECOL(current_line, getActualColPosition());
   LineCol from = std::min(cursor, modified_selection_start);
@@ -110,6 +111,7 @@ ColNumber Editor::getActualColPosition() {
 
 // TODO(felixguo): Handle line wrapping?
 void Editor::draw() {
+  limitLineCol();
   unsigned int i = 0;
   int field_width = buffer->getLineNumberFieldWidth() + 1;
 
@@ -164,7 +166,8 @@ void Editor::draw() {
                       ? A_REVERSE
                       : A_NORMAL;
       int highlight = syntax.at(j);
-      auto syntax_color = yate.config.getTheme()->map((SyntaxHighlighting::Component) highlight);
+      auto syntax_color =
+          yate.config.getTheme()->map((SyntaxHighlighting::Component)highlight);
 
       if (yate.should_highlight) wattron(internal_window, syntax_color);
       mvwaddch(internal_window, i, field_width + 1 + j, line.at(j) | flag);
@@ -172,8 +175,10 @@ void Editor::draw() {
     }
 
     for (int m : markers) {
-      chtype ch = mvwinch(internal_window, i, field_width + 1 + m - window_start_col);
-      mvwaddch(internal_window, i, field_width + 1 + m - window_start_col, ch | A_DIM | A_REVERSE);
+      chtype ch =
+          mvwinch(internal_window, i, field_width + 1 + m - window_start_col);
+      mvwaddch(internal_window, i, field_width + 1 + m - window_start_col,
+               ch | A_DIM | A_REVERSE);
     }
     i += 1;
   }
@@ -346,10 +351,9 @@ void Editor::onKeyPress(int key) {
       std::string& prev_line = buffer->getLine(current_line);
       ColNumber last_char = prev_line.find_last_not_of(" \t");
       bool extra_tab = false;
-      if (last_char != std::string::npos && (
-            prev_line[last_char] == '[' ||
-            prev_line[last_char] == '(' ||
-            prev_line[last_char] == '{')) {
+      if (last_char != std::string::npos &&
+          (prev_line[last_char] == '[' || prev_line[last_char] == '(' ||
+           prev_line[last_char] == '{')) {
         extra_tab = true;
       }
       ColNumber end = prev_line.find_first_not_of(" \t");

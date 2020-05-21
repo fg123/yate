@@ -13,23 +13,30 @@ class FindPromptWindow : public PromptWindow {
  public:
   enum class Direction { Previous, Next };
 
-  FindPromptWindow(Yate &yate, Editor *editor) : PromptWindow(yate), editor(editor), buffer(editor->getBuffer()) { }
-  FindPromptWindow(Yate &yate, Editor *editor, const std::string& initial)
-    : FindPromptWindow(yate, editor) { prompt_buffer = initial; }
+  FindPromptWindow(Yate &yate, Editor *editor)
+      : PromptWindow(yate), editor(editor), buffer(editor->getBuffer()) {}
+  FindPromptWindow(Yate &yate, Editor *editor, const std::string &initial)
+      : FindPromptWindow(yate, editor) {
+    prompt_buffer = initial;
+  }
 
   FindPromptWindow(Yate &yate, Editor *editor, Direction dir)
-    : FindPromptWindow(yate, editor, editor->lastSearch) {
+      : FindPromptWindow(yate, editor, editor->lastSearch) {
     if (dir == Direction::Previous) {
       highlighted_index = editor->lastSearchIndex - 1;
-    }
-    else {
+    } else {
       highlighted_index = editor->lastSearchIndex + 1;
     }
 
     yate.queueNextTick([&]() {
       std::vector<size_t> matched_items = get_matching_items();
       limitHighlightedIndex(matched_items);
-      onExecute(matched_items.at(highlighted_index));
+      if (highlighted_index >= 0 &&
+          (size_t)highlighted_index < matched_items.size()) {
+        onExecute(matched_items.at(highlighted_index));
+      } else {
+        yate.exitPrompt();
+      }
     });
   }
 
@@ -43,8 +50,8 @@ class FindPromptWindow : public PromptWindow {
     int width = buffer->getLineNumberFieldWidth();
     std::string istring = std::to_string(index);
 
-    return std::string(width - istring.size(), ' ') + istring + ": "
-      + buffer->getLine(index);
+    return std::string(width - istring.size(), ' ') + istring + ": " +
+           buffer->getLine(index);
   }
 
   const std::string getSyntaxHighlight(size_t index) {
