@@ -17,6 +17,8 @@ int usage() {
             << std::endl
             << "  [--no-highlight]             disables syntax highlighting"
             << std::endl
+            << "  [--init]                     initializes a workspace"
+            << std::endl
             << "  [-d|--debug]                 runs yate in debug mode"
             << std::endl
             << "  [-h|--help]                  show this message" << std::endl;
