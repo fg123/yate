@@ -21,6 +21,8 @@ class EditorNavigateProvider;
 class Yate {
   std::vector<PromptWindow *> prompt_stack;
 
+  std::vector<PromptWindow *> delete_queue;
+
   Focusable *getCurrentFocus();
   bool should_quit = false;
   bool should_save_to_state = false;

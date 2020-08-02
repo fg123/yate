@@ -228,6 +228,10 @@ void Yate::onCapture(int result) {
   } else {
     getCurrentFocus()->onKeyPress(result);
   }
+  for (unsigned int i = 0; i < delete_queue.size(); i++) {
+    delete delete_queue[i];
+  }
+  delete_queue.clear();
 }
 
 void Yate::registerEditor(Editor *editor) { editors.push_back(editor); }
@@ -246,7 +250,7 @@ void Yate::exitPromptThenRun(std::function<void()> function) {
 
 void Yate::exitPrompt() {
   PromptWindow *p = prompt_stack.back();
-  delete p;
+  delete_queue.push_back(p);
   prompt_stack.pop_back();
   draw();
 }
