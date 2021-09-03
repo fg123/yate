@@ -156,7 +156,7 @@ void Yate::determineConfigFromBuffer(Buffer *buffer) {
     int first = std::get<0>(largest_pair);
     int second = std::get<0>(second_largest_pair);
     if (first > 0 && second > 0) {
-      config.setTabSize(std::__gcd(first, second));
+      config.setTabSize(gcd(first, second));
     } else {
       config.setTabSize(first);
     }
