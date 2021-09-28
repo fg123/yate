@@ -23,7 +23,7 @@ TrieNode::~TrieNode() {
 
 std::vector<std::string> TrieNode::getSuffixes() {
   std::vector<std::string> results;
-  if (children[0] > 0) {
+  if (children[0]) {
     results.emplace_back(1, val);
   }
   for (size_t i = 1; i < UCHAR_MAX; i++) {
@@ -59,7 +59,7 @@ void PrefixTrie::removeWordsFromLine(const std::string& line) {
     if (!isIdentifierChar(line[i]) || i == line.size()) {
       // End of word
       if (curr != root) {
-        Logging::breadcrumb("PFX Remove: " + line);
+        // Logging::breadcrumb("PFX Remove: " + line);
         curr->children[0] = (TrieNode*)((size_t)curr->children[0] - 1);
         if (curr->children[0] == 0) {
           removeNode(curr);
@@ -87,7 +87,7 @@ void PrefixTrie::insertWordsFromLine(const std::string& line) {
       if (curr != root) {
         // Don't increment for now since we never delete
         //   anything from the prefix trie
-        Logging::breadcrumb("PFX Insert: " + line);
+        // Logging::breadcrumb("PFX Insert: " + line);
         curr->children[0] = (TrieNode*)((size_t)curr->children[0] + 1);
       }
       curr = root;

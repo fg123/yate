@@ -12,6 +12,7 @@
 #include "logging.h"
 #include "theme.h"
 #include "actions.h"
+#include "filesystem-indexer.h"
 
 class PaneSet;
 class Buffer;
@@ -35,6 +36,8 @@ class Yate {
   std::deque<std::function<void()>> queuedCalls;
 
  public:
+  // FilesystemIndexer filesystemIndexer;
+
   YateConfig config;
   PaneSet *root;
   bool should_highlight;

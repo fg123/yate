@@ -3,9 +3,9 @@
 
 // Wrapper around OS specific filesystem
 
-#include <experimental/filesystem>
+#include <filesystem>
 
-namespace fs = std::experimental::filesystem;
+namespace fs = std::filesystem;
 
 class Directory {
   std::string path;

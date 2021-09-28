@@ -14,7 +14,7 @@ YateConfig::YateConfig(std::string path) {
   try {
     internal_config = cpptoml::parse_file(path);
     wasLoadedFromFile = true;
-  } catch (cpptoml::parse_exception e) {
+  } catch (const cpptoml::parse_exception& e) {
     Logging::error << "Error parsing config TOML!" << std::endl;
     internal_config = cpptoml::make_table();
     wasLoadedFromFile = false;

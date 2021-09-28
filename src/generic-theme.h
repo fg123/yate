@@ -41,7 +41,7 @@ class GenericTheme : public Theme {
     std::shared_ptr<cpptoml::table> config;
     try {
       config = cpptoml::parse_file(path);
-    } catch (cpptoml::parse_exception e) {
+    } catch (const cpptoml::parse_exception& e) {
       config = cpptoml::make_table();
     }
     init_pair(0, -1, -1);
