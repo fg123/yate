@@ -15,13 +15,14 @@ const static size_t FILES_LIMIT = 1000;
 //   that are not opened, this indexes recursively all the files
 //   in a separate thread
 class FilesystemIndexer {
-  std::unordered_set<std::string> files;
-  std::mutex fileSetLock;
 
   bool exitThread = false;
   size_t versionInfo;
   std::thread internalThread;
 public:
+  std::mutex fileSetLock;
+  std::unordered_set<std::string> files;
+
   FilesystemIndexer();
   ~FilesystemIndexer();
 

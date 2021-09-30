@@ -5,18 +5,36 @@
 #include "navigate-window-provider.h"
 #include "yate.h"
 
-class EditorNavigateProvider : public NavigateWindowProvider {
+#include <algorithm>
 
+class EditorNavigateProvider : public NavigateWindowProvider {
   Yate& yate;
 
+  std::vector<std::string> files;
+
  public:
-  EditorNavigateProvider(Yate &yate) : yate(yate) {}
+  EditorNavigateProvider(Yate &yate) : yate(yate) {
+    yate.filesystemIndexer.fileSetLock.lock();
+    files.insert(files.end(), yate.filesystemIndexer.files.begin(),
+      yate.filesystemIndexer.files.end());
+    yate.filesystemIndexer.fileSetLock.unlock();
+  }
 
   virtual ~EditorNavigateProvider() {}
-  size_t getNavigationItemsSize() override { return yate.editors.size(); }
+  size_t getNavigationItemsSize() override {
+    return yate.editors.size() + 1 + files.size();
+  }
 
   std::string getNavigationItem(size_t index) override {
-    return yate.editors.at(index)->getTitle();
+    if (index < yate.editors.size()) {
+      return yate.editors.at(index)->getTitle();
+    }
+    else if (index == yate.editors.size()) {
+      return "====================================";
+    }
+    else {
+      return "==>" + files[(index - yate.editors.size() - 1)];
+    }
   }
 
   // Returns whether or not the navigation prompt is done

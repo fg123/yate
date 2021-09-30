@@ -36,7 +36,7 @@ class Yate {
   std::deque<std::function<void()>> queuedCalls;
 
  public:
-  // FilesystemIndexer filesystemIndexer;
+  FilesystemIndexer filesystemIndexer;
 
   YateConfig config;
   PaneSet *root;
