@@ -30,7 +30,7 @@ class TabSet : public Pane {
   TabSet(Yate &yate, Pane *parent, std::istream &saved_state);
   ~TabSet();
   void addTab(PaneSet *paneset) { tabs.emplace_back(paneset); }
-  void makeNewTab();
+  Editor* makeNewTab();
   void closeTab();
   void closeTab(uint tab);
   void prevTab();

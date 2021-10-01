@@ -24,7 +24,6 @@ class Yate {
 
   std::vector<PromptWindow *> delete_queue;
 
-  Focusable *getCurrentFocus();
   bool should_quit = false;
   bool should_save_to_state = false;
 
@@ -51,6 +50,7 @@ class Yate {
        std::vector<std::string> &paths_to_open);
   ~Yate();
 
+  Focusable *getCurrentFocus();
   void serialize(std::ostream &output);
   void onCapture(int result);
   Buffer *getBuffer(std::string path = "Untitled");

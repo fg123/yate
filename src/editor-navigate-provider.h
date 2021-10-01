@@ -4,6 +4,7 @@
 #include "editor.h"
 #include "navigate-window-provider.h"
 #include "yate.h"
+#include "tab-set.h"
 
 #include <algorithm>
 
@@ -22,25 +23,35 @@ class EditorNavigateProvider : public NavigateWindowProvider {
 
   virtual ~EditorNavigateProvider() {}
   size_t getNavigationItemsSize() override {
-    return yate.editors.size() + 1 + files.size();
+    return yate.editors.size();// + files.size();
   }
 
   std::string getNavigationItem(size_t index) override {
     if (index < yate.editors.size()) {
       return yate.editors.at(index)->getTitle();
     }
-    else if (index == yate.editors.size()) {
-      return "====================================";
-    }
     else {
-      return "==>" + files[(index - yate.editors.size() - 1)];
+      return "> " + files[(index - yate.editors.size())];
     }
   }
 
   // Returns whether or not the navigation prompt is done
   bool onNavigationItemSelected(size_t index, NavigateWindow *parent) override {
-    Editor *editor = yate.editors.at(index);
-    editor->focusRequested(editor);
+    if (index < yate.editors.size()) {
+      Editor *editor = yate.editors.at(index);
+      editor->focusRequested(editor);
+    }
+    else {
+      // Open the new file in a new window
+      // TODO: how to do this well
+      if (Editor* editor = dynamic_cast<Editor*>(yate.getCurrentFocus())) {
+        TabSet* first = editor->findFirstParent<TabSet>();
+        if (first) {
+          Editor* newEditor = first->makeNewTab();
+          newEditor->switchBuffer(yate.getBuffer(files[index - yate.editors.size()]));
+        }
+      }
+    }
     return true;
   }
 };

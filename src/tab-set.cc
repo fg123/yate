@@ -146,7 +146,7 @@ std::string TabSet::getNavigationItem(size_t index) {
   return "Tab " + std::to_string(index);
 }
 
-void TabSet::makeNewTab() {
+Editor* TabSet::makeNewTab() {
   Logging::info << "Make new tab!" << tabs.size() << std::endl;
   PaneSet *pane_s = new PaneSet(yate, this, x, y + 1, width, height - 1);
   Editor *editor = new Editor(yate, pane_s, yate.getBuffer("Untitled"), x,
@@ -155,6 +155,7 @@ void TabSet::makeNewTab() {
   addTab(pane_s);
   selected_tab = tabs.size() - 1;
   draw();
+  return editor;
 }
 
 void TabSet::closeTab() { closeTab(selected_tab); }
