@@ -1,115 +1,115 @@
-paneset 0 0 158 42 1 0
-tabset 0 0 158 42 46 43
-paneset 0 1 158 41 2 1
-editor 0 1 79 41 src/buffer.h 128 0
-editor 79 1 79 41 src/buffer.cc 308 1
-paneset 0 1 158 41 2 1
-editor 0 1 79 41 ./src/config.h 30 6
-editor 79 1 79 41 ./src/config.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/main.cc 9 12
-paneset 0 1 158 41 2 0
-editor 0 1 79 41 ./src/yate.h 38 0
-editor 79 1 79 41 ./src/yate.cc 158 24
-paneset 0 1 158 41 2 0
-editor 0 1 79 41 ./src/prompts/filesystem-prompt.h 33 0
-editor 79 1 79 41 ./src/filesystem.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/prompts/command-prompt.cc 26 0
-paneset 0 1 158 41 2 0
-editor 0 1 79 41 ./src/editor-navigate-provider.h 16 46
-editor 79 1 79 41 ./src/config.cc 16 17
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/config.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/pane-set.cc 0 0
-paneset 0 1 158 41 2 0
-editor 0 1 79 41 ./src/editor.h 128 0
-editor 79 1 79 41 ./src/yate.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/pane.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/generic-theme.h 43 44
-paneset 0 1 158 41 3 0
-editor 0 1 70 41 ./src/prompts/find-prompt.h 67 6
-editor 70 1 89 21 ./src/config.h 0 0
-editor 70 1 88 41 ./themes/solarized.toml 0 0
-paneset 0 1 158 41 2 0
-editor 0 1 79 41 ./src/util.h 140 6
-editor 79 1 79 41 ./src/util.cc 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/prompts/find-all-prompt.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 Untitled 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/prompts/prompt-window.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/syntax/generic.cc 0 0
-paneset 0 1 158 41 2 1
-editor 0 1 79 41 src/buffer.h 0 0
-editor 79 1 79 41 ./src/syntax/bash.cc 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/prompts/syntax-prompt.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./Makefile 8 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./utils/generate-syntax-lookup 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/syntax-lookup.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/syntax-lookup.cc 5 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/syntax/bash.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/syntax-highlighting.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/syntax/generic.h 0 0
-paneset 0 1 158 41 2 1
-editor 0 1 79 41 ./src/pfxtrie.h 9 0
-editor 79 1 79 41 ./src/pfxtrie.cc 91 7
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./utils/bigFile.txt 67 27
-paneset 0 1 158 41 2 1
-editor 0 1 79 41 ./src/logging.cc 0 0
-editor 79 1 79 41 ./src/logging.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/prompts/command-prompt.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/prompts/prompt-window.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/tab-set.cc 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/tab-set.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/prompts/goto-line-prompt.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/syntax-highlighting.cc 0 0
-paneset 0 1 158 41 2 0
-editor 0 1 79 41 ./src/prompts/prompt-window.h 96 0
-editor 79 1 79 41 ./src/prompts/prompt-window.h 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/prompts/find-all-prompt.h 0 0
-paneset 0 1 158 41 2 0
-editor 0 1 79 41 src/buffer.h 0 0
-editor 79 1 79 41 src/buffer.cc 0 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/editor.cc 21 2
-paneset 0 1 158 41 2 1
-editor 0 1 79 41 ./src/actions.h 0 0
-editor 79 1 79 41 ./src/actions.cc 2 1
-paneset 0 1 158 41 3 0
-editor 0 1 70 41 ./src/tab-set.h 55 6
-editor 70 1 88 15 ./src/editor.h 0 0
-editor 70 16 88 26 ./src/pfxtrie.h 35 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/filesystem.h 7 20
-paneset 0 1 158 41 2 1
-editor 0 1 79 41 ./src/filesystem-indexer.h 17 0
-editor 79 1 79 41 ./src/filesystem-indexer.cc 7 0
-paneset 0 1 158 41 1 0
-editor 0 1 158 41 ./src/navigate-window-provider.h 8 0
-paneset 0 1 158 41 3 2
-editor 0 1 81 20 Untitled 0 0
-editor 81 1 77 41 Untitled 0 0
-editor 0 21 81 21 Untitled 0 0
+paneset 0 0 209 51 1 0
+tabset 0 0 209 51 46 10
+paneset 0 1 209 50 2 1
+editor 0 1 105 50 src/buffer.h 128 0
+editor 105 1 104 50 src/buffer.cc 308 1
+paneset 0 1 209 50 2 1
+editor 0 1 105 50 ./src/config.h 30 6
+editor 105 1 104 50 ./src/config.h 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/main.cc 98 1
+paneset 0 1 209 50 2 0
+editor 0 1 105 50 ./src/yate.h 38 0
+editor 105 1 104 50 ./src/yate.cc 98 0
+paneset 0 1 209 50 2 0
+editor 0 1 105 50 ./src/prompts/filesystem-prompt.h 33 0
+editor 105 1 104 50 ./src/filesystem.h 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/prompts/command-prompt.cc 26 0
+paneset 0 1 209 50 2 0
+editor 0 1 105 50 ./src/editor-navigate-provider.h 16 46
+editor 105 1 104 50 ./src/config.cc 16 17
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/config.h 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/pane-set.cc 0 0
+paneset 0 1 209 50 2 0
+editor 0 1 105 50 ./src/editor.h 128 0
+editor 105 1 104 50 ./src/yate.h 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/pane.h 67 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/generic-theme.h 43 44
+paneset 0 1 209 50 3 0
+editor 0 1 92 50 ./src/prompts/find-prompt.h 67 6
+editor 92 1 118 25 ./src/config.h 0 0
+editor 92 1 117 50 ./themes/solarized.toml 0 0
+paneset 0 1 209 50 2 0
+editor 0 1 105 50 ./src/util.h 140 6
+editor 105 1 104 50 ./src/util.cc 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/prompts/find-all-prompt.h 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 Untitled 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/prompts/prompt-window.h 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/syntax/generic.cc 0 0
+paneset 0 1 209 50 2 1
+editor 0 1 105 50 src/buffer.h 0 0
+editor 105 1 104 50 ./src/syntax/bash.cc 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/prompts/syntax-prompt.h 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./Makefile 8 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./utils/generate-syntax-lookup 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/syntax-lookup.h 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/syntax-lookup.cc 5 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/syntax/bash.h 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/syntax-highlighting.h 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/syntax/generic.h 0 0
+paneset 0 1 209 50 2 1
+editor 0 1 105 50 ./src/pfxtrie.h 9 0
+editor 105 1 104 50 ./src/pfxtrie.cc 91 7
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./utils/bigFile.txt 67 27
+paneset 0 1 209 50 2 1
+editor 0 1 105 50 ./src/logging.cc 0 0
+editor 105 1 104 50 ./src/logging.h 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/prompts/command-prompt.h 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/prompts/prompt-window.h 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/tab-set.cc 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/tab-set.h 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/prompts/goto-line-prompt.h 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/syntax-highlighting.cc 0 0
+paneset 0 1 209 50 2 0
+editor 0 1 105 50 ./src/prompts/prompt-window.h 96 0
+editor 105 1 104 50 ./src/prompts/prompt-window.h 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/prompts/find-all-prompt.h 0 0
+paneset 0 1 209 50 2 0
+editor 0 1 105 50 src/buffer.h 0 0
+editor 105 1 104 50 src/buffer.cc 0 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/editor.cc 222 2
+paneset 0 1 209 50 2 1
+editor 0 1 105 50 ./src/actions.h 0 0
+editor 105 1 104 50 ./src/actions.cc 2 1
+paneset 0 1 209 50 3 0
+editor 0 1 92 50 ./src/tab-set.h 55 6
+editor 92 1 117 18 ./src/editor.h 0 0
+editor 92 19 117 32 ./src/pfxtrie.h 35 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/filesystem.h 7 20
+paneset 0 1 209 50 2 1
+editor 0 1 105 50 ./src/filesystem-indexer.h 17 0
+editor 105 1 104 50 ./src/filesystem-indexer.cc 9 0
+paneset 0 1 209 50 1 0
+editor 0 1 209 50 ./src/navigate-window-provider.h 8 0
+paneset 0 1 209 50 3 2
+editor 0 1 108 25 Untitled 0 0
+editor 108 1 101 50 Untitled 0 0
+editor 0 26 108 25 Untitled 0 0
 

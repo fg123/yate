@@ -6,6 +6,8 @@
 #include <iostream>
 #include <map>
 #include <sstream>
+#include <thread>
+#include <chrono>
 
 #include "editor-navigate-provider.h"
 #include "editor.h"
@@ -37,6 +39,7 @@ void Yate::refreshAndStartCapture() {
       onCapture(result);
       Logging::flush();
     }
+    std::this_thread::yield();
   }
 }
 

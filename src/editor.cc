@@ -450,6 +450,15 @@ void Editor::onKeyPress(int key) {
         phantom_col_pos = current_col;
       }
       break;
+    case KEY_NPAGE:
+      current_line += (height - 1);
+      updateColWithPhantom();
+      break;
+    case KEY_PPAGE:
+      if (current_line < (height - 1)) current_line = 0;
+      else current_line -= (height - 1);
+      updateColWithPhantom();
+      break;
     case KEY_SHOME:
     case KEY_HOME: {
       ColNumber desired_col =
